@@ -1,0 +1,2003 @@
+<!DOCTYPE html>
+<html lang="it" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="description" content="TimeFlow: tracciamento ore, clienti, compensi e sincronizzazione Google Calendar. Dati solo sul tuo dispositivo.">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="TimeFlow">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="icon" type="image/png" sizes="64x64" href="./icons/favicon-64.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
+    <title>TimeFlow - Ore, Compensi & Calendar</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            900: '#14532d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
+        html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+        body { min-height: 100dvh; padding-bottom: env(safe-area-inset-bottom); }
+        header.sticky { padding-top: env(safe-area-inset-top); padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
+        main { padding-left: max(0.75rem, env(safe-area-inset-left)); padding-right: max(0.75rem, env(safe-area-inset-right)); }
+        #toast-container { bottom: calc(1rem + env(safe-area-inset-bottom)); z-index: 80; }
+        div[id$="-modal"] > div { max-height: 92dvh; overflow-y: auto; overscroll-behavior: contain; }
+        button, [onclick], summary, select, label { touch-action: manipulation; }
+        details > summary::-webkit-details-marker { display: none; }
+        @media (pointer: coarse) { header button, header label { min-width: 40px; min-height: 40px; } }
+        @media (max-width: 639px) {
+            input, select, textarea { font-size: 16px !important; }
+            div[id$="-modal"]:not(#guide-modal) { align-items: flex-end; padding: 0; }
+            div[id$="-modal"]:not(#guide-modal) > div { border-bottom-left-radius: 0; border-bottom-right-radius: 0; max-width: 100%; padding-bottom: calc(1rem + env(safe-area-inset-bottom)); }
+        }
+        @media (display-mode: standalone) { body { -webkit-user-select: none; user-select: none; } input, textarea, select { -webkit-user-select: text; user-select: text; } }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white !important; color: black !important; padding: 0; }
+            .shadow-sm, .shadow-md, .shadow-2xl { box-shadow: none !important; }
+            .border { border-color: #e2e8f0 !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-full flex flex-col transition-colors duration-200">
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-4 right-4 left-4 sm:left-auto z-50 flex flex-col gap-1.5 pointer-events-none no-print"></div>
+
+    <!-- Navigation Header -->
+    <header class="bg-slate-900 dark:bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30 no-print">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <img src="./icons/icon-96.png" alt="" width="40" height="40" class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl shadow-md shadow-black/30 shrink-0">
+                <div>
+                    <span class="font-bold text-base sm:text-lg tracking-tight text-white leading-tight block">TimeFlow</span>
+                    <span class="text-[10px] sm:text-xs text-slate-400 block -mt-0.5">Ore, Compensi & Calendar</span>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-1.5 sm:space-x-2">
+                <button onclick="toggleDarkMode()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl text-xs sm:text-sm flex items-center justify-center transition-all" aria-label="Cambia tema" title="Cambia Tema">
+                    <i id="theme-icon" class="fa-solid fa-moon"></i>
+                </button>
+
+                <button onclick="handleGoogleAuthClick()" id="btn-google-auth" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-2.5 py-1.5 rounded-lg sm:rounded-xl text-xs font-medium transition-all flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-brands fa-google text-red-400"></i>
+                    <span id="google-auth-status-text" class="hidden sm:inline">Connetti Google</span>
+                    <span id="google-auth-dot" class="w-2 h-2 rounded-full bg-slate-500"></span>
+                </button>
+
+                <button onclick="openConfigModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl text-xs sm:text-sm flex items-center justify-center transition-all" title="Configura Google Client ID">
+                    <i class="fa-solid fa-gear"></i>
+                </button>
+
+                <button id="btn-install" onclick="installApp()" title="Installa l'app" aria-label="Installa l'app" class="hidden bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl text-xs sm:text-sm items-center justify-center transition-all">
+                    <i class="fa-solid fa-circle-down"></i>
+                </button>
+
+                <button onclick="openGuide()" title="Guida utente" aria-label="Guida utente" class="bg-slate-800 hover:bg-slate-700 text-blue-300 border border-slate-700 w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl text-xs sm:text-sm flex items-center justify-center transition-all">
+                    <i class="fa-solid fa-circle-question"></i>
+                </button>
+
+                <button onclick="openClientModal()" class="bg-brand-600 hover:bg-brand-500 text-white px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs font-medium transition-all flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-users"></i>
+                    <span class="hidden sm:inline">Clienti</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-6 space-y-3 sm:space-y-6">
+
+        <!-- GOOGLE CALENDAR BANNER ALERT -->
+        <div id="google-calendar-banner" class="bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60 text-blue-900 dark:text-blue-200 p-2.5 sm:px-4 sm:py-3 rounded-xl sm:rounded-2xl flex flex-row items-center justify-between gap-2 text-xs no-print">
+            <div class="flex items-center gap-2">
+                <i class="fa-brands fa-google text-blue-600 dark:text-blue-400 text-sm sm:text-base shrink-0"></i>
+                <div class="text-[11px] sm:text-xs">
+                    <span class="font-bold">Google Calendar Sync:</span>
+                    <span id="google-banner-text" class="hidden sm:inline"> Configura il Google Client ID per sincronizzare gli eventi in calendario.</span>
+                </div>
+            </div>
+            <button id="google-banner-btn" onclick="handleBannerClick()" class="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-medium transition-all whitespace-nowrap shrink-0">Configura</button>
+        </div>
+
+        <!-- EMBEDDED AI QUICK ENTRY BAR -->
+        <section class="bg-gradient-to-r from-emerald-50 dark:from-slate-900 to-slate-50 dark:to-slate-900 border border-emerald-200/80 dark:border-slate-800 rounded-xl sm:rounded-2xl p-3 shadow-xs no-print">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                <div class="flex items-center gap-2 px-2 text-emerald-600 dark:text-brand-400 font-semibold text-xs shrink-0">
+                    <i class="fa-solid fa-wand-magic-sparkles text-sm animate-pulse"></i>
+                    <span>Inserimento IA Nativo:</span>
+                </div>
+                <div class="relative flex-grow">
+                    <input type="text" id="ai-quick-input" placeholder="Es. Lavorato 3 ore per Alpha stamattina facendo refactoring, 15 euro di spese..." 
+                           onkeydown="if(event.key==='Enter') processEmbeddedAIPrompt(this.value)" 
+                           class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs rounded-xl px-3 py-2 focus:ring-2 focus:ring-brand-500 focus:outline-none shadow-xs">
+                </div>
+                <button onclick="processEmbeddedAIPrompt(document.getElementById('ai-quick-input').value)" class="bg-brand-600 hover:bg-brand-500 text-white px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 shadow-sm shrink-0">
+                    <i class="fa-solid fa-paper-plane text-[10px]"></i> Analizza e Salva
+                </button>
+            </div>
+        </section>
+
+        <!-- ===== TimeFlow v2: promemoria backup ===== -->
+        <div id="backup-banner" class="hidden no-print bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-900 dark:text-amber-200 p-2.5 sm:px-4 sm:py-3 rounded-xl sm:rounded-2xl flex flex-row items-center justify-between gap-2 text-[11px] sm:text-xs">
+            <span><i class="fa-solid fa-triangle-exclamation mr-1.5"></i><span id="backup-banner-text"></span></span>
+            <button onclick="openExportFilterModal()" class="bg-amber-500 hover:bg-amber-600 text-white px-2.5 py-1 rounded-lg font-semibold whitespace-nowrap shrink-0">Backup ora</button>
+        </div>
+
+        <!-- ===== TimeFlow v2: timer ===== -->
+        <section id="timer-card" class="no-print bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-xl sm:rounded-2xl p-3 shadow-xs space-y-2">
+            <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2 text-xs font-semibold text-slate-700 dark:text-slate-200"><i class="fa-solid fa-stopwatch text-brand-600 dark:text-brand-500 text-sm"></i> Timer attività</div>
+                <label class="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5">Arrotonda
+                    <select id="timer-round" onchange="setTimerRound(this.value)" class="bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-1.5 py-0.5 text-[11px]">
+                        <option value="0">esatto</option>
+                        <option value="0.25">15 min</option>
+                        <option value="0.5">30 min</option>
+                    </select>
+                </label>
+            </div>
+            <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+                <select id="timer-client" aria-label="Cliente del timer" class="bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none sm:w-48"></select>
+                <input type="text" id="timer-desc" maxlength="200" placeholder="Cosa stai facendo? (facoltativo)" class="flex-grow bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                <div class="flex items-center justify-between sm:justify-end gap-3">
+                    <div id="timer-display" class="font-mono text-xl font-bold tabular-nums text-slate-900 dark:text-white" aria-live="off">00:00:00</div>
+                    <button id="timer-btn" onclick="toggleTimer()" class="bg-brand-600 hover:bg-brand-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm min-w-[104px] justify-center"><i class="fa-solid fa-play text-[10px]"></i> Avvia</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 1. FINANCIAL KPI BANNERS -->
+        <section class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-4 no-print">
+            <div class="bg-white dark:bg-slate-900 p-3 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] sm:text-[11px] font-semibold uppercase text-slate-400 tracking-wider">Fatturato</span>
+                    <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-md sm:rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 text-xs sm:text-sm"><i class="fa-solid fa-wallet"></i></div>
+                </div>
+                <div class="mt-1.5 sm:mt-3">
+                    <div id="kpi-total-revenue" class="text-lg sm:text-3xl font-bold text-slate-900 dark:text-white">€ 0.00</div>
+                    <p id="kpi-hours-sub" class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5">0.0h totali</p>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-900 p-3 sm:p-5 rounded-xl sm:rounded-2xl border border-amber-200/60 dark:border-amber-900/40 shadow-xs flex flex-col justify-between bg-gradient-to-br from-amber-50/30 dark:from-amber-950/20 to-transparent">
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] sm:text-[11px] font-semibold uppercase text-amber-600 dark:text-amber-400 tracking-wider">Da Fatturare</span>
+                    <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-md sm:rounded-lg bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center text-amber-600 dark:text-amber-400 text-xs sm:text-sm"><i class="fa-solid fa-hourglass-half"></i></div>
+                </div>
+                <div class="mt-1.5 sm:mt-3">
+                    <div id="kpi-unbilled" class="text-lg sm:text-3xl font-bold text-amber-700 dark:text-amber-400">€ 0.00</div>
+                    <p class="text-[10px] sm:text-xs text-amber-600/80 dark:text-amber-400/80 mt-0.5">Da emettere</p>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-900 p-3 sm:p-5 rounded-xl sm:rounded-2xl border border-blue-200/60 dark:border-blue-900/40 shadow-xs flex flex-col justify-between bg-gradient-to-br from-blue-50/30 dark:from-blue-950/20 to-transparent">
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] sm:text-[11px] font-semibold uppercase text-blue-600 dark:text-blue-400 tracking-wider">In Attesa Saldo</span>
+                    <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-md sm:rounded-lg bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-blue-600 dark:text-blue-400 text-xs sm:text-sm"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                </div>
+                <div class="mt-1.5 sm:mt-3">
+                    <div id="kpi-invoiced" class="text-lg sm:text-3xl font-bold text-blue-700 dark:text-blue-400">€ 0.00</div>
+                    <p class="text-[10px] sm:text-xs text-blue-600/80 dark:text-blue-400/80 mt-0.5">Non incassato</p>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-900 p-3 sm:p-5 rounded-xl sm:rounded-2xl border border-emerald-200/60 dark:border-emerald-900/40 shadow-xs flex flex-col justify-between bg-gradient-to-br from-emerald-50/30 dark:from-emerald-950/20 to-transparent">
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] sm:text-[11px] font-semibold uppercase text-emerald-600 dark:text-emerald-400 tracking-wider">Incassato</span>
+                    <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-md sm:rounded-lg bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center text-emerald-600 dark:text-emerald-400 text-xs sm:text-sm"><i class="fa-solid fa-circle-check"></i></div>
+                </div>
+                <div class="mt-1.5 sm:mt-3">
+                    <div id="kpi-paid" class="text-lg sm:text-3xl font-bold text-emerald-700 dark:text-emerald-400">€ 0.00</div>
+                    <p class="text-[10px] sm:text-xs text-emerald-600/80 dark:text-emerald-400/80 mt-0.5">Saldato</p>
+                </div>
+            </div>
+
+            <div class="col-span-2 sm:col-span-2 lg:col-span-1 bg-gradient-to-br from-slate-900 to-slate-800 dark:from-slate-800 dark:to-slate-900 text-white p-3 sm:p-5 rounded-xl sm:rounded-2xl shadow-xs flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] sm:text-[11px] font-semibold uppercase text-slate-400 tracking-wider">Tariffa Media</span>
+                    <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-md sm:rounded-lg bg-slate-800 flex items-center justify-center text-brand-400 text-xs sm:text-sm"><i class="fa-solid fa-chart-line"></i></div>
+                </div>
+                <div class="mt-1.5 sm:mt-3">
+                    <div id="kpi-avg-rate" class="text-lg sm:text-3xl font-bold text-white">€ 0.00<span class="text-xs font-normal text-slate-400">/h</span></div>
+                    <p class="text-[10px] sm:text-xs text-slate-400 mt-0.5">Rendimento orario</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- EMBEDDED AI FINANCIAL ANALYTICS SECTION -->
+        <section class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white border border-indigo-900/50 rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-md no-print space-y-3">
+            <div class="flex items-center justify-between border-b border-indigo-900/60 pb-3">
+                <div class="flex items-center gap-2">
+                    <div class="w-7 h-7 rounded-lg bg-indigo-600/30 border border-indigo-500/40 flex items-center justify-center text-indigo-300 text-sm">
+                        <i class="fa-solid fa-brain"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xs sm:text-sm font-bold tracking-wide text-white">Analisi Finanziaria IA Nativa</h2>
+                        <p class="text-[10px] text-indigo-300">Report strategico e KPI calcolati offline in tempo reale</p>
+                    </div>
+                </div>
+                <button onclick="generateEmbeddedAIFinancialAnalysis()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-sparkles text-xs"></i> Genera Analisi
+                </button>
+            </div>
+
+            <div id="ai-analysis-container" class="text-xs text-slate-300 leading-relaxed min-h-[40px] flex items-center">
+                <p class="italic text-slate-400 text-[11px]">Fai clic su "Genera Analisi" per avviare l'algoritmo di sintesi contabile e la distribuzione dei compensi per cliente.</p>
+            </div>
+        </section>
+
+        <!-- 2. MONTHLY STATISTICS & ANALYTICS -->
+        <section class="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-xl sm:rounded-2xl p-3 sm:p-5 shadow-xs no-print space-y-2.5 sm:space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2 sm:pb-3">
+                <h2 class="text-xs sm:text-base font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                    <i class="fa-solid fa-chart-column text-brand-600 dark:text-brand-500"></i>
+                    Statistiche Mensili
+                </h2>
+                <button onclick="toggleMonthlyView()" id="btn-toggle-monthly" class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium">Mostra/Nascondi</button>
+            </div>
+            <div id="monthly-stats-container" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3"></div>
+        </section>
+
+        <!-- 3. ACTIONS, FILTERS & CONTROL TOOLBAR -->
+        <section class="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-xl sm:rounded-2xl p-3 sm:p-5 shadow-xs space-y-3 no-print">
+            <div class="flex flex-col gap-2.5">
+                <div class="flex items-center justify-between gap-2">
+                    <div class="bg-slate-100 dark:bg-slate-800 p-0.5 sm:p-1 rounded-lg sm:rounded-xl flex items-center gap-0.5 border border-slate-200 dark:border-slate-700">
+                        <button onclick="setViewMode('table')" id="view-btn-table" class="px-2.5 sm:px-3 py-1 rounded-md sm:rounded-lg text-xs font-semibold flex items-center gap-1 transition-all bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs">
+                            <i class="fa-solid fa-list-ul"></i> <span class="hidden sm:inline">Tabella</span>
+                        </button>
+                        <button onclick="setViewMode('calendar')" id="view-btn-calendar" class="px-2.5 sm:px-3 py-1 rounded-md sm:rounded-lg text-xs font-semibold flex items-center gap-1 transition-all text-slate-600 dark:text-slate-400">
+                            <i class="fa-solid fa-calendar-days"></i> <span class="hidden sm:inline">Calendario</span>
+                        </button>
+                    </div>
+
+                    <button onclick="openManualEntryModal()" class="bg-brand-600 hover:bg-brand-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 shadow-sm">
+                        <i class="fa-solid fa-plus"></i> Nuova Attività
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2">
+                    <div>
+                        <select id="filter-client" onchange="renderApp()" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs rounded-lg px-2.5 py-1.5 font-medium">
+                            <option value="ALL">Tutti i Clienti</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select id="filter-status" onchange="renderApp()" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs rounded-lg px-2.5 py-1.5 font-medium">
+                            <option value="ALL">Tutti gli Stati</option>
+                            <option value="unbilled">Da Fatturare</option>
+                            <option value="invoiced">Fatturato</option>
+                            <option value="paid">Pagato</option>
+                        </select>
+                    </div>
+                    <div class="col-span-2 sm:col-span-1">
+                        <div class="relative">
+                            <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2 text-slate-400 text-xs"></i>
+                            <input type="text" id="search-input" onkeyup="renderApp()" placeholder="Cerca attività..." class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs rounded-lg pl-7 pr-2.5 py-1.5">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-1.5 pt-2 border-t border-slate-100 dark:border-slate-800 overflow-x-auto">
+                    <button onclick="exportFilteredToCSV()" class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2.5 py-1 rounded-lg text-xs font-medium border border-slate-200 dark:border-slate-700 whitespace-nowrap"><i class="fa-solid fa-file-csv text-emerald-600 mr-1"></i> CSV</button>
+                    <button onclick="printReport()" class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2.5 py-1 rounded-lg text-xs font-medium border border-slate-200 dark:border-slate-700 whitespace-nowrap"><i class="fa-solid fa-file-pdf text-red-500 mr-1"></i> Stampa</button>
+                    <button onclick="openExportFilterModal()" class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2.5 py-1 rounded-lg text-xs font-medium border border-slate-200 dark:border-slate-700 whitespace-nowrap"><i class="fa-solid fa-download text-blue-500 mr-1"></i> Backup</button>
+                    <label class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2.5 py-1 rounded-lg text-xs font-medium border border-slate-200 dark:border-slate-700 cursor-pointer whitespace-nowrap">
+                        <i class="fa-solid fa-upload text-purple-500 mr-1"></i> Ripristina
+                        <input type="file" id="import-json-input" accept=".json" onchange="importBackupJSON(event)" class="hidden">
+                    </label>
+                </div>
+            </div>
+
+            <div id="bulk-actions-bar" class="hidden bg-slate-900 text-white p-2.5 rounded-lg flex items-center justify-between gap-2 shadow-sm">
+                <span id="bulk-selected-count" class="text-xs font-semibold">0 sel.</span>
+                <div class="flex items-center gap-1 text-xs">
+                    <button onclick="applyBulkStatus('unbilled')" class="bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-1 rounded">Unbilled</button>
+                    <button onclick="applyBulkStatus('invoiced')" class="bg-blue-500/20 text-blue-300 border border-blue-500/30 px-2 py-1 rounded">Invoiced</button>
+                    <button onclick="applyBulkStatus('paid')" class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-1 rounded">Paid</button>
+                    <button onclick="deleteBulkSelected()" class="bg-red-500/20 text-red-300 border border-red-500/30 px-2 py-1 rounded"><i class="fa-solid fa-trash-can"></i></button>
+                </div>
+            </div>
+        </section>
+
+        <!-- PRINTABLE HEADER -->
+        <div class="hidden print-only mb-6 border-b border-slate-300 pb-4">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold text-black">TimeFlow - Rendiconto Ore e Compensi</h1>
+                    <p class="text-xs text-gray-600">Documento di riepilogo contabile generato per la fatturazione</p>
+                </div>
+                <div class="text-right text-xs text-gray-600">
+                    <p>Data Stampa: <span id="print-date"></span></p>
+                    <p>Totale Documento: <span id="print-total" class="font-bold text-black text-sm"></span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABLE VIEW -->
+        <section id="table-view-container" class="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-xl sm:rounded-2xl shadow-xs overflow-hidden">
+            <div class="hidden md:block overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50/80 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                            <th class="p-3 w-10 text-center no-print"><input type="checkbox" id="select-all-checkbox" onchange="toggleSelectAll(this)" class="rounded border-slate-300 text-brand-600 h-4 w-4 cursor-pointer"></th>
+                            <th class="p-3">Cliente</th>
+                            <th class="p-3">Attività / Descrizione</th>
+                            <th class="p-3">Data & Orario</th>
+                            <th class="p-3 text-center">Durata</th>
+                            <th class="p-3 text-right">Tariffa</th>
+                            <th class="p-3 text-right">Spese/Detergenti</th>
+                            <th class="p-3 text-right">Totale €</th>
+                            <th class="p-3 text-center">Stato</th>
+                            <th class="p-3 text-center no-print">Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody id="time-entries-tbody" class="divide-y divide-slate-100 dark:divide-slate-800 text-sm"></tbody>
+                </table>
+            </div>
+            <div id="time-entries-mobile-list" class="md:hidden divide-y divide-slate-100 dark:divide-slate-800"></div>
+            <div id="empty-state" class="hidden p-8 text-center space-y-2">
+                <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 mx-auto"><i class="fa-solid fa-folder-open text-lg"></i></div>
+                <h3 class="text-slate-800 dark:text-slate-200 font-bold text-sm">Nessuna registrazione trovata</h3>
+                <p class="text-slate-500 dark:text-slate-400 text-xs max-w-xs mx-auto">Nessun dato corrispondente ai filtri selezionati.</p>
+            </div>
+        </section>
+
+        <!-- CALENDAR VIEW -->
+        <section id="calendar-view-container" class="hidden bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-xl sm:rounded-2xl p-2.5 sm:p-5 shadow-xs space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
+                <div class="flex items-center space-x-2">
+                    <button onclick="changeCalendarMonth(-1)" class="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-600 dark:text-slate-300"><i class="fa-solid fa-chevron-left text-xs"></i></button>
+                    <h3 id="calendar-month-title" class="text-xs sm:text-base font-bold text-slate-900 dark:text-white capitalize">Ottobre 2026</h3>
+                    <button onclick="changeCalendarMonth(1)" class="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-600 dark:text-slate-300"><i class="fa-solid fa-chevron-right text-xs"></i></button>
+                </div>
+                <button onclick="resetCalendarToCurrentMonth()" class="text-[10px] sm:text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded font-medium">Oggi</button>
+            </div>
+            <div class="grid grid-cols-7 text-center text-[10px] font-semibold text-slate-400 uppercase tracking-wider py-1 border-b border-slate-100 dark:border-slate-800">
+                <div>Lun</div><div>Mar</div><div>Mer</div><div>Gio</div><div>Ven</div><div>Sab</div><div>Dom</div>
+            </div>
+            <div id="calendar-days-grid" class="grid grid-cols-7 gap-1 min-h-[320px]"></div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-auto border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-4 text-center text-[11px] text-slate-400 no-print">
+        <p>© 2026 TimeFlow — Tracciamento Ore, Compensi & Calendar Sync</p>
+    </footer>
+
+    <!-- MODALS -->
+    <div id="config-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-3 no-print">
+        <div class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl max-w-md w-full p-4 sm:p-6 shadow-xl border border-slate-200 dark:border-slate-800 space-y-3">
+            <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-2">
+                <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2"><i class="fa-solid fa-gear text-brand-600"></i> Configurazione Google OAuth</h3>
+                <button onclick="closeConfigModal()" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Google OAuth Client ID (per Calendar)</label>
+                <input type="text" id="config-client-id" placeholder="1234...apps.googleusercontent.com" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-lg px-3 py-1.5 text-xs">
+            </div>
+            <div class="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <button onclick="closeConfigModal()" class="px-3 py-1.5 text-xs text-slate-500">Annulla</button>
+                <button onclick="saveGoogleConfig()" class="bg-slate-900 dark:bg-brand-600 text-white px-4 py-1.5 rounded-lg text-xs font-medium">Salva</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="client-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-3 no-print">
+        <div class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl max-w-lg w-full p-4 sm:p-6 shadow-xl border border-slate-200 dark:border-slate-800 space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-2">
+                <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2"><i class="fa-solid fa-users text-brand-600"></i> Gestione Clienti</h3>
+                <button onclick="closeClientModal()" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="client-form" onsubmit="saveClient(event)" class="space-y-2.5 bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
+                <input type="hidden" id="client-id-edit">
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">Nome Cliente</label>
+                        <input type="text" id="client-name-input" required placeholder="Es. Acme" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-lg px-2.5 py-1 text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">Tariffa (€/h)</label>
+                        <input type="number" step="0.5" id="client-rate-input" required placeholder="50.00" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-lg px-2.5 py-1 text-xs">
+                    </div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <label class="text-[11px] font-semibold text-slate-600 dark:text-slate-300">Colore:</label>
+                        <input type="color" id="client-color-input" value="#3b82f6" class="w-7 h-7 p-0.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-md cursor-pointer">
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="button" onclick="resetClientForm()" class="px-2.5 py-1 text-xs text-slate-500">Reset</button>
+                        <button type="submit" class="bg-brand-600 hover:bg-brand-500 text-white px-3 py-1 rounded-lg text-xs font-medium">Salva</button>
+                    </div>
+                </div>
+            </form>
+            <div class="space-y-2">
+                <div class="flex justify-between items-center">
+                    <h4 class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Elenco Clienti</h4>
+                    <div class="flex items-center space-x-1 text-xs">
+                        <button type="button" onclick="setClientTab('active')" id="tab-clients-active" class="px-2 py-0.5 rounded font-semibold bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white">Attivi</button>
+                        <button type="button" onclick="setClientTab('archived')" id="tab-clients-archived" class="px-2 py-0.5 rounded font-semibold text-slate-400">Archiviati</button>
+                    </div>
+                </div>
+                <div id="clients-list-container" class="max-h-40 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800 border border-slate-200 dark:border-slate-800 rounded-lg"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="entry-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-3 no-print">
+        <div class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl max-w-md w-full p-4 sm:p-6 shadow-xl border border-slate-200 dark:border-slate-800 space-y-3">
+            <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-2">
+                <h3 id="entry-modal-title" class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2"><i class="fa-solid fa-clock text-brand-600"></i> Nuova Attività</h3>
+                <button onclick="closeManualEntryModal()" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="entry-form" onsubmit="saveTimeEntry(event)" class="space-y-2.5">
+                <input type="hidden" id="entry-id-edit">
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">Cliente</label>
+                    <select id="entry-client-select" required onchange="updateModalRateFromClient()" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-medium"></select>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">Descrizione Attività</label>
+                    <input type="text" id="entry-desc-input" required placeholder="Es. Pulizia ordinaria" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-lg px-2.5 py-1.5 text-xs">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">Data</label>
+                        <input type="date" id="entry-date-input" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-lg px-2 py-1 text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">Durata (Ore)</label>
+                        <input type="number" step="0.25" min="0" id="entry-hours-input" required placeholder="2.5" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-lg px-2 py-1 text-xs">
+                    </div>
+                </div>
+                <div class="grid grid-cols-3 gap-2">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">Ora Inizio</label>
+                        <input type="time" id="entry-start-time" value="09:00" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-lg px-1.5 py-1 text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">Tariffa (€/h)</label>
+                        <input type="number" step="0.5" id="entry-rate-input" required placeholder="50.00" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-lg px-1.5 py-1 text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">Extra (€)</label>
+                        <input type="number" step="0.5" min="0" id="entry-expenses-input" value="0" placeholder="0.00" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-lg px-1.5 py-1 text-xs">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">Stato Iniziale</label>
+                    <select id="entry-status-select" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-lg px-2.5 py-1 text-xs font-medium">
+                        <option value="unbilled">Da Fatturare</option>
+                        <option value="invoiced">Fatturato</option>
+                        <option value="paid">Pagato</option>
+                    </select>
+                </div>
+                <div class="bg-blue-50/60 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900/50 rounded-lg p-2 flex items-center justify-between">
+                    <div class="flex items-center gap-1.5"><i class="fa-brands fa-google text-blue-600 dark:text-blue-400 text-xs"></i><span class="text-xs font-medium text-slate-700 dark:text-slate-300">Google Calendar</span></div>
+                    <input type="checkbox" id="entry-push-google" class="rounded border-slate-300 text-brand-600 h-4 w-4">
+                </div>
+                <div class="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <button type="button" onclick="closeManualEntryModal()" class="px-3 py-1.5 text-xs text-slate-500">Annulla</button>
+                    <button type="submit" class="bg-slate-900 dark:bg-brand-600 text-white px-4 py-1.5 rounded-lg text-xs font-medium">Salva</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="export-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-3 no-print">
+        <div class="bg-white dark:bg-slate-900 rounded-xl max-w-md w-full p-4 sm:p-6 shadow-xl border border-slate-200 dark:border-slate-800 space-y-3">
+            <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-2">
+                <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2"><i class="fa-solid fa-sliders text-brand-600"></i> Export & Backup</h3>
+                <button onclick="closeExportFilterModal()" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="space-y-2">
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">Filtro Periodo</label>
+                    <select id="export-preset-select" onchange="applyExportPreset()" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-lg px-2.5 py-1 text-xs">
+                        <option value="ALL">Tutto lo Storico</option>
+                        <option value="THIS_YEAR">Anno Corrente (2026)</option>
+                        <option value="LAST_30">Ultimi 30 Giorni</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">Da</label>
+                        <input type="date" id="export-start-date" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-lg px-2 py-1 text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">A</label>
+                        <input type="date" id="export-end-date" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-lg px-2 py-1 text-xs">
+                    </div>
+                </div>
+            </div>
+            <div class="flex flex-col gap-1.5 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <button onclick="downloadFilteredJSON()" class="w-full bg-slate-900 dark:bg-slate-800 text-white px-3 py-1.5 rounded-lg text-xs font-medium flex items-center justify-center gap-2"><i class="fa-solid fa-file-code text-blue-400"></i> Backup JSON</button>
+                <button onclick="downloadFilteredCSV()" class="w-full bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium flex items-center justify-center gap-2"><i class="fa-solid fa-file-csv"></i> Report CSV</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== TimeFlow v2: guida integrata ===== -->
+    <div id="guide-modal" class="fixed inset-0 z-[60] hidden bg-slate-900/70 backdrop-blur-sm no-print" role="dialog" aria-modal="true" aria-labelledby="guide-title">
+        <div class="absolute inset-0 sm:inset-x-auto sm:top-6 sm:bottom-6 sm:left-1/2 sm:-translate-x-1/2 sm:max-w-2xl sm:w-full flex flex-col bg-white dark:bg-slate-950 sm:rounded-2xl shadow-2xl overflow-hidden">
+            <div class="shrink-0 bg-gradient-to-r from-slate-900 via-emerald-900 to-brand-600 text-white px-4 pb-3 flex items-start justify-between gap-3" style="padding-top:calc(0.75rem + env(safe-area-inset-top))">
+                <div>
+                    <h2 id="guide-title" class="text-base font-bold tracking-tight">TimeFlow — Manuale d'Uso &amp; Guida Rapida</h2>
+                    <p class="text-[11px] text-emerald-100">Gestione ore, compensi &amp; sincronizzazione Calendar</p>
+                </div>
+                <button onclick="closeGuide()" aria-label="Chiudi guida" class="shrink-0 w-10 h-10 rounded-xl bg-white/15 hover:bg-white/25 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="guide-chips" class="shrink-0 px-3 py-2 border-b border-slate-200 dark:border-slate-800 flex gap-1.5 overflow-x-auto text-[11px] font-semibold">
+                <button data-g="g-start" class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 shrink-0">Avvio rapido</button>
+                <button data-g="g-clients" class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 shrink-0">Clienti e stati</button>
+                <button data-g="g-timer" class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 shrink-0">Timer</button>
+                <button data-g="g-kpi" class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 shrink-0">KPI e IA</button>
+                <button data-g="g-google" class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 shrink-0">Google Calendar</button>
+                <button data-g="install" class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 shrink-0">Installa l'app</button>
+                <button data-g="g-backup" class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 shrink-0">Backup</button>
+                <button data-g="g-faq" class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 shrink-0">FAQ</button>
+            </div>
+            <div id="guide-body" class="flex-1 overflow-y-auto overscroll-contain px-3 sm:px-5 py-3 space-y-2.5 text-[13px] leading-relaxed text-slate-700 dark:text-slate-300" style="padding-bottom:calc(1.25rem + env(safe-area-inset-bottom))">
+
+                <p class="text-xs">TimeFlow è un'applicazione per tracciare le attività lavorative, gestire i clienti, calcolare automaticamente i compensi e sincronizzare tutto con Google Calendar.</p>
+
+                <details id="g-start" open class="group rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60">
+                    <summary class="cursor-pointer list-none px-3.5 py-3 font-bold text-slate-900 dark:text-white flex items-center justify-between">1. Avvio rapido <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform group-open:rotate-180"></i></summary>
+                    <ol class="px-3.5 pb-3.5 pl-8 space-y-2 list-decimal">
+                        <li><b>Configura un cliente.</b> Tocca <i>Clienti</i> in alto a destra e inserisci nome e tariffa oraria predefinita (€/h).</li>
+                        <li><b>Inserimento rapido con IA nativa.</b> Scrivi nella barra in alto, ad esempio <i>«Lavorato 3 ore per Alpha ieri, 15 euro di spese»</i>, e tocca <i>Analizza e Salva</i>: ore, cliente, data e spese vengono interpretati in automatico.</li>
+                        <li><b>Inserimento manuale.</b> <i>Nuova Attività</i>: indichi data, orario, spese extra e stato iniziale.</li>
+                        <li><b>Timer.</b> In alternativa scegli il cliente e premi <i>Avvia</i>: alla chiusura l'attività viene registrata da sola.</li>
+                        <li><b>Sincronizza con Google Calendar.</b> Tocca <i>Connetti Google</i> per autorizzare l'integrazione (vedi sezione 5).</li>
+                    </ol>
+                </details>
+
+                <details id="g-clients" class="group rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60">
+                    <summary class="cursor-pointer list-none px-3.5 py-3 font-bold text-slate-900 dark:text-white flex items-center justify-between">2. Clienti, tariffe e stati <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform group-open:rotate-180"></i></summary>
+                    <div class="px-3.5 pb-3.5 space-y-2.5">
+                        <p>Ogni cliente ha una tariffa oraria e un colore per la vista Calendario. Il totale è calcolato come <b>Totale = (Ore × Tariffa) + Spese Extra</b>.</p>
+                        <div class="rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden text-[12px]">
+                            <div class="grid grid-cols-[92px_1fr] bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700"><div class="p-2 font-bold text-amber-600">Da Fatturare</div><div class="p-2">Attività completata, non ancora in fattura. <i>Azione:</i> raggruppa le ore a fine mese ed emetti fattura.</div></div>
+                            <div class="grid grid-cols-[92px_1fr] bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700"><div class="p-2 font-bold text-blue-600">Fatturato</div><div class="p-2">Fattura emessa, in attesa di saldo. <i>Azione:</i> monitora il KPI «In Attesa Saldo».</div></div>
+                            <div class="grid grid-cols-[92px_1fr] bg-white dark:bg-slate-900"><div class="p-2 font-bold text-emerald-600">Pagato</div><div class="p-2">Compenso incassato. <i>Azione:</i> aggiorna lo stato per chiudere la posizione.</div></div>
+                        </div>
+                        <p>Puoi cambiare stato toccando il badge dell'attività, oppure selezionare più righe e usare le azioni di gruppo. I clienti non più attivi si possono archiviare senza perdere lo storico.</p>
+                    </div>
+                </details>
+
+                <details id="g-timer" class="group rounded-xl border border-emerald-300 dark:border-emerald-800 bg-emerald-50/60 dark:bg-emerald-950/20">
+                    <summary class="cursor-pointer list-none px-3.5 py-3 font-bold text-slate-900 dark:text-white flex items-center justify-between"><span><i class="fa-solid fa-stopwatch text-brand-600 mr-1.5"></i> 3. Timer e inserimento IA (novità)</span> <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform group-open:rotate-180"></i></summary>
+                    <div class="px-3.5 pb-3.5 space-y-2.5">
+                        <p><b>Timer:</b> scegli il cliente (e, se vuoi, una descrizione), premi <i>Avvia</i> e lavora. Sull'app installata, mentre il timer corre, compare un indicatore sull'icona. Se lo lasci acceso per più di 12 ore, alla chiusura l'app ti chiede quante ore registrare. Premendo <i>Ferma</i> viene creata l'attività con data, ora di inizio, ore e compenso. Il timer continua anche se chiudi l'app o ricarichi la pagina. L'arrotondamento (esatto, 15 o 30 minuti) si imposta accanto al timer.</p>
+                        <p><b>Frasi comprese dall'IA nativa</b> (funziona offline):</p>
+                        <ul class="list-disc pl-5 space-y-1">
+                            <li>Durata: «3 ore», «1,5h», «1h30», «90 minuti», «mezz'ora», «un'ora e mezza», «2 ore e 15 minuti».</li>
+                            <li>Data: «oggi» (predefinito), «ieri», «l'altro ieri», «12/03», «martedì scorso».</li>
+                            <li>Orario: «alle 14:30», «stamattina», «nel pomeriggio», «stasera».</li>
+                            <li>Spese: «15 euro di spese», «spese 20€», «10 euro di rimborso».</li>
+                            <li>Cliente: il nome (o una sua parola) presente nella frase. Se non lo trovo e hai più clienti, te lo segnalo senza salvare.</li>
+                        </ul>
+                    </div>
+                </details>
+
+                <details id="g-kpi" class="group rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60">
+                    <summary class="cursor-pointer list-none px-3.5 py-3 font-bold text-slate-900 dark:text-white flex items-center justify-between">4. KPI finanziari e analisi IA <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform group-open:rotate-180"></i></summary>
+                    <div class="px-3.5 pb-3.5 space-y-2">
+                        <p>In alto trovi 5 indicatori sempre aggiornati: <b>Fatturato Totale, Da Fatturare, In Attesa Saldo, Incassato, Tariffa Media</b>.</p>
+                        <p>Il modulo <b>Analisi Finanziaria IA Nativa</b> genera in un tocco, anche offline, un report sulla distribuzione del volume d'affari per cliente e sul rendimento orario effettivo. Le <b>Statistiche Mensili</b> riassumono ore e compensi mese per mese.</p>
+                    </div>
+                </details>
+
+                <details id="g-google" class="group rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60">
+                    <summary class="cursor-pointer list-none px-3.5 py-3 font-bold text-slate-900 dark:text-white flex items-center justify-between">5. Google Calendar <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform group-open:rotate-180"></i></summary>
+                    <div class="px-3.5 pb-3.5 space-y-2">
+                        <ol class="list-decimal pl-5 space-y-1.5">
+                            <li>Nella <b>Google Cloud Console</b> crea (o apri) un progetto, abilita <i>Google Calendar API</i> e crea un <i>ID client OAuth</i> di tipo «Applicazione web».</li>
+                            <li>Tra le <b>Origini JavaScript autorizzate</b> aggiungi l'indirizzo esatto da cui usi l'app (es. <code>https://tuosito.netlify.app</code>). Cambiando indirizzo va aggiunto anche il nuovo.</li>
+                            <li>Tocca l'ingranaggio <i class="fa-solid fa-gear"></i> e incolla il <b>Client ID</b>; poi <i>Connetti Google</i> e autorizza.</li>
+                            <li>Ogni attività con l'opzione «Google Calendar» attiva diventa un evento; modifiche ed eliminazioni vengono ripetute sul calendario. Se sei offline, le operazioni restano in coda e partono al ritorno della connessione.</li>
+                        </ol>
+                        <p class="text-[12px] text-slate-500 dark:text-slate-400">Nota: su iPhone, nell'app installata, il popup di autorizzazione di Google può essere bloccato dal sistema; in tal caso autorizza una volta da Safari.</p>
+                    </div>
+                </details>
+
+                <details id="install" class="group rounded-xl border border-blue-300 dark:border-blue-800 bg-blue-50/60 dark:bg-blue-950/20">
+                    <summary class="cursor-pointer list-none px-3.5 py-3 font-bold text-slate-900 dark:text-white flex items-center justify-between"><span><i class="fa-solid fa-mobile-screen-button text-blue-600 mr-1.5"></i> 6. Installa come app (novità)</span> <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform group-open:rotate-180"></i></summary>
+                    <div class="px-3.5 pb-3.5 space-y-2.5">
+                        <p>TimeFlow può essere installata sulla schermata Home e usata a schermo intero, anche <b>offline</b>. Apri l'indirizzo <b>HTTPS</b> in cui è pubblicata, la prima volta con Internet attivo.</p>
+                        <div class="rounded-lg bg-white dark:bg-slate-900 p-3 border border-slate-200 dark:border-slate-800"><b><i class="fa-brands fa-android text-emerald-500"></i> Android (Chrome / Edge)</b><br>Tocca <b>Installa</b> nell'intestazione, oppure menu ⋮ → <i>Installa app</i>.</div>
+                        <div class="rounded-lg bg-white dark:bg-slate-900 p-3 border border-slate-200 dark:border-slate-800"><b><i class="fa-brands fa-apple"></i> iPhone / iPad (Safari)</b><br>Tocca <b>Condividi</b> <i class="fa-solid fa-arrow-up-from-bracket"></i> → <b>Aggiungi alla schermata Home</b>.</div>
+                        <div class="rounded-lg bg-white dark:bg-slate-900 p-3 border border-slate-200 dark:border-slate-800"><b><i class="fa-solid fa-desktop"></i> Computer</b><br>Icona <i>Installa</i> nella barra degli indirizzi (Chrome/Edge) o pulsante <b>Installa</b> nell'app. Dall'icona dell'app puoi anche scegliere <i>Nuova attività</i> o <i>Avvia timer</i>.</div>
+                        <p class="text-[12px] text-slate-500 dark:text-slate-400">I dati stanno nel browser e sono legati all'indirizzo. Su alcuni sistemi l'app installata ha un archivio separato dal browser: trasferisci i dati con Backup → Ripristina.</p>
+                    </div>
+                </details>
+
+                <details id="g-backup" class="group rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60">
+                    <summary class="cursor-pointer list-none px-3.5 py-3 font-bold text-slate-900 dark:text-white flex items-center justify-between">7. Backup, export e privacy <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform group-open:rotate-180"></i></summary>
+                    <div class="px-3.5 pb-3.5 space-y-2">
+                        <p>I dati risiedono <b>esclusivamente nel tuo browser</b> (LocalStorage). Per non perderli ed esportarli per il commercialista:</p>
+                        <ul class="list-disc pl-5 space-y-1">
+                            <li><b>Export CSV:</b> foglio compatibile con Excel (separatore «;», accenti corretti). Puoi filtrare per periodo.</li>
+                            <li><b>Backup JSON:</b> salva l'intero database (o il periodo scelto). Su smartphone si apre il pannello di condivisione per salvarlo in File / Drive.</li>
+                            <li><b>Ripristina:</b> carica un backup JSON; ti viene mostrato quante attività contiene e ti chiedo conferma prima di sostituire i dati attuali.</li>
+                            <li>Se passano più di 30 giorni dall'ultimo backup, l'app te lo ricorda con un avviso in alto.</li>
+                        </ul>
+                    </div>
+                </details>
+
+                <details id="g-faq" class="group rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60">
+                    <summary class="cursor-pointer list-none px-3.5 py-3 font-bold text-slate-900 dark:text-white flex items-center justify-between">8. Domande frequenti <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform group-open:rotate-180"></i></summary>
+                    <div class="px-3.5 pb-3.5 space-y-2.5">
+                        <div><b>Ho perso i dati dopo aver cancellato i dati del browser.</b><br>I dati del sito vengono eliminati insieme alla cache: ripristina l'ultimo backup JSON.</div>
+                        <div><b>L'IA non salva la mia frase.</b><br>Indica una durata (es. «2 ore») e il nome del cliente; se manca uno dei due te lo segnalo.</div>
+                        <div><b>Google Calendar non si collega.</b><br>Controlla che il Client ID sia corretto e che l'indirizzo dell'app sia tra le origini JavaScript autorizzate.</div>
+                        <div><b>Funziona senza Internet?</b><br>Sì, dopo la prima apertura online; solo la sincronizzazione con Google richiede la rete.</div>
+                        <div><b>Il pulsante Installa non compare.</b><br>L'app deve essere aperta da un indirizzo HTTPS (non da file locale) e non già installata. Su iPhone usa Condividi → Aggiungi alla schermata Home.</div>
+                    </div>
+                </details>
+
+                <div class="pt-1 flex flex-wrap gap-2">
+                    <a href="./Guida_Utente_TimeFlow.pdf" target="_blank" rel="noopener" class="px-3.5 py-2.5 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold text-xs flex items-center gap-2"><i class="fa-solid fa-file-pdf"></i> Apri la guida PDF originale</a>
+                    <button onclick="closeGuide()" class="px-3.5 py-2.5 rounded-xl bg-brand-600 text-white font-bold text-xs">Ho capito</button>
+                </div>
+                <p class="text-[10px] text-slate-400 text-center">TimeFlow · v2.1</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT APPLICATION & EMBEDDED AI ENGINE -->
+    <script>
+        const DEFAULT_CLIENTS = [
+            { id: 'client-1', name: 'Alpha S.r.l.', rate: 60.00, color: '#3b82f6', isArchived: false },
+            { id: 'client-2', name: 'Beta Consulting', rate: 45.00, color: '#10b981', isArchived: false },
+            { id: 'client-3', name: 'Gamma Digital', rate: 50.00, color: '#8b5cf6', isArchived: false }
+        ];
+
+        const DEFAULT_TIME_ENTRIES = [
+            {
+                id: 'entry-101',
+                clientId: 'client-1',
+                description: 'Sviluppo Backend API e Database Schema',
+                date: '2026-10-15',
+                startTime: '09:00',
+                hours: 4.0,
+                rateApplied: 60.00,
+                expenses: 15.00,
+                totalAmount: 255.00,
+                status: 'paid',
+                googleEventId: null
+            },
+            {
+                id: 'entry-102',
+                clientId: 'client-2',
+                description: 'Consulenza Architettura Cloud e Review',
+                date: '2026-10-18',
+                startTime: '10:30',
+                hours: 3.0,
+                rateApplied: 45.00,
+                expenses: 0.00,
+                totalAmount: 135.00,
+                status: 'invoiced',
+                googleEventId: null
+            },
+            {
+                id: 'entry-103',
+                clientId: 'client-1',
+                description: 'Call Allineamento e Refactoring',
+                date: '2026-10-22',
+                startTime: '14:00',
+                hours: 2.0,
+                rateApplied: 60.00,
+                expenses: 10.00,
+                totalAmount: 130.00,
+                status: 'unbilled',
+                googleEventId: null
+            },
+            {
+                id: 'entry-104',
+                clientId: 'client-3',
+                description: 'Integrazione Layout Tailwind & Dashboard',
+                date: '2026-10-25',
+                startTime: '11:00',
+                hours: 5.0,
+                rateApplied: 50.00,
+                expenses: 0.00,
+                totalAmount: 250.00,
+                status: 'unbilled',
+                googleEventId: null
+            }
+        ];
+
+        let clients = [];
+        let timeEntries = [];
+        let selectedEntryIds = new Set();
+        let isMonthlyCompact = false;
+        let activeViewMode = 'table';
+        let currentCalendarDate = new Date();
+        let activeClientTab = 'active';
+
+        let isDarkMode = false;
+        let googleClientId = '';
+        let googleAccessToken = null;
+        let tokenClient = null;
+
+        window.onload = function() {
+            initTheme();
+            loadStateFromStorage();
+            initGoogleIdentityServices();
+            renderApp();
+        };
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('timeflow_theme');
+            if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                setDarkMode(true);
+            } else {
+                setDarkMode(false);
+            }
+        }
+
+        function toggleDarkMode() {
+            setDarkMode(!isDarkMode);
+        }
+
+        function setDarkMode(enableDark) {
+            isDarkMode = enableDark;
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            if (isDarkMode) {
+                html.classList.add('dark');
+                if (icon) icon.className = "fa-solid fa-sun text-amber-400";
+                localStorage.setItem('timeflow_theme', 'dark');
+            } else {
+                html.classList.remove('dark');
+                if (icon) icon.className = "fa-solid fa-moon text-slate-300";
+                localStorage.setItem('timeflow_theme', 'light');
+            }
+        }
+
+        function setViewMode(mode) {
+            activeViewMode = mode;
+            const tableContainer = document.getElementById('table-view-container');
+            const calendarContainer = document.getElementById('calendar-view-container');
+            const btnTable = document.getElementById('view-btn-table');
+            const btnCalendar = document.getElementById('view-btn-calendar');
+
+            if (mode === 'calendar') {
+                tableContainer.classList.add('hidden');
+                calendarContainer.classList.remove('hidden');
+                btnCalendar.className = "px-2.5 sm:px-3 py-1 rounded-md sm:rounded-lg text-xs font-semibold flex items-center gap-1 transition-all bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs";
+                btnTable.className = "px-2.5 sm:px-3 py-1 rounded-md sm:rounded-lg text-xs font-semibold flex items-center gap-1 transition-all text-slate-600 dark:text-slate-400";
+                renderCalendarView();
+            } else {
+                calendarContainer.classList.add('hidden');
+                tableContainer.classList.remove('hidden');
+                btnTable.className = "px-2.5 sm:px-3 py-1 rounded-md sm:rounded-lg text-xs font-semibold flex items-center gap-1 transition-all bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs";
+                btnCalendar.className = "px-2.5 sm:px-3 py-1 rounded-md sm:rounded-lg text-xs font-semibold flex items-center gap-1 transition-all text-slate-600 dark:text-slate-400";
+                renderTable();
+            }
+        }
+
+
+        function saveClientsToStorage() { localStorage.setItem('timeflow_clients', JSON.stringify(clients)); }
+        function saveEntriesToStorage() { localStorage.setItem('timeflow_entries', JSON.stringify(timeEntries)); }
+
+        // ==========================================
+        // GOOGLE CALENDAR SYNC v2
+        // - SDK Google caricato on-demand (prima non veniva mai caricato)
+        // - token persistente (sessione) + rinnovo silenzioso
+        // - coda di sincronizzazione: crea / aggiorna / elimina, in parallelo
+        // ==========================================
+        const GCAL_API = 'https://www.googleapis.com/calendar/v3/calendars/primary/events';
+        const GCAL_SCOPE = 'https://www.googleapis.com/auth/calendar.events';
+        const GCAL_DEL_KEY = 'timeflow_gcal_deletes';
+        let gisPromise = null;
+        let tokenPromise = null;
+        let googleTokenExpiry = 0;
+        let syncRunning = false;
+        let syncAgain = false;
+        let lastSyncError = '';
+
+        const sleep = ms => new Promise(r => setTimeout(r, ms));
+        async function runPool(items, size, worker) {
+            let i = 0;
+            await Promise.all(Array.from({ length: Math.min(size, items.length) }, async () => {
+                while (i < items.length) { const item = items[i++]; await worker(item); }
+            }));
+        }
+
+        function loadGIS() {
+            if (window.google && google.accounts && google.accounts.oauth2) return Promise.resolve();
+            if (gisPromise) return gisPromise;
+            gisPromise = new Promise((resolve, reject) => {
+                const sc = document.createElement('script');
+                sc.src = 'https://accounts.google.com/gsi/client';
+                sc.async = true;
+                sc.onload = () => resolve();
+                sc.onerror = () => { gisPromise = null; reject(new Error('GIS non raggiungibile')); };
+                document.head.appendChild(sc);
+            });
+            return gisPromise;
+        }
+
+        function restoreGoogleToken() {
+            googleAccessToken = null; googleTokenExpiry = 0;
+            try {
+                const t = JSON.parse(sessionStorage.getItem('timeflow_google_token') || 'null');
+                if (t && t.cid === googleClientId && t.exp > Date.now() + 60000) { googleAccessToken = t.t; googleTokenExpiry = t.exp; }
+            } catch (e) {}
+        }
+        function setGoogleToken(token, expiresIn) {
+            googleAccessToken = token;
+            googleTokenExpiry = Date.now() + (Number(expiresIn) || 3600) * 1000;
+            try {
+                sessionStorage.setItem('timeflow_google_token', JSON.stringify({ t: token, exp: googleTokenExpiry, cid: googleClientId }));
+                localStorage.setItem('timeflow_google_linked', googleClientId);
+            } catch (e) {}
+        }
+        function clearGoogleToken() {
+            googleAccessToken = null; googleTokenExpiry = 0;
+            try { sessionStorage.removeItem('timeflow_google_token'); } catch (e) {}
+        }
+        function isGoogleLinked() { return !!googleClientId && localStorage.getItem('timeflow_google_linked') === googleClientId; }
+        function hasValidToken() { return !!googleAccessToken && googleTokenExpiry > Date.now() + 60000; }
+
+        function requestGoogleToken(prompt) {
+            if (tokenPromise) return tokenPromise;
+            tokenPromise = (async () => {
+                if (!googleClientId) return null;
+                try { await loadGIS(); } catch (e) { lastSyncError = 'SDK Google non raggiungibile (sei offline?)'; return null; }
+                return await new Promise(resolve => {
+                    try {
+                        google.accounts.oauth2.initTokenClient({
+                            client_id: googleClientId,
+                            scope: GCAL_SCOPE,
+                            callback: r => {
+                                if (r && r.access_token) { setGoogleToken(r.access_token, r.expires_in); resolve(r.access_token); }
+                                else { lastSyncError = 'Autorizzazione Google non riuscita.'; resolve(null); }
+                            },
+                            error_callback: () => { lastSyncError = 'Autorizzazione Google annullata o bloccata.'; resolve(null); }
+                        }).requestAccessToken({ prompt });
+                    } catch (e) { resolve(null); }
+                });
+            })();
+            tokenPromise.finally(() => { tokenPromise = null; });
+            return tokenPromise;
+        }
+
+        // interactive=true: puo' aprire il popup di Google (solo da un click dell'utente)
+        let lastSilentFail = 0;
+        async function getValidToken(interactive) {
+            if (hasValidToken()) return googleAccessToken;
+            if (!interactive) {
+                if (!isGoogleLinked()) return null;
+                // dopo un rinnovo silenzioso fallito (popup bloccato fuori da un clic) non riprovare per 2 minuti
+                if (Date.now() - lastSilentFail < 120000) return null;
+            }
+            const t = await requestGoogleToken(isGoogleLinked() ? '' : 'consent');
+            if (!t && !interactive) lastSilentFail = Date.now();
+            return t;
+        }
+
+        async function gcalCall(method, id, body) {
+            for (let attempt = 0; attempt < 3; attempt++) {
+                const token = await getValidToken(false);
+                if (!token) return { status: 0 };
+                let res;
+                try {
+                    res = await fetch(id ? `${GCAL_API}/${encodeURIComponent(id)}` : GCAL_API, {
+                        method,
+                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                        body: body ? JSON.stringify(body) : undefined
+                    });
+                } catch (e) { lastSyncError = 'Rete non disponibile'; return { status: 0 }; }
+                if (res.status === 401) { clearGoogleToken(); continue; }
+                if (res.status === 429 || res.status >= 500) { await sleep(800 * (attempt + 1)); continue; }
+                return res;
+            }
+            return { status: 0 };
+        }
+
+        function buildGoogleEvent(entry) {
+            const client = clients.find(c => c.id === entry.clientId);
+            const name = client ? client.name : 'Cliente';
+            const start = new Date(`${entry.date}T${entry.startTime || '09:00'}:00`);
+            const ms = Math.max(Number(entry.hours) || 0, 0.25) * 3600000;
+            const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            return {
+                summary: `[${name}] ${entry.description}`,
+                description: `TimeFlow Log\nCliente: ${name}\nOre: ${entry.hours}h\nTariffa: €${entry.rateApplied}/h\nTotale: €${Number(entry.totalAmount).toFixed(2)}`,
+                start: { dateTime: start.toISOString(), timeZone: tz },
+                end: { dateTime: new Date(start.getTime() + ms).toISOString(), timeZone: tz },
+                colorId: '2',
+                extendedProperties: { private: { timeflowId: entry.id } }
+            };
+        }
+        function hashStr(str) { let h = 5381; for (let i = 0; i < str.length; i++) h = ((h << 5) + h + str.charCodeAt(i)) | 0; return String(h); }
+
+        function wantsGoogle(e) { return e.gSync === true || (e.gSync === undefined && !!e.googleEventId); }
+        // true se l'attivita' deve essere creata/aggiornata su Google (nuova, oppure modificata dopo l'ultimo invio)
+        function needsGoogleSync(e) {
+            if (!wantsGoogle(e)) return false;
+            if (!e.googleEventId) return true;
+            try { return e.gHash !== hashStr(JSON.stringify(buildGoogleEvent(e))); } catch (err) { return false; }
+        }
+
+        function getDeleteQueue() { try { return JSON.parse(localStorage.getItem(GCAL_DEL_KEY) || '[]'); } catch (e) { return []; } }
+        function setDeleteQueue(q) { localStorage.setItem(GCAL_DEL_KEY, JSON.stringify(q)); }
+        function queueGoogleDeletes(entries) {
+            if (!googleClientId) return;
+            const ids = entries.map(e => e.googleEventId).filter(Boolean);
+            if (ids.length) setDeleteQueue([...new Set([...getDeleteQueue(), ...ids])]);
+        }
+        function pendingSyncCount() { return googleClientId ? timeEntries.filter(needsGoogleSync).length + getDeleteQueue().length : 0; }
+
+        async function syncGoogleCalendar(opts = {}) {
+            if (!googleClientId) return;
+            if (syncRunning) { syncAgain = true; return; }
+            const dels = getDeleteQueue();
+            const todo = timeEntries.filter(needsGoogleSync);
+
+            if (!dels.length && !todo.length) {
+                if (opts.interactive) {
+                    const t = await getValidToken(true);
+                    showToast(t ? 'Google Calendar connesso: tutto sincronizzato ✓' : (lastSyncError || 'Connessione a Google non riuscita.'), t ? 'success' : 'error');
+                }
+                updateGoogleStatusUI();
+                return;
+            }
+            const token = await getValidToken(!!opts.interactive);
+            if (!token) {
+                updateGoogleStatusUI();
+                if (opts.interactive) showToast(lastSyncError || 'Connessione a Google non riuscita.', 'error');
+                return;
+            }
+
+            syncRunning = true;
+            updateGoogleStatusUI();
+            let ok = 0, fail = 0;
+            try {
+                // 1) eliminazioni in coda
+                const remaining = [];
+                await runPool(dels, 4, async id => {
+                    const res = await gcalCall('DELETE', id);
+                    if (res.ok || res.status === 404 || res.status === 410) ok++; else { remaining.push(id); fail++; }
+                });
+                setDeleteQueue(remaining);
+
+                // 2) creazioni e aggiornamenti (4 richieste in parallelo)
+                await runPool(todo, 4, async snap => {
+                    try {
+                        const live = timeEntries.find(e => e.id === snap.id);
+                        if (!live) return;
+                        const ev = buildGoogleEvent(live);
+                        const h = hashStr(JSON.stringify(ev));
+                        let data = null;
+                        if (live.googleEventId) {
+                            const r = await gcalCall('PATCH', live.googleEventId, ev);
+                            if (r.ok) { data = await r.json(); if (data.status === 'cancelled') data = null; }
+                            else if (r.status !== 404 && r.status !== 410) { fail++; return; }
+                        }
+                        if (!data) {
+                            const r = await gcalCall('POST', null, ev);
+                            if (!r.ok) { fail++; return; }
+                            data = await r.json();
+                        }
+                        const cur = timeEntries.find(e => e.id === snap.id);
+                        if (cur) { cur.googleEventId = data.id; cur.gHash = h; }
+                        ok++;
+                    } catch (err) { fail++; }
+                });
+            } finally {
+                syncRunning = false;
+                saveEntriesToStorage();
+                renderApp();
+                updateGoogleStatusUI();
+            }
+            if (fail > 0) showToast(`${fail} elementi non sincronizzati: riproverò appena possibile.`, 'error');
+            else if (ok > 0) showToast(`Google Calendar aggiornato (${ok})`, 'success');
+            if (syncAgain) { syncAgain = false; syncGoogleCalendar(opts.interactive ? {} : opts); }
+        }
+
+        function initGoogleIdentityServices() {
+            restoreGoogleToken();
+            updateGoogleStatusUI();
+            if (!googleClientId) return;
+            loadGIS().catch(() => {});
+            if (hasValidToken()) syncGoogleCalendar({});
+        }
+
+        // Un solo pulsante: configura -> connetti -> sincronizza
+        function handleGoogleAuthClick() {
+            if (!googleClientId) { openConfigModal(); showToast('Inserisci prima il tuo Google Client ID.', 'info'); return; }
+            syncGoogleCalendar({ interactive: true });
+        }
+        function handleBannerClick() { handleGoogleAuthClick(); }
+
+        function updateGoogleStatusUI() {
+            const dot = document.getElementById('google-auth-dot');
+            const text = document.getElementById('google-auth-status-text');
+            const bannerText = document.getElementById('google-banner-text');
+            const btn = document.getElementById('google-banner-btn');
+            const n = pendingSyncCount();
+            let dotCls, label, banner, btnLabel;
+            if (!googleClientId) {
+                dotCls = 'bg-slate-500'; label = 'Non Configurato';
+                banner = ' Configura il Client ID per abilitare Calendar.'; btnLabel = 'Configura';
+            } else if (syncRunning) {
+                dotCls = 'bg-blue-400 animate-pulse'; label = 'Sincronizzo…';
+                banner = ' Sincronizzazione in corso…'; btnLabel = 'Attendi…';
+            } else if (hasValidToken()) {
+                if (n > 0) { dotCls = 'bg-amber-400'; label = `${n} da sincronizzare`; banner = ` ${n} elementi in attesa di sincronizzazione.`; }
+                else { dotCls = 'bg-emerald-400'; label = 'Sincronizzato'; banner = ' Account collegato. Tutto sincronizzato ✓'; }
+                btnLabel = 'Sincronizza ora';
+            } else {
+                dotCls = 'bg-amber-400';
+                label = isGoogleLinked() ? 'Riconnetti Google' : 'Connetti Google';
+                banner = n > 0 ? ` ${n} elementi in coda: riconnetti per inviarli.` : " Client ID salvato. Fai clic su 'Connetti' per autorizzare.";
+                btnLabel = isGoogleLinked() ? 'Riconnetti' : 'Connetti';
+            }
+            if (dot) dot.className = 'w-2 h-2 rounded-full ' + dotCls;
+            if (text) text.innerText = label;
+            if (bannerText) bannerText.innerText = banner;
+            if (btn) btn.innerText = btnLabel;
+        }
+
+        function syncIconHTML(e) {
+            if (!googleClientId || !wantsGoogle(e)) return '';
+            return needsGoogleSync(e)
+                ? '<i class="fa-solid fa-rotate text-amber-500 ml-1.5 text-[10px]" title="In attesa di sincronizzazione"></i>'
+                : '<i class="fa-solid fa-calendar-check text-emerald-500 ml-1.5 text-[10px]" title="Sincronizzato con Google Calendar"></i>';
+        }
+        function getStatusBadgeHTML(entry) { return getStatusBadgeHTMLBase(entry) + syncIconHTML(entry); }
+
+        // Sync automatico quando torna la rete o l'utente rientra nell'app
+        window.addEventListener('online', () => syncGoogleCalendar({}));
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && googleClientId && hasValidToken() && pendingSyncCount() > 0) syncGoogleCalendar({});
+        });
+
+        // ==========================================
+        // EMBEDDED NATIVE AI ENGINE (OFFLINE NLP & ANALYTICS)
+        // ==========================================
+
+        function generateEmbeddedAIFinancialAnalysis() {
+            const container = document.getElementById('ai-analysis-container');
+            container.innerHTML = `<div class="flex items-center gap-2 text-indigo-300"><i class="fa-solid fa-spinner fa-spin text-sm"></i> <span>Calcolo metriche e insight finanziari in corso...</span></div>`;
+
+            setTimeout(() => {
+                const totalRev = timeEntries.reduce((acc, curr) => acc + Number(curr.totalAmount), 0);
+                const totalHours = timeEntries.reduce((acc, curr) => acc + Number(curr.hours), 0);
+                const avgRate = totalHours > 0 ? (totalRev / totalHours) : 0;
+
+                // Find top client by revenue
+                const clientRevMap = {};
+                timeEntries.forEach(e => {
+                    clientRevMap[e.clientId] = (clientRevMap[e.clientId] || 0) + Number(e.totalAmount);
+                });
+
+                let topClientId = Object.keys(clientRevMap)[0];
+                let topClientRev = 0;
+                for (let cid in clientRevMap) {
+                    if (clientRevMap[cid] > topClientRev) {
+                        topClientRev = clientRevMap[cid];
+                        topClientId = cid;
+                    }
+                }
+                const topClient = clients.find(c => c.id === topClientId) || clients[0];
+                const topClientPercent = totalRev > 0 ? ((topClientRev / totalRev) * 100).toFixed(1) : 0;
+
+                const htmlResult = `
+                    <div class="space-y-2 text-slate-200">
+                        <p class="font-semibold text-white"><i class="fa-solid fa-circle-dot text-brand-400 mr-1.5"></i> 1. **Cliente Principale**: <strong>${topClient.name}</strong> genera il <strong>${topClientPercent}%</strong> del fatturato totale (€${topClientRev.toFixed(2)}).</p>
+                        <p class="font-semibold text-white"><i class="fa-solid fa-circle-dot text-brand-400 mr-1.5"></i> 2. **Rendimento Orario**: La tariffa media ponderata è pari a <strong>€${avgRate.toFixed(2)}/h</strong> su un totale di <strong>${totalHours.toFixed(1)} ore</strong> registrate.</p>
+                        <p class="font-semibold text-white"><i class="fa-solid fa-circle-dot text-brand-400 mr-1.5"></i> 3. **Consiglio Strategico**: Considera di rivedere al rialzo le tariffe dei clienti con volumi orari elevati per ottimizzare i margini operativi.</p>
+                    </div>
+                `;
+                container.innerHTML = htmlResult;
+                showToast('Analisi finanziaria nativa completata!', 'success');
+            }, 400);
+        }
+
+        function renderApp() {
+            renderKPIs();
+            renderMonthlyStats();
+            renderClientFilterOptions();
+            if (activeViewMode === 'calendar') renderCalendarView();
+            else renderTable();
+            updateBulkActionsBar();
+        }
+
+        function renderKPIs() {
+            let totalRevenue = 0, unbilled = 0, invoiced = 0, paid = 0, totalHours = 0;
+            timeEntries.forEach(entry => {
+                const amount = Number(entry.totalAmount) || 0;
+                const hours = Number(entry.hours) || 0;
+                totalRevenue += amount;
+                totalHours += hours;
+                if (entry.status === 'paid') paid += amount;
+                else if (entry.status === 'invoiced') invoiced += amount;
+                else unbilled += amount;
+            });
+            const avgRate = totalHours > 0 ? (totalRevenue / totalHours) : 0;
+
+            document.getElementById('kpi-total-revenue').innerText = `€ ${totalRevenue.toFixed(2)}`;
+            document.getElementById('kpi-unbilled').innerText = `€ ${unbilled.toFixed(2)}`;
+            document.getElementById('kpi-invoiced').innerText = `€ ${invoiced.toFixed(2)}`;
+            document.getElementById('kpi-paid').innerText = `€ ${paid.toFixed(2)}`;
+            document.getElementById('kpi-avg-rate').innerHTML = `€ ${avgRate.toFixed(2)}<span class="text-xs font-normal text-slate-400">/h</span>`;
+            document.getElementById('kpi-hours-sub').innerText = `${totalHours.toFixed(1)}h totali`;
+        }
+
+        function renderMonthlyStats() {
+            const container = document.getElementById('monthly-stats-container');
+            container.innerHTML = '';
+            const monthlyMap = {};
+
+            timeEntries.forEach(entry => {
+                if (!entry.date) return;
+                const [year, month] = entry.date.split('-');
+                const key = `${year}-${month}`;
+                if (!monthlyMap[key]) {
+                    const dateObj = new Date(parseInt(year), parseInt(month) - 1, 1);
+                    monthlyMap[key] = { label: dateObj.toLocaleString('it-IT', { month: 'short', year: 'numeric' }), hours: 0, revenue: 0, count: 0 };
+                }
+                monthlyMap[key].hours += Number(entry.hours) || 0;
+                monthlyMap[key].revenue += Number(entry.totalAmount) || 0;
+                monthlyMap[key].count += 1;
+            });
+
+            const sortedKeys = Object.keys(monthlyMap).sort().reverse();
+            if (sortedKeys.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 col-span-full">Nessuna statistica disponibile.</p>`;
+                return;
+            }
+
+            sortedKeys.forEach(key => {
+                const stat = monthlyMap[key];
+                const card = document.createElement('div');
+                card.className = "bg-slate-50 dark:bg-slate-800/65 border border-slate-200/80 dark:border-slate-700/60 p-2.5 sm:p-3 rounded-lg sm:rounded-xl flex flex-col justify-between";
+                card.innerHTML = `
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-[11px] sm:text-xs font-bold text-slate-800 dark:text-slate-200 capitalize">${stat.label}</span>
+                        <span class="text-[9px] bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-1.5 py-0.2 rounded">${stat.count} att.</span>
+                    </div>
+                    <div class="flex justify-between items-end">
+                        <div>
+                            <span class="text-[9px] text-slate-400 block uppercase">Ore</span>
+                            <span class="text-[11px] sm:text-xs font-semibold text-slate-700 dark:text-slate-300">${stat.hours.toFixed(1)}h</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[9px] text-slate-400 block uppercase">Totale</span>
+                            <span class="text-[11px] sm:text-xs font-bold text-brand-700 dark:text-brand-400">€ ${stat.revenue.toFixed(2)}</span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function toggleMonthlyView() {
+            const container = document.getElementById('monthly-stats-container');
+            isMonthlyCompact = !isMonthlyCompact;
+            container.classList.toggle('hidden', isMonthlyCompact);
+        }
+
+        function renderClientFilterOptions() {
+            const select = document.getElementById('filter-client');
+            const currentValue = select.value;
+            select.innerHTML = `<option value="ALL">Tutti i Clienti</option>`;
+            clients.forEach(client => {
+                const opt = document.createElement('option');
+                opt.value = client.id;
+                opt.textContent = client.name;
+                select.appendChild(opt);
+            });
+            select.value = currentValue || 'ALL';
+        }
+
+        function getFilteredEntries() {
+            const clientFilter = document.getElementById('filter-client').value;
+            const statusFilter = document.getElementById('filter-status').value;
+            const searchQuery = document.getElementById('search-input').value.toLowerCase().trim();
+
+            return timeEntries.filter(entry => {
+                const matchClient = (clientFilter === 'ALL' || entry.clientId === clientFilter);
+                const matchStatus = (statusFilter === 'ALL' || entry.status === statusFilter);
+                const matchSearch = !searchQuery || entry.description.toLowerCase().includes(searchQuery) || getClientName(entry.clientId).toLowerCase().includes(searchQuery);
+                return matchClient && matchStatus && matchSearch;
+            });
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('time-entries-tbody');
+            const mobileList = document.getElementById('time-entries-mobile-list');
+            const emptyState = document.getElementById('empty-state');
+            const filtered = getFilteredEntries();
+
+            tbody.innerHTML = '';
+            mobileList.innerHTML = '';
+
+            if (filtered.length === 0) emptyState.classList.remove('hidden');
+            else emptyState.classList.add('hidden');
+
+            filtered.forEach(entry => {
+                const client = clients.find(c => c.id === entry.clientId);
+                const clientName = client ? client.name : 'Sconosciuto';
+                const clientColor = client && client.color ? client.color : '#3b82f6';
+                const expenses = Number(entry.expenses) || 0;
+                const isChecked = selectedEntryIds.has(entry.id);
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors";
+                tr.innerHTML = `
+                    <td class="p-3 text-center no-print"><input type="checkbox" onchange="toggleSelectEntry('${entry.id}')" ${isChecked ? 'checked' : ''} class="rounded border-slate-300 dark:border-slate-700 text-brand-600 h-4 w-4 cursor-pointer"></td>
+                    <td class="p-3 font-semibold text-slate-900 dark:text-white"><div class="inline-flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full inline-block" style="background-color: ${clientColor};"></span><span>${escapeHtml(clientName)}</span></div></td>
+                    <td class="p-3 text-slate-700 dark:text-slate-300"><div class="font-medium text-slate-800 dark:text-slate-200">${escapeHtml(entry.description)}</div></td>
+                    <td class="p-3 text-slate-600 dark:text-slate-400 text-xs whitespace-nowrap">${formatDate(entry.date)} (${entry.startTime || '09:00'})</td>
+                    <td class="p-3 text-center font-semibold text-slate-800 dark:text-slate-200">${entry.hours} h</td>
+                    <td class="p-3 text-right text-slate-600 dark:text-slate-400">€ ${Number(entry.rateApplied).toFixed(2)}</td>
+                    <td class="p-3 text-right text-slate-600 dark:text-slate-400">${expenses > 0 ? `€ ${expenses.toFixed(2)}` : '-'}</td>
+                    <td class="p-3 text-right font-bold text-slate-900 dark:text-white">€ ${Number(entry.totalAmount).toFixed(2)}</td>
+                    <td class="p-3 text-center">${getStatusBadgeHTML(entry)}</td>
+                    <td class="p-3 text-center no-print">
+                        <div class="flex items-center justify-center space-x-2">
+                            <button onclick="editEntry('${entry.id}')" class="text-slate-400 hover:text-slate-700 text-xs p-1"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="deleteEntry('${entry.id}')" class="text-slate-400 hover:text-red-600 text-xs p-1"><i class="fa-solid fa-trash-can"></i></button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+
+                const mCard = document.createElement('div');
+                mCard.className = "p-3 space-y-2 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors";
+                mCard.innerHTML = `
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2"><input type="checkbox" onchange="toggleSelectEntry('${entry.id}')" ${isChecked ? 'checked' : ''} class="rounded border-slate-300 text-brand-600 h-4 w-4"><span class="w-2.5 h-2.5 rounded-full" style="background-color: ${clientColor};"></span><span class="font-bold text-xs text-slate-900 dark:text-white truncate">${escapeHtml(clientName)}</span></div>
+                        <div>${getStatusBadgeHTML(entry)}</div>
+                    </div>
+                    <div class="text-xs text-slate-800 dark:text-slate-200 font-medium pl-6">${escapeHtml(entry.description)}</div>
+                    <div class="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 pl-6 border-t border-slate-100 dark:border-slate-800/80 pt-1.5">
+                        <span><i class="fa-regular fa-calendar mr-1"></i>${formatDate(entry.date)}</span>
+                        <span><i class="fa-regular fa-clock mr-1"></i>${entry.hours}h (${entry.rateApplied}€/h)</span>
+                        <span class="font-bold text-slate-900 dark:text-white text-xs">€ ${Number(entry.totalAmount).toFixed(2)}</span>
+                    </div>
+                    <div class="flex justify-end gap-3 pl-6 pt-0.5 text-xs text-slate-400 no-print">
+                        <button onclick="editEntry('${entry.id}')" class="hover:text-slate-700"><i class="fa-solid fa-pen mr-1"></i>Modifica</button>
+                        <button onclick="deleteEntry('${entry.id}')" class="hover:text-red-500"><i class="fa-solid fa-trash mr-1"></i>Elimina</button>
+                    </div>
+                `;
+                mobileList.appendChild(mCard);
+            });
+
+            const printSum = filtered.reduce((acc, curr) => acc + Number(curr.totalAmount), 0);
+            document.getElementById('print-date').innerText = new Date().toLocaleDateString('it-IT');
+            document.getElementById('print-total').innerText = `€ ${printSum.toFixed(2)}`;
+        }
+
+        function renderCalendarView() {
+            const grid = document.getElementById('calendar-days-grid');
+            const title = document.getElementById('calendar-month-title');
+            grid.innerHTML = '';
+
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+            const firstDayOfMonth = new Date(year, month, 1);
+            const lastDayOfMonth = new Date(year, month + 1, 0);
+
+            title.innerText = firstDayOfMonth.toLocaleString('it-IT', { month: 'long', year: 'numeric' });
+
+            let startDayIndex = firstDayOfMonth.getDay() - 1;
+            if (startDayIndex === -1) startDayIndex = 6;
+
+            const totalDays = lastDayOfMonth.getDate();
+            const filteredEntries = getFilteredEntries();
+
+            for (let i = 0; i < startDayIndex; i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.className = "bg-slate-50/40 dark:bg-slate-900/30 rounded-lg min-h-[60px]";
+                grid.appendChild(emptyCell);
+            }
+
+            for (let day = 1; day <= totalDays; day++) {
+                const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const dayEntries = filteredEntries.filter(e => e.date === dateString);
+                const dayCell = document.createElement('div');
+                const isToday = fdToday() === dateString;
+
+                dayCell.className = `bg-slate-50 dark:bg-slate-800/50 border ${isToday ? 'border-brand-500 ring-1 ring-brand-500' : 'border-slate-200/80 dark:border-slate-800'} rounded-lg p-1 min-h-[60px] sm:min-h-[80px] flex flex-col justify-between cursor-pointer`;
+                dayCell.onclick = (e) => { if(e.target === dayCell || e.target.tagName === 'SPAN') openManualEntryModalForDate(dateString); };
+
+                let badgesHTML = '';
+                let dayHours = 0;
+                dayEntries.forEach(entry => {
+                    dayHours += Number(entry.hours);
+                    const client = clients.find(c => c.id === entry.clientId);
+                    const color = client ? client.color : '#3b82f6';
+                    badgesHTML += `<div onclick="event.stopPropagation(); editEntry('${entry.id}')" class="text-[9px] truncate px-1 py-0.2 rounded text-white font-medium" style="background-color: ${color};">${escapeHtml(entry.description)}</div>`;
+                });
+
+                dayCell.innerHTML = `
+                    <div class="flex justify-between items-center text-[10px] mb-0.5">
+                        <span class="font-bold ${isToday ? 'text-brand-600 dark:text-brand-400' : 'text-slate-700 dark:text-slate-300'}">${day}</span>
+                        ${dayHours > 0 ? `<span class="text-[9px] font-semibold text-slate-500">${dayHours.toFixed(1)}h</span>` : ''}
+                    </div>
+                    <div class="space-y-0.5 overflow-y-auto max-h-[45px]">${badgesHTML}</div>
+                `;
+                grid.appendChild(dayCell);
+            }
+        }
+
+        function changeCalendarMonth(delta) { currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta); renderCalendarView(); }
+        function resetCalendarToCurrentMonth() { currentCalendarDate = new Date(); renderCalendarView(); }
+        function openManualEntryModalForDate(dateStr) { openManualEntryModal(); document.getElementById('entry-date-input').value = dateStr; }
+
+        function getStatusBadgeHTMLBase(entry) {
+            switch(entry.status) {
+                case 'paid': return `<button onclick="cycleStatus('${entry.id}')" class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200"><i class="fa-solid fa-check mr-1"></i>Pagato</button>`;
+                case 'invoiced': return `<button onclick="cycleStatus('${entry.id}')" class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-100 text-blue-800 border border-blue-200"><i class="fa-solid fa-file-invoice mr-1"></i>Fatturato</button>`;
+                default: return `<button onclick="cycleStatus('${entry.id}')" class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-800 border border-amber-200"><i class="fa-solid fa-clock mr-1"></i>Da Fatturare</button>`;
+            }
+        }
+
+        function cycleStatus(id) {
+            const entry = timeEntries.find(e => e.id === id);
+            if (!entry) return;
+            if (entry.status === 'unbilled') entry.status = 'invoiced';
+            else if (entry.status === 'invoiced') entry.status = 'paid';
+            else entry.status = 'unbilled';
+            saveEntriesToStorage();
+            renderApp();
+            showToast('Stato aggiornato!', 'info');
+        }
+
+        function toggleSelectAll(checkbox) {
+            const filtered = getFilteredEntries();
+            if (checkbox.checked) filtered.forEach(e => selectedEntryIds.add(e.id));
+            else selectedEntryIds.clear();
+            if(activeViewMode === 'table') renderTable();
+            updateBulkActionsBar();
+        }
+
+        function toggleSelectEntry(id) {
+            if (selectedEntryIds.has(id)) selectedEntryIds.delete(id);
+            else selectedEntryIds.add(id);
+            updateBulkActionsBar();
+        }
+
+        function updateBulkActionsBar() {
+            const bar = document.getElementById('bulk-actions-bar');
+            const countSpan = document.getElementById('bulk-selected-count');
+            if (selectedEntryIds.size > 0) { bar.classList.remove('hidden'); countSpan.innerText = `${selectedEntryIds.size} sel.`; }
+            else bar.classList.add('hidden');
+        }
+
+        function applyBulkStatus(newStatus) {
+            if (selectedEntryIds.size === 0) return;
+            timeEntries.forEach(entry => { if (selectedEntryIds.has(entry.id)) entry.status = newStatus; });
+            saveEntriesToStorage();
+            selectedEntryIds.clear();
+            const selectAll = document.getElementById('select-all-checkbox');
+            if(selectAll) selectAll.checked = false;
+            renderApp();
+            showToast('Stato aggiornato!', 'success');
+        }
+
+        function deleteBulkSelected() {
+            if (selectedEntryIds.size === 0) return;
+            if (!confirm(`Eliminare ${selectedEntryIds.size} registrazioni?`)) return;
+            queueGoogleDeletes(timeEntries.filter(e => selectedEntryIds.has(e.id)));
+            timeEntries = timeEntries.filter(e => !selectedEntryIds.has(e.id));
+            saveEntriesToStorage();
+            selectedEntryIds.clear();
+            const selectAll = document.getElementById('select-all-checkbox');
+            if(selectAll) selectAll.checked = false;
+            renderApp();
+            showToast('Elementi eliminati.', 'info');
+            syncGoogleCalendar({});
+        }
+
+        function openConfigModal() { document.getElementById('config-client-id').value = googleClientId; document.getElementById('config-modal').classList.remove('hidden'); }
+        function closeConfigModal() { document.getElementById('config-modal').classList.add('hidden'); }
+        function saveGoogleConfig() {
+            googleClientId = document.getElementById('config-client-id').value.trim();
+            localStorage.setItem('timeflow_google_client_id', googleClientId);
+            closeConfigModal();
+            initGoogleIdentityServices();
+            showToast('Configurazione Google salvata.', 'success');
+        }
+
+        function openManualEntryModal(editId = null) {
+            const modal = document.getElementById('entry-modal');
+            const form = document.getElementById('entry-form');
+            const clientSelect = document.getElementById('entry-client-select');
+            clientSelect.innerHTML = '';
+            const availableClients = clients.filter(c => !c.isArchived || (editId && timeEntries.find(e => e.id === editId)?.clientId === c.id));
+
+            availableClients.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.id;
+                opt.textContent = c.name;
+                clientSelect.appendChild(opt);
+            });
+
+            if (editId) {
+                const entry = timeEntries.find(e => e.id === editId);
+                if (entry) {
+                    document.getElementById('entry-modal-title').innerText = 'Modifica Attività';
+                    document.getElementById('entry-id-edit').value = entry.id;
+                    clientSelect.value = entry.clientId;
+                    document.getElementById('entry-desc-input').value = entry.description;
+                    document.getElementById('entry-date-input').value = entry.date;
+                    document.getElementById('entry-start-time').value = entry.startTime || '09:00';
+                    document.getElementById('entry-hours-input').value = entry.hours;
+                    document.getElementById('entry-rate-input').value = entry.rateApplied;
+                    document.getElementById('entry-expenses-input').value = entry.expenses || 0;
+                    document.getElementById('entry-status-select').value = entry.status;
+                    document.getElementById('entry-push-google').checked = (entry.gSync === true || (entry.gSync === undefined && !!entry.googleEventId));
+                }
+            } else {
+                document.getElementById('entry-modal-title').innerText = 'Nuova Attività';
+                form.reset();
+                document.getElementById('entry-id-edit').value = '';
+                document.getElementById('entry-date-input').value = fdToday();
+                document.getElementById('entry-start-time').value = '09:00';
+                document.getElementById('entry-expenses-input').value = '0';
+                document.getElementById('entry-push-google').checked = true;
+                updateModalRateFromClient();
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function closeManualEntryModal() { document.getElementById('entry-modal').classList.add('hidden'); }
+        function updateModalRateFromClient() {
+            const clientId = document.getElementById('entry-client-select').value;
+            const client = clients.find(c => c.id === clientId);
+            if (client) document.getElementById('entry-rate-input').value = client.rate;
+        }
+
+        async function saveTimeEntry(event) {
+            event.preventDefault();
+            const editId = document.getElementById('entry-id-edit').value;
+            const clientId = document.getElementById('entry-client-select').value;
+            const description = document.getElementById('entry-desc-input').value.trim();
+            const date = document.getElementById('entry-date-input').value;
+            const startTime = document.getElementById('entry-start-time').value || '09:00';
+            const hours = parseFloat(document.getElementById('entry-hours-input').value) || 0;
+            const rateApplied = parseFloat(document.getElementById('entry-rate-input').value) || 0;
+            const expenses = parseFloat(document.getElementById('entry-expenses-input').value) || 0;
+            const status = document.getElementById('entry-status-select').value;
+            const shouldPushGoogle = document.getElementById('entry-push-google').checked;
+            const totalAmount = (hours * rateApplied) + expenses;
+
+            const existing = editId ? timeEntries.find(e => e.id === editId) : null;
+            const entryObj = Object.assign({}, existing || {}, {
+                id: editId || ('entry-' + Date.now()),
+                clientId, description, date, startTime, hours, rateApplied, expenses, totalAmount, status
+            });
+            if (entryObj.googleEventId === undefined) entryObj.googleEventId = null;
+            if (googleClientId) {
+                if (shouldPushGoogle) entryObj.gSync = true;
+                else {
+                    // casella disattivata: l'evento viene rimosso dal calendario
+                    if (entryObj.googleEventId) { queueGoogleDeletes([entryObj]); entryObj.googleEventId = null; entryObj.gHash = null; }
+                    entryObj.gSync = false;
+                }
+            } else if (!entryObj.googleEventId) entryObj.gSync = false;
+
+            if (existing) {
+                const index = timeEntries.findIndex(e => e.id === editId);
+                if (index !== -1) timeEntries[index] = entryObj;
+            } else {
+                timeEntries.unshift(entryObj);
+            }
+
+            saveEntriesToStorage();
+            closeManualEntryModal();
+            renderApp();
+            showToast('Attività salvata!', 'success');
+            syncGoogleCalendar({});
+        }
+
+        function editEntry(id) { openManualEntryModal(id); }
+        function deleteEntry(id) {
+            if (!confirm('Eliminare questa attività?')) return;
+            queueGoogleDeletes(timeEntries.filter(e => e.id === id));
+            timeEntries = timeEntries.filter(e => e.id !== id);
+            selectedEntryIds.delete(id);
+            saveEntriesToStorage();
+            renderApp();
+            showToast('Attività eliminata.', 'info');
+            syncGoogleCalendar({});
+        }
+
+        function openClientModal() { document.getElementById('client-modal').classList.remove('hidden'); renderClientsListModal(); }
+        function closeClientModal() { document.getElementById('client-modal').classList.add('hidden'); resetClientForm(); }
+        function setClientTab(tab) {
+            activeClientTab = tab;
+            const btnActive = document.getElementById('tab-clients-active');
+            const btnArchived = document.getElementById('tab-clients-archived');
+            if (tab === 'archived') {
+                btnArchived.className = "px-2 py-0.5 rounded font-semibold bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white";
+                btnActive.className = "px-2 py-0.5 rounded font-semibold text-slate-400";
+            } else {
+                btnActive.className = "px-2 py-0.5 rounded font-semibold bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white";
+                btnArchived.className = "px-2 py-0.5 rounded font-semibold text-slate-400";
+            }
+            renderClientsListModal();
+        }
+
+        function resetClientForm() { document.getElementById('client-form').reset(); document.getElementById('client-id-edit').value = ''; document.getElementById('client-color-input').value = '#3b82f6'; }
+        function saveClient(event) {
+            event.preventDefault();
+            const editId = document.getElementById('client-id-edit').value;
+            const name = document.getElementById('client-name-input').value.trim();
+            const rate = parseFloat(document.getElementById('client-rate-input').value) || 0;
+            const color = document.getElementById('client-color-input').value;
+
+            if (editId) {
+                const idx = clients.findIndex(c => c.id === editId);
+                if (idx !== -1) { clients[idx].name = name; clients[idx].rate = rate; clients[idx].color = color; }
+            } else {
+                clients.push({ id: 'client-' + Date.now(), name, rate, color, isArchived: false });
+            }
+            saveClientsToStorage();
+            resetClientForm();
+            renderClientsListModal();
+            renderApp();
+            showToast('Clienti aggiornati!', 'success');
+        }
+
+        function renderClientsListModal() {
+            const container = document.getElementById('clients-list-container');
+            container.innerHTML = '';
+            const filteredClients = clients.filter(c => activeClientTab === 'archived' ? c.isArchived : !c.isArchived);
+
+            if (filteredClients.length === 0) {
+                container.innerHTML = `<div class="p-2.5 text-xs text-slate-400 text-center">Nessun cliente.</div>`;
+                return;
+            }
+
+            filteredClients.forEach(c => {
+                const div = document.createElement('div');
+                div.className = "p-2 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/40";
+                div.innerHTML = `
+                    <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full inline-block" style="background-color: ${c.color || '#3b82f6'};"></span><div class="font-bold text-xs text-slate-800 dark:text-slate-200">${escapeHtml(c.name)} <span class="font-normal text-[10px] text-slate-400">(${c.rate}€/h)</span></div></div>
+                    <div class="flex items-center space-x-1">
+                        <button onclick="editClientInModal('${c.id}')" class="text-slate-400 p-1 text-xs"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="toggleArchiveClient('${c.id}')" class="text-slate-400 p-1 text-xs"><i class="fa-solid ${c.isArchived ? 'fa-box-open text-amber-500' : 'fa-box-archive'}"></i></button>
+                        <button onclick="deleteClientPermanent('${c.id}')" class="text-slate-400 p-1 text-xs"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function editClientInModal(id) {
+            const client = clients.find(c => c.id === id);
+            if (!client) return;
+            document.getElementById('client-id-edit').value = client.id;
+            document.getElementById('client-name-input').value = client.name;
+            document.getElementById('client-rate-input').value = client.rate;
+            document.getElementById('client-color-input').value = client.color || '#3b82f6';
+        }
+
+        function toggleArchiveClient(id) {
+            const client = clients.find(c => c.id === id);
+            if (!client) return;
+            client.isArchived = !client.isArchived;
+            saveClientsToStorage();
+            renderClientsListModal();
+            renderApp();
+            showToast(client.isArchived ? 'Archiviato.' : 'Ripristinato.', 'info');
+        }
+
+        function deleteClientPermanent(id) {
+            if (!confirm('Eliminare definitivamente questo cliente?')) return;
+            clients = clients.filter(c => c.id !== id);
+            saveClientsToStorage();
+            renderClientsListModal();
+            renderApp();
+            showToast('Cliente eliminato.', 'info');
+        }
+
+        function openExportFilterModal() { document.getElementById('export-preset-select').value = 'ALL'; applyExportPreset(); document.getElementById('export-modal').classList.remove('hidden'); }
+        function closeExportFilterModal() { document.getElementById('export-modal').classList.add('hidden'); }
+        function applyExportPreset() {
+            const preset = document.getElementById('export-preset-select').value;
+            const startInput = document.getElementById('export-start-date');
+            const endInput = document.getElementById('export-end-date');
+            const now = new Date();
+            const year = now.getFullYear();
+
+            if (preset === 'THIS_YEAR') { startInput.value = `${year}-01-01`; endInput.value = `${year}-12-31`; }
+            else if (preset === 'LAST_30') {
+                const past = new Date(now.getTime() - (30 * 24 * 3600 * 1000));
+                startInput.value = fdDateStr(past);
+                endInput.value = fdDateStr(now);
+            } else { startInput.value = ''; endInput.value = ''; }
+        }
+
+        function getEntriesInSelectedRange() {
+            const startVal = document.getElementById('export-start-date').value;
+            const endVal = document.getElementById('export-end-date').value;
+            return timeEntries.filter(entry => {
+                if (startVal && entry.date < startVal) return false;
+                if (endVal && entry.date > endVal) return false;
+                return true;
+            });
+        }
+
+
+
+        function exportFilteredToCSV() { openExportFilterModal(); }
+        function printReport() { window.print(); }
+
+
+        function getClientName(clientId) { const c = clients.find(item => item.id === clientId); return c ? c.name : 'Sconosciuto'; }
+        function formatDate(dateStr) { if (!dateStr) return ''; const [y, m, d] = dateStr.split('-'); return `${d}/${m}/${y}`; }
+        function escapeHtml(str) { if (!str) return ''; return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            let bg = "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900";
+            let icon = "fa-info-circle text-blue-400";
+            if (type === 'success') { bg = "bg-emerald-950 border border-emerald-800 text-emerald-100 dark:bg-emerald-100 dark:text-emerald-900"; icon = "fa-circle-check text-emerald-400"; }
+            else if (type === 'error') { bg = "bg-red-950 border border-red-800 text-red-100 dark:bg-red-100 dark:text-red-900"; icon = "fa-triangle-exclamation text-red-400"; }
+            toast.className = `${bg} px-3 py-2.5 rounded-lg text-xs font-medium shadow-lg flex items-center gap-2 transition-all duration-300 transform translate-y-2 pointer-events-auto`;
+            toast.innerHTML = `<i class="fa-solid ${icon} text-xs"></i> <span>${escapeHtml(message)}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.classList.add('opacity-0', '-translate-y-2'); setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+    </script>
+    <script>
+/* ===== TimeFlow v2.0 – estensioni (PWA, guida, timer, IA migliorata, backup, mobile) ===== */
+(function () {
+    'use strict';
+    const $ = id => document.getElementById(id);
+    const LS = {
+        get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } },
+        set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+        del(k) { try { localStorage.removeItem(k); } catch (e) {} }
+    };
+    const pad = n => String(n).padStart(2, '0');
+    const localDate = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    const localTime = d => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    window.fdToday = () => localDate(new Date());
+    window.fdDateStr = d => localDate(d);
+    const toast = (m, t) => { if (typeof showToast === 'function') showToast(m, t || 'info'); };
+
+    // ---------- Guida ----------
+    window.openGuide = function (id) {
+        const sh = $('guide-modal'); if (!sh) return;
+        sh.classList.remove('hidden'); document.body.style.overflow = 'hidden';
+        if (id && $(id)) { const d = $(id); if (d.tagName === 'DETAILS') d.open = true; setTimeout(() => d.scrollIntoView({ block: 'start', behavior: 'smooth' }), 30); }
+        else $('guide-body').scrollTop = 0;
+    };
+    window.closeGuide = function () { const sh = $('guide-modal'); if (sh) sh.classList.add('hidden'); document.body.style.overflow = ''; };
+    document.addEventListener('click', e => { const b = e.target.closest && e.target.closest('#guide-chips button'); if (b) window.openGuide(b.dataset.g); });
+    document.addEventListener('keydown', e => {
+        if (e.key !== 'Escape') return;
+        if (!$('guide-modal').classList.contains('hidden')) return window.closeGuide();
+        ['entry-modal', 'client-modal', 'config-modal', 'export-modal'].forEach(id => { const m = $(id); if (m && !m.classList.contains('hidden')) m.classList.add('hidden'); });
+    });
+
+    // ---------- Caricamento sicuro dei dati ----------
+    function safeParse(key, fallback) {
+        const raw = LS.get(key, null);
+        if (raw === null) return fallback;
+        try { const v = JSON.parse(raw); return Array.isArray(v) ? v : fallback; }
+        catch (e) { LS.set(key + '_corrotto_' + Date.now(), raw); window.__fdCorrupt = true; return fallback; }
+    }
+    window.loadStateFromStorage = function () {
+        const sc = LS.get('timeflow_clients', null), se = LS.get('timeflow_entries', null);
+        clients = sc === null ? [...DEFAULT_CLIENTS] : safeParse('timeflow_clients', []);
+        timeEntries = se === null ? [...DEFAULT_TIME_ENTRIES] : safeParse('timeflow_entries', []);
+        googleClientId = LS.get('timeflow_google_client_id', '') || '';
+        clients.forEach(c => { if (!c.color) c.color = '#3b82f6'; if (c.isArchived === undefined) c.isArchived = false; });
+        if (!window.__fdCorrupt) { saveClientsToStorage(); saveEntriesToStorage(); }
+    };
+
+    // ---------- Parser IA nativo migliorato ----------
+    const NUM = { un: 1, uno: 1, una: 1, due: 2, tre: 3, quattro: 4, cinque: 5, sei: 6, sette: 7, otto: 8, nove: 9, dieci: 10 };
+    const DAYS = { 'domenica': 0, 'lunedi': 1, 'lunedì': 1, 'martedi': 2, 'martedì': 2, 'mercoledi': 3, 'mercoledì': 3, 'giovedi': 4, 'giovedì': 4, 'venerdi': 5, 'venerdì': 5, 'sabato': 6 };
+    const num = s => parseFloat(String(s).replace(',', '.'));
+    window.parseDurationIT = function (text) {
+        const t = ' ' + text.toLowerCase().replace(/[’`]/g, "'") + ' ';
+        let m;
+        if ((m = t.match(/(\d+)\s*h\s*(\d{1,2})\b(?!\s*(?:€|euro|eur))/))) return +m[1] + (+m[2]) / 60;
+        if ((m = t.match(/(\d+(?:[.,]\d+)?)\s*(?:ore|ora|h)\s*e\s*mezz[oa]\b/))) return num(m[1]) + 0.5;
+        if ((m = t.match(/(\d+(?:[.,]\d+)?)\s*(?:ore|ora|h)\s*e\s*(\d{1,2})\s*(?:minuti|min|m)\b/))) return num(m[1]) + (+m[2]) / 60;
+        if (/\bun'?\s*ora\s*e\s*mezz[oa]\b/.test(t)) return 1.5;
+        if ((m = t.match(/\b(due|tre|quattro|cinque|sei|sette|otto|nove|dieci)\s+ore\s+e\s+mezz[oa]\b/))) return NUM[m[1]] + 0.5;
+        if ((m = t.match(/(\d+(?:[.,]\d+)?)\s*(?:ore|ora|h)\b/))) return num(m[1]);
+        if ((m = t.match(/\b(due|tre|quattro|cinque|sei|sette|otto|nove|dieci)\s+ore\b/))) return NUM[m[1]];
+        if ((m = t.match(/(\d+)\s*(?:minuti|min)\b/))) return (+m[1]) / 60;
+        if (/mezz'?\s*ora|mezzora/.test(t)) return 0.5;
+        if (/\bun'?\s*ora\b|\buna\s+ora\b/.test(t)) return 1;
+        return null;
+    };
+    function parseDateIT(t) {
+        const now = new Date(); let d = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        let m;
+        if (/\baltro\s*ieri\b|\baltroieri\b/.test(t)) { d.setDate(d.getDate() - 2); return d; }
+        if (/\bieri\b/.test(t)) { d.setDate(d.getDate() - 1); return d; }
+        if ((m = t.match(/\b(\d{1,2})[\/.-](\d{1,2})(?:[\/.-](\d{2,4}))?\b/))) {
+            const dd = +m[1], mm = +m[2]; let yy = m[3] ? +m[3] : now.getFullYear(); if (yy < 100) yy += 2000;
+            const c = new Date(yy, mm - 1, dd);
+            if (c.getMonth() === mm - 1 && c.getDate() === dd) { if (!m[3] && c > now) c.setFullYear(c.getFullYear() - 1); return c; }
+        }
+        for (const k of Object.keys(DAYS)) {
+            if (new RegExp('\\b' + k + '\\b').test(t)) {
+                let diff = (d.getDay() - DAYS[k] + 7) % 7; if (diff === 0 && !/\boggi\b/.test(t)) diff = 7;
+                d.setDate(d.getDate() - diff); return d;
+            }
+        }
+        return d;
+    }
+    function parseTimeIT(t) {
+        let m;
+        if ((m = t.match(/\balle\s+(\d{1,2})(?:[:.](\d{2}))?\b(?!\s*(?:ore|ora|h|euro|€))/))) { const h = +m[1]; if (h < 24) return `${pad(h)}:${m[2] || '00'}`; }
+        if (/\bstamattina\b|\bmattina\b/.test(t)) return '09:00';
+        if (/\bpomeriggio\b/.test(t)) return '14:00';
+        if (/\bstasera\b|\bsera\b/.test(t)) return '18:00';
+        return '09:00';
+    }
+    function matchClientIT(lower) {
+        const active = clients.filter(c => !c.isArchived);
+        const pool = active.length ? active : clients;
+        const norm = s => s.toLowerCase().replace(/[’`]/g, "'");
+        const sorted = [...pool].sort((a, b) => b.name.length - a.name.length);
+        for (const c of sorted) if (lower.includes(norm(c.name))) return c;
+        for (const c of sorted) {
+            const words = norm(c.name).split(/[\s,.;:()-]+/).filter(w => w.length >= 3);
+            if (words.some(w => new RegExp('(^|[^a-zà-ú0-9])' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '($|[^a-zà-ú0-9])').test(lower))) return c;
+        }
+        return pool.length === 1 ? pool[0] : null;
+    }
+    window.processEmbeddedAIPrompt = function (promptText) {
+        if (!promptText || !promptText.trim()) return;
+        const text = promptText.trim();
+        const lower = text.toLowerCase().replace(/[’`]/g, "'");
+        if (!clients.length) { toast('Aggiungi prima un cliente (pulsante Clienti).', 'error'); openClientModal(); return; }
+        const client = matchClientIT(lower);
+        if (!client) { toast('Cliente non riconosciuto: scrivi il nome del cliente (' + clients.filter(c => !c.isArchived).map(c => c.name).slice(0, 4).join(', ') + ').', 'error'); return; }
+        const hours = parseDurationIT(text);
+        if (hours === null || !(hours > 0) || hours > 24) { toast('Non trovo la durata: scrivi ad esempio «2 ore», «90 minuti» o «1h30».', 'error'); return; }
+        let expenses = 0, em;
+        if ((em = lower.match(/(\d+(?:[.,]\d+)?)\s*(?:euro|€|eur)\s*(?:di\s*)?(?:spese|spesa|extra|rimborso)/))) expenses = num(em[1]);
+        else if ((em = lower.match(/(?:spese|spesa|extra|rimborso)\s*(?:di|:)?\s*(\d+(?:[.,]\d+)?)\s*(?:euro|€|eur)?/))) expenses = num(em[1]);
+        const date = localDate(parseDateIT(lower));
+        const startTime = parseTimeIT(lower);
+        const rateApplied = Number(client.rate) || 0;
+        const totalAmount = hours * rateApplied + expenses;
+        const entry = {
+            id: 'entry-' + Date.now(), clientId: client.id, description: text, date, startTime,
+            hours: Math.round(hours * 100) / 100, rateApplied, expenses, totalAmount, status: 'unbilled', googleEventId: null, gSync: !!googleClientId
+        };
+        timeEntries.unshift(entry);
+        saveEntriesToStorage(); renderApp(); syncGoogleCalendar({});
+        $('ai-quick-input').value = '';
+        toast(`Creata: ${entry.hours}h per ${client.name} il ${formatDate(date)} (€${totalAmount.toFixed(2)})`, 'success');
+    };
+
+    // ---------- Timer ----------
+    const TK = 'timeflow_timer';
+    let timerTick = null;
+    const getTimer = () => { try { return JSON.parse(LS.get(TK, 'null')); } catch (e) { return null; } };
+    window.setTimerRound = function (v) { LS.set('timeflow_timer_round', String(v)); };
+    function fmtHMS(ms) { const s = Math.max(0, Math.floor(ms / 1000)); return `${pad(Math.floor(s / 3600))}:${pad(Math.floor(s % 3600 / 60))}:${pad(s % 60)}`; }
+    function renderTimerClients() {
+        const sel = $('timer-client'); if (!sel) return;
+        const t = getTimer(); const cur = (t && t.clientId) || sel.value || LS.get('timeflow_timer_client', '');
+        const active = clients.filter(c => !c.isArchived);
+        sel.innerHTML = '';
+        if (!active.length) { const o = document.createElement('option'); o.value = ''; o.textContent = 'Nessun cliente: aggiungine uno'; sel.appendChild(o); }
+        active.forEach(c => { const o = document.createElement('option'); o.value = c.id; o.textContent = `${c.name} (€${Number(c.rate) || 0}/h)`; sel.appendChild(o); });
+        if (cur && active.some(c => c.id === cur)) sel.value = cur;
+    }
+    let badgeOn = false;
+    function setBadge(on) {
+        if (on === badgeOn) return; badgeOn = on;
+        try { if (on && navigator.setAppBadge) navigator.setAppBadge(1); else if (!on && navigator.clearAppBadge) navigator.clearAppBadge(); } catch (e) {}
+    }
+    function paintTimer() {
+        const t = getTimer(); const btn = $('timer-btn'), disp = $('timer-display');
+        setBadge(!!t);
+        if (t) {
+            disp.textContent = fmtHMS(Date.now() - t.start);
+            document.title = '⏱ ' + disp.textContent + ' · TimeFlow';
+            btn.innerHTML = '<i class="fa-solid fa-stop text-[10px]"></i> Ferma';
+            btn.className = 'bg-red-600 hover:bg-red-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm min-w-[104px] justify-center';
+            $('timer-client').disabled = true; $('timer-desc').disabled = true;
+        } else {
+            disp.textContent = '00:00:00'; document.title = 'TimeFlow - Ore, Compensi & Calendar';
+            btn.innerHTML = '<i class="fa-solid fa-play text-[10px]"></i> Avvia';
+            btn.className = 'bg-brand-600 hover:bg-brand-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm min-w-[104px] justify-center';
+            $('timer-client').disabled = false; $('timer-desc').disabled = false;
+        }
+    }
+    function ensureTick() { if (timerTick) return; timerTick = setInterval(() => { if (getTimer()) paintTimer(); else { clearInterval(timerTick); timerTick = null; } }, 1000); }
+    window.toggleTimer = function () {
+        const t = getTimer();
+        if (!t) {
+            const cid = $('timer-client').value;
+            if (!cid) { toast('Aggiungi prima un cliente.', 'error'); openClientModal(); return; }
+            LS.set('timeflow_timer_client', cid);
+            LS.set(TK, JSON.stringify({ start: Date.now(), clientId: cid, desc: $('timer-desc').value.trim() }));
+            paintTimer(); ensureTick(); toast('Timer avviato', 'success');
+            return;
+        }
+        const elapsed = Date.now() - t.start;
+        LS.del(TK); paintTimer();
+        if (elapsed < 60000) { toast('Timer fermato: meno di 1 minuto, nessuna attività creata.', 'info'); return; }
+        let client = clients.find(c => c.id === t.clientId) || clients.find(c => !c.isArchived);
+        if (!client) { toast('Cliente non trovato: attività non creata.', 'error'); return; }
+        let hours = elapsed / 3600000;
+        const step = parseFloat(LS.get('timeflow_timer_round', '0.25'));
+        hours = step > 0 ? Math.max(step, Math.ceil(hours / step - 1e-9) * step) : Math.round(hours * 100) / 100;
+        if (hours > 12) {
+            const ans = prompt(`Il timer è rimasto attivo per ${Math.round(hours * 10) / 10} ore (forse è stato dimenticato acceso).\nQuante ore vuoi registrare? Lascia vuoto o scrivi 0 per non creare l'attività.`, '');
+            const v = ans === null ? 0 : parseFloat(String(ans).replace(',', '.'));
+            if (!(v > 0)) { toast('Timer scartato: nessuna attività creata.', 'info'); return; }
+            hours = Math.min(24, step > 0 ? Math.max(step, Math.ceil(v / step - 1e-9) * step) : Math.round(v * 100) / 100);
+        }
+        const st = new Date(t.start);
+        const rate = Number(client.rate) || 0;
+        const entry = {
+            id: 'entry-' + Date.now(), clientId: client.id, description: t.desc || 'Attività (timer)', date: localDate(st), startTime: localTime(st),
+            hours, rateApplied: rate, expenses: 0, totalAmount: hours * rate, status: 'unbilled', googleEventId: null, gSync: !!googleClientId
+        };
+        timeEntries.unshift(entry); saveEntriesToStorage(); renderApp(); syncGoogleCalendar({});
+        $('timer-desc').value = '';
+        toast(`Registrate ${hours}h per ${client.name} (€${entry.totalAmount.toFixed(2)})`, 'success');
+    };
+
+    // ---------- Backup / export ----------
+    function markBackup() { LS.set('timeflow_last_backup', new Date().toISOString()); updateBackupBanner(); }
+    window.updateBackupBanner = function () {
+        const b = $('backup-banner'); if (!b) return;
+        const v = LS.get('timeflow_last_backup', null); const t = v ? Date.parse(v) : NaN;
+        const days = isFinite(t) ? Math.floor((Date.now() - t) / 86400000) : null;
+        let msg = '';
+        if (timeEntries.length > 0) {
+            if (days === null) msg = 'Non hai ancora fatto un backup dei tuoi dati.';
+            else if (days > 30) msg = `Ultimo backup ${days} giorni fa: è ora di farne uno nuovo.`;
+        }
+        $('backup-banner-text').textContent = msg; b.classList.toggle('hidden', !msg);
+    };
+    async function saveBlobFile(blob, filename, mime) {
+        try {
+            const file = new File([blob], filename, { type: mime || blob.type });
+            if (navigator.canShare && navigator.canShare({ files: [file] }) && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                await navigator.share({ files: [file], title: filename }); return 'shared';
+            }
+        } catch (err) { if (err && err.name === 'AbortError') return 'cancelled'; }
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = filename; a.rel = 'noopener';
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
+        return 'downloaded';
+    }
+    const STATUS_IT = { unbilled: 'Da Fatturare', invoiced: 'Fatturato', paid: 'Pagato' };
+    function csvCell(v) { let s = String(v == null ? '' : v); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; }
+    const csvNum = n => String(Number(n) || 0).replace('.', ',');
+    window.downloadFilteredCSV = async function () {
+        const rows = getEntriesInSelectedRange();
+        if (!rows.length) { toast('Nessuna registrazione.', 'error'); return; }
+        let csv = '\ufeffID;Cliente;Descrizione;Data;OraInizio;Ore;Tariffa_Oraria;Spese;Totale_Euro;Stato\r\n';
+        rows.forEach(e => {
+            csv += [csvCell(e.id), csvCell(getClientName(e.clientId)), csvCell(e.description), csvCell(e.date), csvCell(e.startTime || ''), csvNum(e.hours), csvNum(e.rateApplied), csvNum(e.expenses), csvNum(e.totalAmount), csvCell(STATUS_IT[e.status] || e.status)].join(';') + '\r\n';
+        });
+        const res = await saveBlobFile(new Blob([csv], { type: 'text/csv;charset=utf-8' }), `timeflow-report-${fdToday()}.csv`, 'text/csv');
+        if (res !== 'cancelled') { closeExportFilterModal(); toast('CSV salvato!', 'success'); }
+    };
+    window.downloadFilteredJSON = async function () {
+        const rows = getEntriesInSelectedRange();
+        const backup = { app: 'TimeFlow', version: '2.1', date: new Date().toISOString(), googleClientId, clients, timeEntries: rows };
+        const res = await saveBlobFile(new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' }), `timeflow-backup-${fdToday()}.json`, 'application/json');
+        if (res !== 'cancelled') { markBackup(); closeExportFilterModal(); toast('Backup JSON salvato!', 'success'); }
+    };
+    window.importBackupJSON = function (event) {
+        const input = event.target; const file = input.files && input.files[0]; if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            input.value = '';
+            let p; try { p = JSON.parse(e.target.result); } catch (err) { toast('Errore lettura JSON.', 'error'); return; }
+            if (!p || !Array.isArray(p.clients) || !Array.isArray(p.timeEntries)) { toast('File JSON non valido.', 'error'); return; }
+            const cl = p.clients.filter(c => c && c.id && c.name).map(c => Object.assign({ color: '#3b82f6', isArchived: false, rate: 0 }, c));
+            const en = p.timeEntries.filter(x => x && x.id && x.clientId).map(x => Object.assign({}, x, { hours: Number(x.hours) || 0, rateApplied: Number(x.rateApplied) || 0, expenses: Number(x.expenses) || 0, totalAmount: Number(x.totalAmount) || 0, description: String(x.description || '') }));
+            if (!confirm(`Il backup contiene ${cl.length} clienti e ${en.length} attività.\nI dati attuali (${clients.length} clienti, ${timeEntries.length} attività) verranno sostituiti. Continuare?`)) return;
+            clients = cl; timeEntries = en;
+            if (p.googleClientId && !googleClientId) { googleClientId = p.googleClientId; LS.set('timeflow_google_client_id', googleClientId); }
+            saveClientsToStorage(); saveEntriesToStorage(); initGoogleIdentityServices(); renderApp();
+            toast('Ripristino completato!', 'success');
+        };
+        reader.onerror = () => { input.value = ''; toast('Impossibile leggere il file.', 'error'); };
+        reader.readAsText(file);
+    };
+
+    // ---------- Installazione PWA ----------
+    let deferredPrompt = null;
+    const isStandalone = () => (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+    const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    function updateInstallUI() { const b = $('btn-install'); if (b) b.classList.toggle('hidden', isStandalone() || !(deferredPrompt || isIOS())); }
+    window.installApp = async function () {
+        if (deferredPrompt) { deferredPrompt.prompt(); try { await deferredPrompt.userChoice; } catch (e) {} deferredPrompt = null; updateInstallUI(); }
+        else openGuide('install');
+    };
+    window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; updateInstallUI(); });
+    window.addEventListener('appinstalled', () => { deferredPrompt = null; updateInstallUI(); toast('App installata', 'success'); });
+
+    // ---------- Service Worker ----------
+    if ('serviceWorker' in navigator && window.isSecureContext && /^https?:$/.test(location.protocol)) {
+        const hadController = !!navigator.serviceWorker.controller;
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./service-worker.js', { scope: './', updateViaCache: 'none' }).then(reg => {
+                reg.update().catch(() => {});
+                document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
+            }).catch(err => console.warn('Service Worker non disponibile:', err));
+        });
+        navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadController) toast('Aggiornamento installato: riapri l\'app per usarlo.', 'info'); });
+    }
+
+    // ---------- Collegamento al rendering e avvio ----------
+    const _renderApp = window.renderApp;
+    window.renderApp = function () { _renderApp.apply(this, arguments); renderTimerClients(); updateBackupBanner(); };
+    function init() {
+        const opt = document.querySelector('#export-preset-select option[value="THIS_YEAR"]');
+        if (opt) opt.textContent = `Anno Corrente (${new Date().getFullYear()})`;
+        $('timer-round').value = LS.get('timeflow_timer_round', '0.25');
+        renderTimerClients(); paintTimer(); if (getTimer()) ensureTick();
+        updateBackupBanner(); updateInstallUI();
+        try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
+        if (window.__fdCorrupt) toast('Dati danneggiati: copia di sicurezza conservata. Ripristina un backup.', 'error');
+        const q = new URLSearchParams(location.search), a = q.get('action');
+        if (a === 'new') setTimeout(() => openManualEntryModal(), 300);
+        else if (a === 'timer') setTimeout(() => { $('timer-card').scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 300);
+    }
+    const _onload = window.onload;
+    window.onload = function () { if (_onload) _onload.apply(this, arguments); init(); };
+    window.addEventListener('online', () => toast('Connessione ripristinata', 'info'));
+    window.addEventListener('offline', () => toast('Sei offline: i dati restano salvati sul dispositivo', 'info'));
+})();
+
+    </script>
+</body>
+</html>
