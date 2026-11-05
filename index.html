@@ -1089,7 +1089,7 @@
             driveFolderId = folder.id; const a=document.getElementById('drive-open-folder'); if(a){a.href=`https://drive.google.com/drive/folders/${driveFolderId}`;a.classList.remove('hidden');} return driveFolderId;
         }
         function makeDriveBackup() {
-            return { app:'TimeFlow', version:'2.3', date:new Date().toISOString(), clients, timeEntries };
+            return { app:'TimeFlow', version:'2.4', date:new Date().toISOString(), clients, timeEntries };
         }
         window.backupToGoogleDrive = async function () {
             const status = document.getElementById('drive-status');
@@ -1104,8 +1104,8 @@
                 const metadata = { name:filename, mimeType:'application/json', parents:[folderId] };
                 const boundary = '-------timeflow_boundary_' + Math.random().toString(36).slice(2);
                 const body = `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n${JSON.stringify(makeDriveBackup(),null,2)}\r\n--${boundary}--\r\n`;
-                const token = await getValidToken(false);
-                const res = await fetch(`${DRIVE_API}/files?uploadType=multipart&fields=id,name,webViewLink,modifiedTime`, { method:'POST', headers:{Authorization:`Bearer ${token}`,'Content-Type':`multipart/related; boundary=${boundary}`}, body });
+                const token = freshToken;
+                const res = await fetch(`https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,webViewLink,modifiedTime`, { method:'POST', headers:{Authorization:`Bearer ${token}`,'Content-Type':`multipart/related; boundary=${boundary}`}, body });
                 if (!res.ok) { const detail = await res.text().catch(()=>''); throw new Error(`Caricamento Drive non riuscito (${res.status}): ${detail.slice(0,260)}. Controlla che Google Drive API sia attiva e che l’origine Netlify sia autorizzata nel Client OAuth.`); }
                 const file = await res.json();
                 status.textContent = 'Backup salvato su Drive ✓';

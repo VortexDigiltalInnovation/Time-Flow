@@ -41,3 +41,7 @@ TIMEFLOW 2.3 – BACKUP GOOGLE DRIVE
 - Aprire Backup, scegliere “Salva backup su Drive” e autorizzare l’accesso.
 - I file vengono salvati nella cartella visibile “TimeFlow Backups”.
 - Da “Mostra backup presenti” è possibile ripristinare un backup.
+
+
+VERSIONE 2.4 - CORREZIONE UPLOAD GOOGLE DRIVE
+Corretto l'endpoint di caricamento: i file vengono inviati all'endpoint upload di Google Drive API v3 (/upload/drive/v3/files), non all'endpoint metadata (/drive/v3/files). Il caricamento usa direttamente il token appena autorizzato per lo scope drive.file.
