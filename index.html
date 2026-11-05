@@ -407,7 +407,7 @@
                 <button onclick="closeConfigModal()" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div>
-                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Google OAuth Client ID (per Calendar)</label>
+                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Google OAuth Client ID (Calendar e Drive)</label>
                 <input type="text" id="config-client-id" placeholder="1234...apps.googleusercontent.com" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-lg px-3 py-1.5 text-xs">
             </div>
             <div class="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
@@ -549,6 +549,13 @@
                 <button onclick="downloadFilteredJSON()" class="w-full bg-slate-900 dark:bg-slate-800 text-white px-3 py-1.5 rounded-lg text-xs font-medium flex items-center justify-center gap-2"><i class="fa-solid fa-file-code text-blue-400"></i> Backup JSON</button>
                 <button onclick="downloadFilteredCSV()" class="w-full bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium flex items-center justify-center gap-2"><i class="fa-solid fa-file-csv"></i> Report CSV</button>
             </div>
+            <div class="pt-3 border-t border-slate-200 dark:border-slate-700 space-y-2">
+                <div class="flex items-center justify-between gap-2"><h4 class="text-sm font-bold text-slate-800 dark:text-white"><i class="fa-brands fa-google-drive text-emerald-500 mr-1"></i> Backup su Google Drive</h4><span id="drive-status" class="text-[10px] text-slate-500">Non collegato</span></div>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400">Salva una copia completa su Drive e consulta i backup già presenti nella cartella TimeFlow Backups.</p>
+                <button onclick="backupToGoogleDrive()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-xs font-semibold"><i class="fa-brands fa-google-drive mr-1"></i> Salva backup su Drive</button>
+                <button onclick="listGoogleDriveBackups()" class="w-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-3 py-2 rounded-lg text-xs font-medium">Mostra backup presenti</button>
+                <div id="drive-backup-list" class="space-y-1 max-h-40 overflow-y-auto text-xs"></div>
+            </div>
         </div>
     </div>
 
@@ -627,7 +634,7 @@
                     <summary class="cursor-pointer list-none px-3.5 py-3 font-bold text-slate-900 dark:text-white flex items-center justify-between">5. Google Calendar <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform group-open:rotate-180"></i></summary>
                     <div class="px-3.5 pb-3.5 space-y-2">
                         <ol class="list-decimal pl-5 space-y-1.5">
-                            <li>Nella <b>Google Cloud Console</b> crea (o apri) un progetto, abilita <i>Google Calendar API</i> e crea un <i>ID client OAuth</i> di tipo «Applicazione web».</li>
+                            <li>Nella <b>Google Cloud Console</b> crea (o apri) un progetto, abilita <i>Google Calendar API</i> e <i>Google Drive API</i> e crea un <i>ID client OAuth</i> di tipo «Applicazione web».</li>
                             <li>Tra le <b>Origini JavaScript autorizzate</b> aggiungi l'indirizzo esatto da cui usi l'app (es. <code>https://tuosito.netlify.app</code>). Cambiando indirizzo va aggiunto anche il nuovo.</li>
                             <li>Tocca l'ingranaggio <i class="fa-solid fa-gear"></i> e incolla il <b>Client ID</b>; poi <i>Connetti Google</i> e autorizza.</li>
                             <li>Ogni attività con l'opzione «Google Calendar» attiva diventa un evento; modifiche ed eliminazioni vengono ripetute sul calendario. Se sei offline, le operazioni restano in coda e partono al ritorno della connessione.</li>
@@ -653,7 +660,7 @@
                         <p>I dati risiedono <b>esclusivamente nel tuo browser</b> (LocalStorage). Per non perderli ed esportarli per il commercialista:</p>
                         <ul class="list-disc pl-5 space-y-1">
                             <li><b>Export CSV:</b> foglio compatibile con Excel (separatore «;», accenti corretti). Puoi filtrare per periodo.</li>
-                            <li><b>Backup JSON:</b> salva l'intero database (o il periodo scelto). Su smartphone si apre il pannello di condivisione per salvarlo in File / Drive.</li>
+                            <li><b>Backup JSON:</b> esporta i dati sul dispositivo. Dalla stessa finestra puoi anche caricare e consultare i backup direttamente nella cartella Google Drive “TimeFlow Backups”.</li>
                             <li><b>Ripristina:</b> carica un backup JSON; ti viene mostrato quante attività contiene e ti chiedo conferma prima di sostituire i dati attuali.</li>
                             <li>Se passano più di 30 giorni dall'ultimo backup, l'app te lo ricorda con un avviso in alto.</li>
                         </ul>
@@ -824,7 +831,10 @@
         // - coda di sincronizzazione: crea / aggiorna / elimina, in parallelo
         // ==========================================
         const GCAL_API = 'https://www.googleapis.com/calendar/v3/calendars/primary/events';
-        const GCAL_SCOPE = 'https://www.googleapis.com/auth/calendar.events';
+        const GCAL_SCOPE = 'https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/drive.file';
+        const DRIVE_API = 'https://www.googleapis.com/drive/v3';
+        const DRIVE_FOLDER_NAME = 'TimeFlow Backups';
+        let driveFolderId = null;
         const GCAL_DEL_KEY = 'timeflow_gcal_deletes';
         let gisPromise = null;
         let tokenPromise = null;
@@ -1032,6 +1042,92 @@
             if (fail > 0) showToast(`${fail} elementi non sincronizzati: riproverò appena possibile.`, 'error');
             else if (ok > 0) showToast(`Google Calendar aggiornato (${ok})`, 'success');
             if (syncAgain) { syncAgain = false; syncGoogleCalendar(opts.interactive ? {} : opts); }
+        }
+
+        // GOOGLE DRIVE BACKUP: file JSON visibili nella cartella dedicata di Drive.
+        async function driveRequest(path, options = {}) {
+            const token = await getValidToken(false);
+            if (!token) throw new Error('Collega prima Google: autorizzazione mancante o scaduta.');
+            const response = await fetch(path, { ...options, headers: { Authorization: `Bearer ${token}`, ...(options.headers || {}) } });
+            if (!response.ok) { const detail = await response.text().catch(() => ''); throw new Error(`Google Drive (${response.status}): ${detail.slice(0,180)}`); }
+            return response.status === 204 ? null : response.json();
+        }
+        async function getDriveFolder(create = true) {
+            if (driveFolderId) return driveFolderId;
+            const q = encodeURIComponent(`mimeType='application/vnd.google-apps.folder' and name='${DRIVE_FOLDER_NAME}' and trashed=false`);
+            const found = await driveRequest(`${DRIVE_API}/files?q=${q}&fields=files(id,name)&pageSize=20`);
+            if (found.files && found.files.length) return driveFolderId = found.files[0].id;
+            if (!create) return null;
+            const folder = await driveRequest(`${DRIVE_API}/files?fields=id,name`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name:DRIVE_FOLDER_NAME,mimeType:'application/vnd.google-apps.folder'}) });
+            return driveFolderId = folder.id;
+        }
+        function makeDriveBackup() {
+            return { app:'TimeFlow', version:'2.2', date:new Date().toISOString(), clients, timeEntries };
+        }
+        window.backupToGoogleDrive = async function () {
+            const status = document.getElementById('drive-status');
+            try {
+                if (!googleClientId) { openConfigModal(); throw new Error('Inserisci il Google OAuth Client ID nelle impostazioni.'); }
+                status.textContent = 'Collegamento…';
+                // Il consenso viene richiesto in risposta al tocco dell'utente.
+                const driveGranted = localStorage.getItem('timeflow_drive_authorized') === googleClientId;
+                const freshToken = await requestGoogleToken(driveGranted ? '' : 'consent');
+                if (!freshToken) throw new Error(lastSyncError || 'Autorizzazione Google non completata.');
+                localStorage.setItem('timeflow_drive_authorized', googleClientId);
+                const folderId = await getDriveFolder(true);
+                const filename = `TimeFlow-backup-${new Date().toISOString().replace(/[:.]/g,'-')}.json`;
+                const metadata = { name:filename, mimeType:'application/json', parents:[folderId] };
+                const boundary = '-------timeflow_boundary_' + Math.random().toString(36).slice(2);
+                const body = `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n${JSON.stringify(makeDriveBackup(),null,2)}\r\n--${boundary}--`;
+                const token = await getValidToken(false);
+                const res = await fetch(`${DRIVE_API}/files?uploadType=multipart&fields=id,name,webViewLink,modifiedTime`, { method:'POST', headers:{Authorization:`Bearer ${token}`,'Content-Type':`multipart/related; boundary=${boundary}`}, body });
+                if (!res.ok) throw new Error(`Caricamento Drive non riuscito (${res.status}). Verifica che Google Drive API sia abilitata nel progetto Cloud.`);
+                const file = await res.json();
+                status.textContent = 'Backup salvato su Drive ✓';
+                if (typeof markBackup === 'function') markBackup();
+                toast('Backup caricato su Google Drive.', 'success');
+                await listGoogleDriveBackups();
+                return file;
+            } catch (err) { status.textContent = 'Backup non riuscito'; toast(err.message || 'Errore Google Drive.', 'error'); }
+        };
+        window.listGoogleDriveBackups = async function () {
+            const box = document.getElementById('drive-backup-list');
+            const status = document.getElementById('drive-status');
+            box.innerHTML = '<span class="text-slate-500">Ricerca backup…</span>';
+            try {
+                if (!googleClientId) throw new Error('Configura prima il Google Client ID.');
+                const driveGranted = localStorage.getItem('timeflow_drive_authorized') === googleClientId;
+                const freshToken = await requestGoogleToken(driveGranted ? '' : 'consent');
+                if (!freshToken) throw new Error(lastSyncError || 'Autorizzazione Google non completata.');
+                localStorage.setItem('timeflow_drive_authorized', googleClientId);
+                const folderId = await getDriveFolder(false);
+                if (!folderId) { box.innerHTML='<span class="text-slate-500">Nessun backup trovato: la cartella TimeFlow Backups non esiste ancora.</span>'; status.textContent='Nessun backup'; return; }
+                const q = encodeURIComponent(`'${folderId}' in parents and trashed=false`);
+                const result = await driveRequest(`${DRIVE_API}/files?q=${q}&orderBy=modifiedTime desc&pageSize=50&fields=files(id,name,modifiedTime,size)`);
+                const files = result.files || [];
+                if (!files.length) { box.innerHTML='<span class="text-slate-500">La cartella è vuota.</span>'; status.textContent='Nessun backup'; return; }
+                box.innerHTML = '';
+                files.forEach(file => {
+                    const row = document.createElement('div'); row.className='flex items-center justify-between gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800';
+                    const info = document.createElement('div'); info.className='min-w-0';
+                    const name = document.createElement('div'); name.className='font-semibold truncate text-slate-700 dark:text-slate-200'; name.textContent=file.name;
+                    const date = document.createElement('div'); date.className='text-[10px] text-slate-500'; date.textContent=file.modifiedTime ? new Date(file.modifiedTime).toLocaleString('it-IT') : '';
+                    info.append(name,date);
+                    const btn = document.createElement('button'); btn.className='shrink-0 px-2 py-1 rounded bg-blue-600 text-white text-[10px] font-semibold'; btn.textContent='Ripristina'; btn.onclick=()=>restoreDriveBackup(file.id,file.name);
+                    row.append(info,btn); box.appendChild(row);
+                });
+                status.textContent = `${files.length} backup su Drive`;
+            } catch (err) { box.textContent = err.message || 'Impossibile leggere Google Drive.'; status.textContent='Drive non collegato'; }
+        };
+        async function restoreDriveBackup(fileId, filename) {
+            if (!confirm(`Vuoi ripristinare "${filename}"? I dati attuali verranno sostituiti.`)) return;
+            try {
+                const data = await driveRequest(`${DRIVE_API}/files/${encodeURIComponent(fileId)}?alt=media`);
+                if (!data || !Array.isArray(data.clients) || !Array.isArray(data.timeEntries)) throw new Error('Il file selezionato non è un backup TimeFlow valido.');
+                clients = data.clients; timeEntries = data.timeEntries;
+                saveClientsToStorage(); saveEntriesToStorage(); renderApp();
+                toast(`Ripristinati ${clients.length} clienti e ${timeEntries.length} attività.`, 'success');
+            } catch (err) { toast(err.message || 'Ripristino da Drive non riuscito.', 'error'); }
         }
 
         function initGoogleIdentityServices() {

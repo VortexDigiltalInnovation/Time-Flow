@@ -33,3 +33,11 @@
 ## Limiti noti
 - Tailwind resta caricato da CDN (a runtime); viene salvato in cache dopo la prima apertura online.
 - Su iPhone l'autorizzazione Google nell'app installata può essere bloccata dal sistema (autorizza prima da Safari).
+
+
+TIMEFLOW 2.2 – BACKUP GOOGLE DRIVE
+- Abilitare anche Google Drive API nel progetto Google Cloud.
+- Il Client ID OAuth già usato per Calendar viene riutilizzato.
+- Aprire Backup, scegliere “Salva backup su Drive” e autorizzare l’accesso.
+- I file vengono salvati nella cartella visibile “TimeFlow Backups”.
+- Da “Mostra backup presenti” è possibile ripristinare un backup.
