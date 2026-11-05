@@ -554,7 +554,7 @@
                 <p class="text-[11px] text-slate-500 dark:text-slate-400">Salva una copia completa su Drive e consulta i backup già presenti nella cartella TimeFlow Backups.</p>
                 <button onclick="backupToGoogleDrive()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-xs font-semibold"><i class="fa-brands fa-google-drive mr-1"></i> Salva backup su Drive</button>
                 <button onclick="listGoogleDriveBackups()" class="w-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-3 py-2 rounded-lg text-xs font-medium">Mostra backup presenti</button>
-                <div id="drive-backup-list" class="space-y-1 max-h-40 overflow-y-auto text-xs"></div>
+                <div id="drive-backup-list" class="space-y-1 max-h-40 overflow-y-auto text-xs"></div><a id="drive-open-folder" href="https://drive.google.com/drive/my-drive" target="_blank" rel="noopener" class="hidden text-[11px] text-blue-600 underline">Apri la cartella in Google Drive</a>
             </div>
         </div>
     </div>
@@ -831,7 +831,8 @@
         // - coda di sincronizzazione: crea / aggiorna / elimina, in parallelo
         // ==========================================
         const GCAL_API = 'https://www.googleapis.com/calendar/v3/calendars/primary/events';
-        const GCAL_SCOPE = 'https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/drive.file';
+        const GCAL_SCOPE = 'https://www.googleapis.com/auth/calendar.events';
+        const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
         const DRIVE_API = 'https://www.googleapis.com/drive/v3';
         const DRIVE_FOLDER_NAME = 'TimeFlow Backups';
         let driveFolderId = null;
@@ -1044,10 +1045,36 @@
             if (syncAgain) { syncAgain = false; syncGoogleCalendar(opts.interactive ? {} : opts); }
         }
 
+        // GOOGLE DRIVE: autorizzazione separata e verificata, indipendente da Calendar.
+        async function requestGoogleDriveToken() {
+            if (!googleClientId) throw new Error('Inserisci il Google OAuth Client ID nelle impostazioni.');
+            await loadGIS();
+            return await new Promise((resolve, reject) => {
+                try {
+                    google.accounts.oauth2.initTokenClient({
+                        client_id: googleClientId,
+                        scope: DRIVE_SCOPE,
+                        include_granted_scopes: true,
+                        callback: r => {
+                            if (r && r.access_token) {
+                                if (google.accounts.oauth2.hasGrantedAllScopes && !google.accounts.oauth2.hasGrantedAllScopes(r, DRIVE_SCOPE)) {
+                                    reject(new Error('Google non ha concesso l’accesso a Drive. Riprova e autorizza Google Drive nella schermata di consenso.'));
+                                    return;
+                                }
+                                setGoogleToken(r.access_token, r.expires_in);
+                                resolve(r.access_token);
+                            } else reject(new Error(r?.error_description || r?.error || 'Autorizzazione Google Drive non completata.'));
+                        },
+                        error_callback: e => reject(new Error(e?.message || 'Popup Google bloccato o autorizzazione annullata.'))
+                    }).requestAccessToken({ prompt: 'consent' });
+                } catch (e) { reject(e); }
+            });
+        }
         // GOOGLE DRIVE BACKUP: file JSON visibili nella cartella dedicata di Drive.
         async function driveRequest(path, options = {}) {
-            const token = await getValidToken(false);
-            if (!token) throw new Error('Collega prima Google: autorizzazione mancante o scaduta.');
+            // Non riutilizzare un token Calendar privo dello scope Drive.
+            const token = hasValidToken() ? googleAccessToken : await requestGoogleDriveToken();
+            if (!token) throw new Error('Token Google Drive non disponibile. Riprova ad autorizzare Drive.');
             const response = await fetch(path, { ...options, headers: { Authorization: `Bearer ${token}`, ...(options.headers || {}) } });
             if (!response.ok) { const detail = await response.text().catch(() => ''); throw new Error(`Google Drive (${response.status}): ${detail.slice(0,180)}`); }
             return response.status === 204 ? null : response.json();
@@ -1056,32 +1083,30 @@
             if (driveFolderId) return driveFolderId;
             const q = encodeURIComponent(`mimeType='application/vnd.google-apps.folder' and name='${DRIVE_FOLDER_NAME}' and trashed=false`);
             const found = await driveRequest(`${DRIVE_API}/files?q=${q}&fields=files(id,name)&pageSize=20`);
-            if (found.files && found.files.length) return driveFolderId = found.files[0].id;
+            if (found.files && found.files.length) { driveFolderId = found.files[0].id; const a=document.getElementById('drive-open-folder'); if(a){a.href=`https://drive.google.com/drive/folders/${driveFolderId}`;a.classList.remove('hidden');} return driveFolderId; }
             if (!create) return null;
             const folder = await driveRequest(`${DRIVE_API}/files?fields=id,name`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name:DRIVE_FOLDER_NAME,mimeType:'application/vnd.google-apps.folder'}) });
-            return driveFolderId = folder.id;
+            driveFolderId = folder.id; const a=document.getElementById('drive-open-folder'); if(a){a.href=`https://drive.google.com/drive/folders/${driveFolderId}`;a.classList.remove('hidden');} return driveFolderId;
         }
         function makeDriveBackup() {
-            return { app:'TimeFlow', version:'2.2', date:new Date().toISOString(), clients, timeEntries };
+            return { app:'TimeFlow', version:'2.3', date:new Date().toISOString(), clients, timeEntries };
         }
         window.backupToGoogleDrive = async function () {
             const status = document.getElementById('drive-status');
             try {
                 if (!googleClientId) { openConfigModal(); throw new Error('Inserisci il Google OAuth Client ID nelle impostazioni.'); }
                 status.textContent = 'Collegamento…';
-                // Il consenso viene richiesto in risposta al tocco dell'utente.
-                const driveGranted = localStorage.getItem('timeflow_drive_authorized') === googleClientId;
-                const freshToken = await requestGoogleToken(driveGranted ? '' : 'consent');
-                if (!freshToken) throw new Error(lastSyncError || 'Autorizzazione Google non completata.');
-                localStorage.setItem('timeflow_drive_authorized', googleClientId);
+                // Richiedi esplicitamente lo scope Drive: il consenso Calendar da solo non basta.
+                const freshToken = await requestGoogleDriveToken();
+                if (!freshToken) throw new Error('Autorizzazione Google Drive non completata.');
                 const folderId = await getDriveFolder(true);
                 const filename = `TimeFlow-backup-${new Date().toISOString().replace(/[:.]/g,'-')}.json`;
                 const metadata = { name:filename, mimeType:'application/json', parents:[folderId] };
                 const boundary = '-------timeflow_boundary_' + Math.random().toString(36).slice(2);
-                const body = `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n${JSON.stringify(makeDriveBackup(),null,2)}\r\n--${boundary}--`;
+                const body = `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n${JSON.stringify(makeDriveBackup(),null,2)}\r\n--${boundary}--\r\n`;
                 const token = await getValidToken(false);
                 const res = await fetch(`${DRIVE_API}/files?uploadType=multipart&fields=id,name,webViewLink,modifiedTime`, { method:'POST', headers:{Authorization:`Bearer ${token}`,'Content-Type':`multipart/related; boundary=${boundary}`}, body });
-                if (!res.ok) throw new Error(`Caricamento Drive non riuscito (${res.status}). Verifica che Google Drive API sia abilitata nel progetto Cloud.`);
+                if (!res.ok) { const detail = await res.text().catch(()=>''); throw new Error(`Caricamento Drive non riuscito (${res.status}): ${detail.slice(0,260)}. Controlla che Google Drive API sia attiva e che l’origine Netlify sia autorizzata nel Client OAuth.`); }
                 const file = await res.json();
                 status.textContent = 'Backup salvato su Drive ✓';
                 if (typeof markBackup === 'function') markBackup();
@@ -1096,12 +1121,10 @@
             box.innerHTML = '<span class="text-slate-500">Ricerca backup…</span>';
             try {
                 if (!googleClientId) throw new Error('Configura prima il Google Client ID.');
-                const driveGranted = localStorage.getItem('timeflow_drive_authorized') === googleClientId;
-                const freshToken = await requestGoogleToken(driveGranted ? '' : 'consent');
-                if (!freshToken) throw new Error(lastSyncError || 'Autorizzazione Google non completata.');
-                localStorage.setItem('timeflow_drive_authorized', googleClientId);
+                const freshToken = await requestGoogleDriveToken();
+                if (!freshToken) throw new Error('Autorizzazione Google Drive non completata.');
                 const folderId = await getDriveFolder(false);
-                if (!folderId) { box.innerHTML='<span class="text-slate-500">Nessun backup trovato: la cartella TimeFlow Backups non esiste ancora.</span>'; status.textContent='Nessun backup'; return; }
+                if (!folderId) { box.innerHTML='<span class="text-slate-500">Cartella non ancora creata. Premi “Salva backup su Drive” per crearla e caricare il primo backup.</span>'; status.textContent='Nessun backup'; return; }
                 const q = encodeURIComponent(`'${folderId}' in parents and trashed=false`);
                 const result = await driveRequest(`${DRIVE_API}/files?q=${q}&orderBy=modifiedTime desc&pageSize=50&fields=files(id,name,modifiedTime,size)`);
                 const files = result.files || [];
