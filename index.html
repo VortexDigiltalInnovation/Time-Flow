@@ -937,11 +937,16 @@
                         body: body ? JSON.stringify(body) : undefined
                     });
                 } catch (e) { lastSyncError = 'Rete non disponibile'; return { status: 0 }; }
-                if (res.status === 401) { clearGoogleToken(); continue; }
-                if (res.status === 429 || res.status >= 500) { await sleep(800 * (attempt + 1)); continue; }
-                return res;
+                if (res.status === 401) { clearGoogleToken(); lastSyncError = 'Sessione Google scaduta: autorizzazione da rinnovare.'; continue; }
+                if (res.status === 429 || res.status >= 500) { await sleep(800 * (attempt + 1)); if (attempt < 2) continue; }
+                const raw = await res.text().catch(() => '');
+                let payload = null;
+                try { payload = raw ? JSON.parse(raw) : null; } catch (e) { payload = null; }
+                const apiMessage = payload?.error?.message || payload?.error_description || raw || res.statusText || 'Risposta Google non dettagliata';
+                if (!res.ok) lastSyncError = `Google Calendar HTTP ${res.status}: ${String(apiMessage).slice(0, 260)}`;
+                return { ok: res.ok, status: res.status, data: payload, errorMessage: res.ok ? '' : lastSyncError, json: async () => payload };
             }
-            return { status: 0 };
+            return { ok: false, status: 0, errorMessage: lastSyncError || 'Nessuna risposta da Google Calendar', json: async () => null };
         }
 
         function buildGoogleEvent(entry) {
@@ -1002,12 +1007,13 @@
             syncRunning = true;
             updateGoogleStatusUI();
             let ok = 0, fail = 0;
+            const syncFailures = [];
             try {
                 // 1) eliminazioni in coda
                 const remaining = [];
                 await runPool(dels, 4, async id => {
                     const res = await gcalCall('DELETE', id);
-                    if (res.ok || res.status === 404 || res.status === 410) ok++; else { remaining.push(id); fail++; }
+                    if (res.ok || res.status === 404 || res.status === 410) ok++; else { remaining.push(id); fail++; syncFailures.push(res.errorMessage || lastSyncError || `Eliminazione rifiutata (HTTP ${res.status || 0})`); }
                 });
                 setDeleteQueue(remaining);
 
@@ -1022,17 +1028,17 @@
                         if (live.googleEventId) {
                             const r = await gcalCall('PATCH', live.googleEventId, ev);
                             if (r.ok) { data = await r.json(); if (data.status === 'cancelled') data = null; }
-                            else if (r.status !== 404 && r.status !== 410) { fail++; return; }
+                            else if (r.status !== 404 && r.status !== 410) { fail++; syncFailures.push(r.errorMessage || lastSyncError || `Aggiornamento rifiutato (HTTP ${r.status || 0})`); return; }
                         }
                         if (!data) {
                             const r = await gcalCall('POST', null, ev);
-                            if (!r.ok) { fail++; return; }
+                            if (!r.ok) { fail++; syncFailures.push(r.errorMessage || lastSyncError || `Creazione rifiutata (HTTP ${r.status || 0})`); return; }
                             data = await r.json();
                         }
                         const cur = timeEntries.find(e => e.id === snap.id);
                         if (cur) { cur.googleEventId = data.id; cur.gHash = h; }
                         ok++;
-                    } catch (err) { fail++; }
+                    } catch (err) { fail++; syncFailures.push(err?.message || 'Errore durante la preparazione dell’evento'); }
                 });
             } finally {
                 syncRunning = false;
@@ -1040,7 +1046,7 @@
                 renderApp();
                 updateGoogleStatusUI();
             }
-            if (fail > 0) showToast(`${fail} elementi non sincronizzati: riproverò appena possibile.`, 'error');
+            if (fail > 0) { const detail = syncFailures.find(Boolean) || lastSyncError || 'Errore non identificato'; showToast(`${fail} elementi non sincronizzati. ${detail}`, 'error'); }
             else if (ok > 0) showToast(`Google Calendar aggiornato (${ok})`, 'success');
             if (syncAgain) { syncAgain = false; syncGoogleCalendar(opts.interactive ? {} : opts); }
         }
