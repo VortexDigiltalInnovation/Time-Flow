@@ -761,6 +761,8 @@
         let isDarkMode = false;
         let googleClientId = '';
         let googleAccessToken = null;
+        let driveAccessToken = null;
+        let driveTokenExpiry = 0;
         let tokenClient = null;
 
         window.onload = function() {
@@ -1067,7 +1069,8 @@
                                     reject(new Error('Google non ha concesso l’accesso a Drive. Riprova e autorizza Google Drive nella schermata di consenso.'));
                                     return;
                                 }
-                                setGoogleToken(r.access_token, r.expires_in);
+                                driveAccessToken = r.access_token;
+                                driveTokenExpiry = Date.now() + (Number(r.expires_in) || 3600) * 1000;
                                 resolve(r.access_token);
                             } else reject(new Error(r?.error_description || r?.error || 'Autorizzazione Google Drive non completata.'));
                         },
@@ -1078,8 +1081,10 @@
         }
         // GOOGLE DRIVE BACKUP: file JSON visibili nella cartella dedicata di Drive.
         async function driveRequest(path, options = {}) {
-            // Non riutilizzare un token Calendar privo dello scope Drive.
-            const token = hasValidToken() ? googleAccessToken : await requestGoogleDriveToken();
+            // Token Drive separato: non deve sovrascrivere né riutilizzare quello Calendar.
+            const token = driveAccessToken && driveTokenExpiry > Date.now() + 60000
+                ? driveAccessToken
+                : await requestGoogleDriveToken();
             if (!token) throw new Error('Token Google Drive non disponibile. Riprova ad autorizzare Drive.');
             const response = await fetch(path, { ...options, headers: { Authorization: `Bearer ${token}`, ...(options.headers || {}) } });
             if (!response.ok) { const detail = await response.text().catch(() => ''); throw new Error(`Google Drive (${response.status}): ${detail.slice(0,180)}`); }
