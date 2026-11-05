@@ -1093,27 +1093,63 @@
         }
         window.backupToGoogleDrive = async function () {
             const status = document.getElementById('drive-status');
+            let createdFileId = null;
             try {
                 if (!googleClientId) { openConfigModal(); throw new Error('Inserisci il Google OAuth Client ID nelle impostazioni.'); }
                 status.textContent = 'Collegamento…';
-                // Richiedi esplicitamente lo scope Drive: il consenso Calendar da solo non basta.
-                const freshToken = await requestGoogleDriveToken();
-                if (!freshToken) throw new Error('Autorizzazione Google Drive non completata.');
+                const token = await requestGoogleDriveToken();
+                if (!token) throw new Error('Autorizzazione Google Drive non completata.');
                 const folderId = await getDriveFolder(true);
+                const backup = makeDriveBackup();
+                if (!backup || !Array.isArray(backup.clients) || !Array.isArray(backup.timeEntries)) {
+                    throw new Error('I dati da salvare non sono validi: backup annullato.');
+                }
+                const json = JSON.stringify(backup, null, 2);
+                if (!json || json.length < 20) throw new Error('Il backup risulta vuoto: nessun file è stato caricato.');
                 const filename = `TimeFlow-backup-${new Date().toISOString().replace(/[:.]/g,'-')}.json`;
-                const metadata = { name:filename, mimeType:'application/json', parents:[folderId] };
-                const boundary = '-------timeflow_boundary_' + Math.random().toString(36).slice(2);
-                const body = `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n${JSON.stringify(makeDriveBackup(),null,2)}\r\n--${boundary}--\r\n`;
-                const token = freshToken;
-                const res = await fetch(`https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,webViewLink,modifiedTime`, { method:'POST', headers:{Authorization:`Bearer ${token}`,'Content-Type':`multipart/related; boundary=${boundary}`}, body });
-                if (!res.ok) { const detail = await res.text().catch(()=>''); throw new Error(`Caricamento Drive non riuscito (${res.status}): ${detail.slice(0,260)}. Controlla che Google Drive API sia attiva e che l’origine Netlify sia autorizzata nel Client OAuth.`); }
-                const file = await res.json();
-                status.textContent = 'Backup salvato su Drive ✓';
+
+                // 1) Crea il file con i metadati e la cartella di destinazione.
+                status.textContent = 'Creazione file su Drive…';
+                const metadata = await driveRequest(`${DRIVE_API}/files?fields=id,name,parents`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: filename, mimeType: 'application/json', parents: [folderId] })
+                });
+                if (!metadata || !metadata.id) throw new Error('Google Drive non ha restituito l’ID del nuovo file.');
+                createdFileId = metadata.id;
+
+                // 2) Carica il contenuto JSON sul file appena creato (upload media).
+                status.textContent = 'Caricamento dati…';
+                const upload = await fetch(`https://www.googleapis.com/upload/drive/v3/files/${encodeURIComponent(createdFileId)}?uploadType=media&fields=id,name,size,mimeType,parents`, {
+                    method: 'PATCH',
+                    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json; charset=UTF-8' },
+                    body: json
+                });
+                if (!upload.ok) {
+                    const detail = await upload.text().catch(() => '');
+                    throw new Error(`Trasferimento del backup non riuscito (${upload.status}): ${detail.slice(0,320)}`);
+                }
+                const uploaded = await upload.json();
+                // 3) Verifica lato server che il file esista e abbia contenuto non vuoto.
+                const verified = await driveRequest(`${DRIVE_API}/files/${encodeURIComponent(createdFileId)}?fields=id,name,size,mimeType,parents`);
+                const size = Number(verified?.size || uploaded?.size || 0);
+                if (!verified?.id || size <= 0) throw new Error('Drive ha creato il file ma la verifica del contenuto è fallita (dimensione zero o non disponibile).');
+
+                status.textContent = `Backup verificato su Drive (${size} byte) ✓`;
                 if (typeof markBackup === 'function') markBackup();
-                toast('Backup caricato su Google Drive.', 'success');
+                toast(`Backup caricato e verificato su Google Drive (${size} byte).`, 'success');
                 await listGoogleDriveBackups();
-                return file;
-            } catch (err) { status.textContent = 'Backup non riuscito'; toast(err.message || 'Errore Google Drive.', 'error'); }
+                return verified;
+            } catch (err) {
+                // Evita di lasciare in cartella un file vuoto se il trasferimento fallisce.
+                if (createdFileId) {
+                    try { await driveRequest(`${DRIVE_API}/files/${encodeURIComponent(createdFileId)}`, { method: 'DELETE' }); } catch (_) {}
+                }
+                status.textContent = 'Backup non riuscito';
+                toast(err.message || 'Errore Google Drive.', 'error');
+                console.error('TimeFlow Google Drive backup:', err);
+                return null;
+            }
         };
         window.listGoogleDriveBackups = async function () {
             const box = document.getElementById('drive-backup-list');
