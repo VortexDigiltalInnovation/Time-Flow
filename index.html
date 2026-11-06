@@ -1099,6 +1099,12 @@
             const folder = await driveRequest(`${DRIVE_API}/files?fields=id,name`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name:DRIVE_FOLDER_NAME,mimeType:'application/vnd.google-apps.folder'}) });
             driveFolderId = folder.id; const a=document.getElementById('drive-open-folder'); if(a){a.href=`https://drive.google.com/drive/folders/${driveFolderId}`;a.classList.remove('hidden');} return driveFolderId;
         }
+        // Timestamp locale leggibile: AAAA-MM-GG_HH-MM-SS
+        function backupStamp(d = new Date()) {
+            const p = n => String(n).padStart(2, '0');
+            return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}_${p(d.getHours())}-${p(d.getMinutes())}-${p(d.getSeconds())}`;
+        }
+        window.backupStamp = backupStamp;
         function makeDriveBackup() {
             return { app:'TimeFlow', version:'2.4', date:new Date().toISOString(), clients, timeEntries };
         }
@@ -1117,30 +1123,24 @@
                 }
                 const json = JSON.stringify(backup, null, 2);
                 if (!json || json.length < 20) throw new Error('Il backup risulta vuoto: nessun file è stato caricato.');
-                const filename = `TimeFlow-backup-${new Date().toISOString().replace(/[:.]/g,'-')}.json`;
+                const filename = `TimeFlow-backup-${backupStamp()}.json`;
 
-                // 1) Crea il file con i metadati e la cartella di destinazione.
-                status.textContent = 'Creazione file su Drive…';
-                const metadata = await driveRequest(`${DRIVE_API}/files?fields=id,name,parents`, {
+                // Upload unico multipart: metadati + contenuto nella stessa richiesta.
+                status.textContent = 'Caricamento backup su Drive…';
+                const boundary = 'timeflow_' + Date.now().toString(36) + Math.random().toString(36).slice(2);
+                const meta = { name: filename, mimeType: 'application/json', parents: [folderId] };
+                const body = `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(meta)}\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n${json}\r\n--${boundary}--`;
+                const upload = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,size,mimeType,parents', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: filename, mimeType: 'application/json', parents: [folderId] })
-                });
-                if (!metadata || !metadata.id) throw new Error('Google Drive non ha restituito l’ID del nuovo file.');
-                createdFileId = metadata.id;
-
-                // 2) Carica il contenuto JSON sul file appena creato (upload media).
-                status.textContent = 'Caricamento dati…';
-                const upload = await fetch(`https://www.googleapis.com/upload/drive/v3/files/${encodeURIComponent(createdFileId)}?uploadType=media&fields=id,name,size,mimeType,parents`, {
-                    method: 'PATCH',
-                    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json; charset=UTF-8' },
-                    body: json
+                    headers: { Authorization: `Bearer ${driveAccessToken || token}`, 'Content-Type': `multipart/related; boundary=${boundary}` },
+                    body: new Blob([body], { type: `multipart/related; boundary=${boundary}` })
                 });
                 if (!upload.ok) {
                     const detail = await upload.text().catch(() => '');
                     throw new Error(`Trasferimento del backup non riuscito (${upload.status}): ${detail.slice(0,320)}`);
                 }
                 const uploaded = await upload.json();
+                createdFileId = uploaded.id;
                 // 3) Verifica lato server che il file esista e abbia contenuto non vuoto.
                 const verified = await driveRequest(`${DRIVE_API}/files/${encodeURIComponent(createdFileId)}?fields=id,name,size,mimeType,parents`);
                 const size = Number(verified?.size || uploaded?.size || 0);
@@ -2097,7 +2097,7 @@
     window.downloadFilteredJSON = async function () {
         const rows = getEntriesInSelectedRange();
         const backup = { app: 'TimeFlow', version: '2.1', date: new Date().toISOString(), googleClientId, clients, timeEntries: rows };
-        const res = await saveBlobFile(new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' }), `timeflow-backup-${fdToday()}.json`, 'application/json');
+        const res = await saveBlobFile(new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' }), `TimeFlow-backup-${backupStamp()}.json`, 'application/json');
         if (res !== 'cancelled') { markBackup(); closeExportFilterModal(); toast('Backup JSON salvato!', 'success'); }
     };
     window.importBackupJSON = function (event) {
