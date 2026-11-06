@@ -1054,50 +1054,78 @@
         }
 
         // GOOGLE DRIVE: autorizzazione separata e verificata, indipendente da Calendar.
-        async function requestGoogleDriveToken() {
-            if (!googleClientId) throw new Error('Inserisci il Google OAuth Client ID nelle impostazioni.');
-            await loadGIS();
-            return await new Promise((resolve, reject) => {
-                try {
-                    google.accounts.oauth2.initTokenClient({
-                        client_id: googleClientId,
-                        scope: DRIVE_SCOPE,
-                        include_granted_scopes: true,
-                        callback: r => {
-                            if (r && r.access_token) {
-                                if (google.accounts.oauth2.hasGrantedAllScopes && !google.accounts.oauth2.hasGrantedAllScopes(r, DRIVE_SCOPE)) {
-                                    reject(new Error('Google non ha concesso l’accesso a Drive. Riprova e autorizza Google Drive nella schermata di consenso.'));
-                                    return;
-                                }
-                                driveAccessToken = r.access_token;
-                                driveTokenExpiry = Date.now() + (Number(r.expires_in) || 3600) * 1000;
-                                resolve(r.access_token);
-                            } else reject(new Error(r?.error_description || r?.error || 'Autorizzazione Google Drive non completata.'));
-                        },
-                        error_callback: e => reject(new Error(e?.message || 'Popup Google bloccato o autorizzazione annullata.'))
-                    }).requestAccessToken({ prompt: 'consent' });
-                } catch (e) { reject(e); }
-            });
+        let driveTokenPromise = null;
+        function requestGoogleDriveToken(prompt = '') {
+            if (driveTokenPromise) return driveTokenPromise;
+            driveTokenPromise = (async () => {
+                if (!googleClientId) throw new Error('Inserisci il Google OAuth Client ID nelle impostazioni.');
+                try { await loadGIS(); } catch (e) { throw new Error('Impossibile contattare Google (sei offline?).'); }
+                return await new Promise((resolve, reject) => {
+                    try {
+                        google.accounts.oauth2.initTokenClient({
+                            client_id: googleClientId,
+                            scope: DRIVE_SCOPE,
+                            include_granted_scopes: true,
+                            callback: r => {
+                                if (r && r.access_token) {
+                                    if (google.accounts.oauth2.hasGrantedAllScopes && !google.accounts.oauth2.hasGrantedAllScopes(r, DRIVE_SCOPE)) {
+                                        reject(new Error('Google non ha concesso l’accesso a Drive. Riprova e autorizza Google Drive nella schermata di consenso.'));
+                                        return;
+                                    }
+                                    driveAccessToken = r.access_token;
+                                    driveTokenExpiry = Date.now() + (Number(r.expires_in) || 3600) * 1000;
+                                    resolve(r.access_token);
+                                } else reject(new Error(r?.error_description || r?.error || 'Autorizzazione Google Drive non completata.'));
+                            },
+                            error_callback: e => {
+                                const t = e && e.type;
+                                if (t === 'popup_failed_to_open') reject(new Error('Il popup di Google è stato bloccato: consenti i popup per questo sito e riprova.'));
+                                else if (t === 'popup_closed') reject(new Error('Autorizzazione Google Drive annullata.'));
+                                else reject(new Error(e?.message || 'Autorizzazione Google Drive non completata.'));
+                            }
+                        }).requestAccessToken({ prompt });
+                    } catch (e) { reject(e); }
+                });
+            })();
+            const done = () => { driveTokenPromise = null; };
+            driveTokenPromise.then(done, done);
+            return driveTokenPromise;
+        }
+        // Riusa il token Drive ancora valido: il popup di Google compare solo quando serve davvero.
+        async function getDriveToken() {
+            if (driveAccessToken && driveTokenExpiry > Date.now() + 60000) return driveAccessToken;
+            return await requestGoogleDriveToken();
+        }
+        function makeDriveError(status, detail) {
+            let msg = '';
+            try { msg = (JSON.parse(detail).error || {}).message || ''; } catch (_) {}
+            let text;
+            if (status === 403 && /accessNotConfigured|has not been used|is disabled|SERVICE_DISABLED/i.test(detail)) text = 'Google Drive API non abilitata nel progetto Google Cloud: abilitala in «API e servizi» e riprova.';
+            else if (status === 403) text = `Google Drive ha rifiutato l’accesso (403)${msg ? ': ' + msg.slice(0, 140) : ''}. Controlla di aver autorizzato Drive.`;
+            else if (status === 401) text = 'Autorizzazione Google scaduta: riprova.';
+            else text = `Google Drive (${status})${msg ? ': ' + msg.slice(0, 160) : detail ? ': ' + detail.slice(0, 160) : ''}`;
+            const err = new Error(text); err.status = status; return err;
         }
         // GOOGLE DRIVE BACKUP: file JSON visibili nella cartella dedicata di Drive.
-        async function driveRequest(path, options = {}) {
-            // Token Drive separato: non deve sovrascrivere né riutilizzare quello Calendar.
-            const token = driveAccessToken && driveTokenExpiry > Date.now() + 60000
-                ? driveAccessToken
-                : await requestGoogleDriveToken();
-            if (!token) throw new Error('Token Google Drive non disponibile. Riprova ad autorizzare Drive.');
+        async function driveRequest(path, options = {}, _retry = false) {
+            const token = await getDriveToken();
             const response = await fetch(path, { ...options, headers: { Authorization: `Bearer ${token}`, ...(options.headers || {}) } });
-            if (!response.ok) { const detail = await response.text().catch(() => ''); throw new Error(`Google Drive (${response.status}): ${detail.slice(0,180)}`); }
+            if (response.status === 401 && !_retry) { driveAccessToken = null; driveTokenExpiry = 0; return driveRequest(path, options, true); }
+            if (!response.ok) { const detail = await response.text().catch(() => ''); throw makeDriveError(response.status, detail); }
             return response.status === 204 ? null : response.json();
+        }
+        function showDriveFolderLink(id) {
+            const a = document.getElementById('drive-open-folder');
+            if (a) { a.href = `https://drive.google.com/drive/folders/${id}`; a.classList.remove('hidden'); }
         }
         async function getDriveFolder(create = true) {
             if (driveFolderId) return driveFolderId;
             const q = encodeURIComponent(`mimeType='application/vnd.google-apps.folder' and name='${DRIVE_FOLDER_NAME}' and trashed=false`);
             const found = await driveRequest(`${DRIVE_API}/files?q=${q}&fields=files(id,name)&pageSize=20`);
-            if (found.files && found.files.length) { driveFolderId = found.files[0].id; const a=document.getElementById('drive-open-folder'); if(a){a.href=`https://drive.google.com/drive/folders/${driveFolderId}`;a.classList.remove('hidden');} return driveFolderId; }
+            if (found.files && found.files.length) { driveFolderId = found.files[0].id; showDriveFolderLink(driveFolderId); return driveFolderId; }
             if (!create) return null;
             const folder = await driveRequest(`${DRIVE_API}/files?fields=id,name`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name:DRIVE_FOLDER_NAME,mimeType:'application/vnd.google-apps.folder'}) });
-            driveFolderId = folder.id; const a=document.getElementById('drive-open-folder'); if(a){a.href=`https://drive.google.com/drive/folders/${driveFolderId}`;a.classList.remove('hidden');} return driveFolderId;
+            driveFolderId = folder.id; showDriveFolderLink(driveFolderId); return driveFolderId;
         }
         // Timestamp locale leggibile: AAAA-MM-GG_HH-MM-SS
         function backupStamp(d = new Date()) {
@@ -1106,58 +1134,65 @@
         }
         window.backupStamp = backupStamp;
         function makeDriveBackup() {
-            return { app:'TimeFlow', version:'2.4', date:new Date().toISOString(), clients, timeEntries };
+            return { app:'TimeFlow', version:'2.9', date:new Date().toISOString(), clients, timeEntries };
+        }
+        // Upload unico multipart (metadati + contenuto) verso l'endpoint /upload/ di Drive API v3.
+        async function driveUpload(folderId, filename, json) {
+            const token = await getDriveToken();
+            const boundary = 'timeflow_' + Date.now().toString(36) + Math.random().toString(36).slice(2);
+            const meta = { name: filename, mimeType: 'application/json', parents: [folderId] };
+            const body = `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(meta)}\r\n--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${json}\r\n--${boundary}--`;
+            const res = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,size,mimeType,parents', {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}`, 'Content-Type': `multipart/related; boundary=${boundary}` },
+                body: new Blob([body], { type: `multipart/related; boundary=${boundary}` })
+            });
+            if (!res.ok) { const detail = await res.text().catch(() => ''); throw makeDriveError(res.status, detail); }
+            return res.json();
         }
         window.backupToGoogleDrive = async function () {
             const status = document.getElementById('drive-status');
-            let createdFileId = null;
             try {
                 if (!googleClientId) { openConfigModal(); throw new Error('Inserisci il Google OAuth Client ID nelle impostazioni.'); }
                 status.textContent = 'Collegamento…';
-                const token = await requestGoogleDriveToken();
-                if (!token) throw new Error('Autorizzazione Google Drive non completata.');
-                const folderId = await getDriveFolder(true);
+                await getDriveToken(); // primo passo: il popup di Google parte subito dal tocco dell'utente
                 const backup = makeDriveBackup();
-                if (!backup || !Array.isArray(backup.clients) || !Array.isArray(backup.timeEntries)) {
-                    throw new Error('I dati da salvare non sono validi: backup annullato.');
-                }
+                if (!backup || !Array.isArray(backup.clients) || !Array.isArray(backup.timeEntries)) throw new Error('I dati da salvare non sono validi: backup annullato.');
                 const json = JSON.stringify(backup, null, 2);
                 if (!json || json.length < 20) throw new Error('Il backup risulta vuoto: nessun file è stato caricato.');
                 const filename = `TimeFlow-backup-${backupStamp()}.json`;
 
-                // Upload unico multipart: metadati + contenuto nella stessa richiesta.
+                status.textContent = 'Preparazione cartella…';
+                let folderId = await getDriveFolder(true);
                 status.textContent = 'Caricamento backup su Drive…';
-                const boundary = 'timeflow_' + Date.now().toString(36) + Math.random().toString(36).slice(2);
-                const meta = { name: filename, mimeType: 'application/json', parents: [folderId] };
-                const body = `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(meta)}\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n${json}\r\n--${boundary}--`;
-                const upload = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,size,mimeType,parents', {
-                    method: 'POST',
-                    headers: { Authorization: `Bearer ${driveAccessToken || token}`, 'Content-Type': `multipart/related; boundary=${boundary}` },
-                    body: new Blob([body], { type: `multipart/related; boundary=${boundary}` })
-                });
-                if (!upload.ok) {
-                    const detail = await upload.text().catch(() => '');
-                    throw new Error(`Trasferimento del backup non riuscito (${upload.status}): ${detail.slice(0,320)}`);
+                let uploaded;
+                try { uploaded = await driveUpload(folderId, filename, json); }
+                catch (e) {
+                    // Cartella cancellata o nel cestino dall'ultimo uso: la ricrea e riprova una volta.
+                    if (e.status === 404) { driveFolderId = null; folderId = await getDriveFolder(true); uploaded = await driveUpload(folderId, filename, json); }
+                    else throw e;
                 }
-                const uploaded = await upload.json();
-                createdFileId = uploaded.id;
-                // 3) Verifica lato server che il file esista e abbia contenuto non vuoto.
-                const verified = await driveRequest(`${DRIVE_API}/files/${encodeURIComponent(createdFileId)}?fields=id,name,size,mimeType,parents`);
-                const size = Number(verified?.size || uploaded?.size || 0);
-                if (!verified?.id || size <= 0) throw new Error('Drive ha creato il file ma la verifica del contenuto è fallita (dimensione zero o non disponibile).');
+                if (!uploaded || !uploaded.id) throw new Error('Drive non ha confermato la creazione del file.');
 
-                status.textContent = `Backup verificato su Drive (${size} byte) ✓`;
-                if (typeof markBackup === 'function') markBackup();
-                toast(`Backup caricato e verificato su Google Drive (${size} byte).`, 'success');
-                await listGoogleDriveBackups();
-                return verified;
-            } catch (err) {
-                // Evita di lasciare in cartella un file vuoto se il trasferimento fallisce.
-                if (createdFileId) {
-                    try { await driveRequest(`${DRIVE_API}/files/${encodeURIComponent(createdFileId)}`, { method: 'DELETE' }); } catch (_) {}
+                // Verifica lato server: se il file risulta davvero vuoto lo elimina, altrimenti il backup è valido.
+                let size = Number(uploaded.size || 0);
+                try {
+                    const verified = await driveRequest(`${DRIVE_API}/files/${encodeURIComponent(uploaded.id)}?fields=id,name,size`);
+                    if (verified && verified.size !== undefined) size = Number(verified.size);
+                } catch (_) { /* verifica non raggiungibile: l'upload era già riuscito */ }
+                if (size === 0 && uploaded.size !== undefined) {
+                    try { await driveRequest(`${DRIVE_API}/files/${encodeURIComponent(uploaded.id)}`, { method: 'DELETE' }); } catch (_) {}
+                    throw new Error('Drive ha creato il file ma risulta vuoto: backup annullato.');
                 }
+
+                status.textContent = `Backup salvato su Drive${size ? ` (${size} byte)` : ''} ✓`;
+                if (typeof window.markBackup === 'function') window.markBackup();
+                showToast('Backup salvato su Google Drive.', 'success');
+                listGoogleDriveBackups().catch(() => {});
+                return uploaded;
+            } catch (err) {
                 status.textContent = 'Backup non riuscito';
-                toast(err.message || 'Errore Google Drive.', 'error');
+                showToast(err.message || 'Errore Google Drive.', 'error');
                 console.error('TimeFlow Google Drive backup:', err);
                 return null;
             }
@@ -1168,8 +1203,7 @@
             box.innerHTML = '<span class="text-slate-500">Ricerca backup…</span>';
             try {
                 if (!googleClientId) throw new Error('Configura prima il Google Client ID.');
-                const freshToken = await requestGoogleDriveToken();
-                if (!freshToken) throw new Error('Autorizzazione Google Drive non completata.');
+                await getDriveToken();
                 const folderId = await getDriveFolder(false);
                 if (!folderId) { box.innerHTML='<span class="text-slate-500">Cartella non ancora creata. Premi “Salva backup su Drive” per crearla e caricare il primo backup.</span>'; status.textContent='Nessun backup'; return; }
                 const q = encodeURIComponent(`'${folderId}' in parents and trashed=false`);
@@ -1196,8 +1230,8 @@
                 if (!data || !Array.isArray(data.clients) || !Array.isArray(data.timeEntries)) throw new Error('Il file selezionato non è un backup TimeFlow valido.');
                 clients = data.clients; timeEntries = data.timeEntries;
                 saveClientsToStorage(); saveEntriesToStorage(); renderApp();
-                toast(`Ripristinati ${clients.length} clienti e ${timeEntries.length} attività.`, 'success');
-            } catch (err) { toast(err.message || 'Ripristino da Drive non riuscito.', 'error'); }
+                showToast(`Ripristinati ${clients.length} clienti e ${timeEntries.length} attività.`, 'success');
+            } catch (err) { showToast(err.message || 'Ripristino da Drive non riuscito.', 'error'); }
         }
 
         function initGoogleIdentityServices() {
@@ -2057,6 +2091,7 @@
 
     // ---------- Backup / export ----------
     function markBackup() { LS.set('timeflow_last_backup', new Date().toISOString()); updateBackupBanner(); }
+    window.markBackup = markBackup;
     window.updateBackupBanner = function () {
         const b = $('backup-banner'); if (!b) return;
         const v = LS.get('timeflow_last_backup', null); const t = v ? Date.parse(v) : NaN;

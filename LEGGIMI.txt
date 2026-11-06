@@ -45,3 +45,13 @@ TIMEFLOW 2.3 – BACKUP GOOGLE DRIVE
 
 VERSIONE 2.4 - CORREZIONE UPLOAD GOOGLE DRIVE
 Corretto l'endpoint di caricamento: i file vengono inviati all'endpoint upload di Google Drive API v3 (/upload/drive/v3/files), non all'endpoint metadata (/drive/v3/files). Il caricamento usa direttamente il token appena autorizzato per lo scope drive.file.
+
+
+VERSIONE 2.9 - CORREZIONE SALVATAGGIO SU GOOGLE DRIVE
+Causa del problema: dopo aver caricato e verificato il file, il codice richiamava una funzione di avviso (toast) non raggiungibile da quel punto; l'errore faceva scattare la pulizia che CANCELLAVA il backup appena creato e mostrava "Backup non riuscito".
+- Corretti gli avvisi (ora si vede il messaggio di esito reale) e la cancellazione automatica avviene solo se Drive segnala un file davvero vuoto.
+- Il popup di Google compare una volta sola: dopo il salvataggio l'elenco backup riusa il token invece di chiederne un altro (che veniva bloccato).
+- Se la cartella "TimeFlow Backups" è stata eliminata o è nel cestino, viene ricreata e il caricamento riprova.
+- Messaggi chiari: Drive API non abilitata, popup bloccato, autorizzazione annullata o scaduta.
+- La data dell'ultimo backup ora si aggiorna anche con il backup su Drive (l'avviso dei 30 giorni scompare).
+- Service worker v2-9: apri l'app online e riaprila una seconda volta per aggiornare.
