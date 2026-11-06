@@ -1,4 +1,10 @@
-# TimeFlow — PWA v2.1
+# TimeFlow — PWA v3.0
+
+## Novità v3.0
+- Versione dell'app visibile accanto al logo (v3.0).
+- Nuova barra comandi sotto l'intestazione: pulsanti con icona e nome (Clienti, Calendar con stato di sincronizzazione, Client ID, Guida, Tema, Installa), scorrevole su smartphone.
+- Service worker v3.0 con cache aggiornata: apri l'app online e riaprila una seconda volta per ricevere l'aggiornamento.
+
 
 ## Contenuto
 - `index.html`: applicazione (guida utente integrata)

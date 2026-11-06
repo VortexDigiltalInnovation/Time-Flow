@@ -49,6 +49,8 @@
         .dark ::-webkit-scrollbar-thumb { background: #475569; }
         html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
         body { min-height: 100dvh; padding-bottom: env(safe-area-inset-bottom); }
+        #top-toolbar { padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
+        #top-toolbar ::-webkit-scrollbar { display: none; }
         header.sticky { padding-top: env(safe-area-inset-top); padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
         main { padding-left: max(0.75rem, env(safe-area-inset-left)); padding-right: max(0.75rem, env(safe-area-inset-right)); }
         #toast-container { bottom: calc(1rem + env(safe-area-inset-bottom)); z-index: 80; }
@@ -71,6 +73,7 @@
             .border { border-color: #e2e8f0 !important; }
         }
     </style>
+    <script>window.APP_VERSION='3.0'; document.addEventListener('DOMContentLoaded',function(){var b=document.getElementById('app-version-badge'); if(b) b.textContent='v'+window.APP_VERSION;});</script>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-full flex flex-col transition-colors duration-200">
 
@@ -79,45 +82,55 @@
 
     <!-- Navigation Header -->
     <header class="bg-slate-900 dark:bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30 no-print">
-        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-12 sm:h-16 flex items-center justify-between">
             <div class="flex items-center space-x-2">
                 <img src="./icons/icon-96.png" alt="" width="40" height="40" class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl shadow-md shadow-black/30 shrink-0">
                 <div>
-                    <span class="font-bold text-base sm:text-lg tracking-tight text-white leading-tight block">TimeFlow</span>
+                    <div class="flex items-center gap-1.5">
+                        <span class="font-bold text-base sm:text-lg tracking-tight text-white leading-tight block">TimeFlow</span>
+                        <span id="app-version-badge" class="text-[10px] sm:text-xs font-semibold text-emerald-300 bg-emerald-500/15 border border-emerald-500/30 rounded-md px-1.5 py-px leading-tight" title="Versione dell'app">v3.0</span>
+                    </div>
                     <span class="text-[10px] sm:text-xs text-slate-400 block -mt-0.5">Ore, Compensi & Calendar</span>
                 </div>
             </div>
-
-            <div class="flex items-center space-x-1.5 sm:space-x-2">
-                <button onclick="toggleDarkMode()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl text-xs sm:text-sm flex items-center justify-center transition-all" aria-label="Cambia tema" title="Cambia Tema">
-                    <i id="theme-icon" class="fa-solid fa-moon"></i>
-                </button>
-
-                <button onclick="handleGoogleAuthClick()" id="btn-google-auth" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-2.5 py-1.5 rounded-lg sm:rounded-xl text-xs font-medium transition-all flex items-center gap-1.5 shadow-sm">
-                    <i class="fa-brands fa-google text-red-400"></i>
-                    <span id="google-auth-status-text" class="hidden sm:inline">Connetti Google</span>
-                    <span id="google-auth-dot" class="w-2 h-2 rounded-full bg-slate-500"></span>
-                </button>
-
-                <button onclick="openConfigModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl text-xs sm:text-sm flex items-center justify-center transition-all" title="Configura Google Client ID">
-                    <i class="fa-solid fa-gear"></i>
-                </button>
-
-                <button id="btn-install" onclick="installApp()" title="Installa l'app" aria-label="Installa l'app" class="hidden bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl text-xs sm:text-sm items-center justify-center transition-all">
-                    <i class="fa-solid fa-circle-down"></i>
-                </button>
-
-                <button onclick="openGuide()" title="Guida utente" aria-label="Guida utente" class="bg-slate-800 hover:bg-slate-700 text-blue-300 border border-slate-700 w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl text-xs sm:text-sm flex items-center justify-center transition-all">
-                    <i class="fa-solid fa-circle-question"></i>
-                </button>
-
-                <button onclick="openClientModal()" class="bg-brand-600 hover:bg-brand-500 text-white px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs font-medium transition-all flex items-center gap-1.5 shadow-sm">
-                    <i class="fa-solid fa-users"></i>
-                    <span class="hidden sm:inline">Clienti</span>
-                </button>
-            </div>
         </div>
     </header>
+
+    <!-- Barra comandi con etichette -->
+    <nav id="top-toolbar" aria-label="Comandi principali" class="bg-slate-800 dark:bg-slate-900/90 text-white border-b border-slate-700 dark:border-slate-800 no-print">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-1.5 flex items-center gap-1.5 overflow-x-auto" style="scrollbar-width:none;-webkit-overflow-scrolling:touch">
+            <button onclick="openClientModal()" title="Aggiungi e gestisci i clienti e le loro tariffe" class="shrink-0 bg-brand-600 hover:bg-brand-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-all inline-flex items-center gap-1.5 shadow-sm whitespace-nowrap">
+                <i class="fa-solid fa-users"></i><span>Clienti</span>
+            </button>
+
+            <span class="shrink-0 w-px h-5 bg-slate-600 mx-1" aria-hidden="true"></span>
+
+            <button onclick="handleGoogleAuthClick()" id="btn-google-auth" title="Connetti Google Calendar e sincronizza le attività" class="shrink-0 bg-slate-700/70 hover:bg-slate-600 text-slate-100 border border-slate-600 px-3 py-1.5 rounded-lg text-xs font-medium transition-all inline-flex items-center gap-1.5 whitespace-nowrap">
+                <i class="fa-brands fa-google text-red-400"></i>
+                <span>Calendar:</span>
+                <span id="google-auth-status-text" class="text-slate-300">Connetti Google</span>
+                <span id="google-auth-dot" class="w-2 h-2 rounded-full bg-slate-500"></span>
+            </button>
+
+            <button onclick="openConfigModal()" title="Imposta il Google Client ID per la sincronizzazione" class="shrink-0 bg-slate-700/70 hover:bg-slate-600 text-slate-100 border border-slate-600 px-3 py-1.5 rounded-lg text-xs font-medium transition-all inline-flex items-center gap-1.5 whitespace-nowrap">
+                <i class="fa-solid fa-gear text-slate-300"></i><span>Client ID</span>
+            </button>
+
+            <span class="shrink-0 w-px h-5 bg-slate-600 mx-1" aria-hidden="true"></span>
+
+            <button onclick="openGuide()" title="Apri la guida utente" aria-label="Guida utente" class="shrink-0 bg-slate-700/70 hover:bg-slate-600 text-slate-100 border border-slate-600 px-3 py-1.5 rounded-lg text-xs font-medium transition-all inline-flex items-center gap-1.5 whitespace-nowrap">
+                <i class="fa-solid fa-circle-question text-blue-300"></i><span>Guida</span>
+            </button>
+
+            <button onclick="toggleDarkMode()" title="Passa tra tema chiaro e scuro" aria-label="Cambia tema" class="shrink-0 bg-slate-700/70 hover:bg-slate-600 text-slate-100 border border-slate-600 px-3 py-1.5 rounded-lg text-xs font-medium transition-all inline-flex items-center gap-1.5 whitespace-nowrap">
+                <i id="theme-icon" class="fa-solid fa-moon"></i><span>Tema</span>
+            </button>
+
+            <button id="btn-install" onclick="installApp()" title="Installa l'app sul dispositivo" aria-label="Installa l'app" class="hidden shrink-0 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all inline-flex items-center gap-1.5 whitespace-nowrap">
+                <i class="fa-solid fa-circle-down"></i><span>Installa</span>
+            </button>
+        </div>
+    </nav>
 
     <!-- Main Container -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-6 space-y-3 sm:space-y-6">
@@ -1134,7 +1147,7 @@
         }
         window.backupStamp = backupStamp;
         function makeDriveBackup() {
-            return { app:'TimeFlow', version:'2.9', date:new Date().toISOString(), clients, timeEntries };
+            return { app:'TimeFlow', version:(window.APP_VERSION||'3.0'), date:new Date().toISOString(), clients, timeEntries };
         }
         // Upload unico multipart (metadati + contenuto) verso l'endpoint /upload/ di Drive API v3.
         async function driveUpload(folderId, filename, json) {
@@ -2131,7 +2144,7 @@
     };
     window.downloadFilteredJSON = async function () {
         const rows = getEntriesInSelectedRange();
-        const backup = { app: 'TimeFlow', version: '2.1', date: new Date().toISOString(), googleClientId, clients, timeEntries: rows };
+        const backup = { app: 'TimeFlow', version: (window.APP_VERSION||'3.0'), date: new Date().toISOString(), googleClientId, clients, timeEntries: rows };
         const res = await saveBlobFile(new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' }), `TimeFlow-backup-${backupStamp()}.json`, 'application/json');
         if (res !== 'cancelled') { markBackup(); closeExportFilterModal(); toast('Backup JSON salvato!', 'success'); }
     };
