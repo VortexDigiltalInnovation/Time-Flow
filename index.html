@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="theme-color" content="#0f172a">
+    <meta name="theme-color" content="#102b35">
     <meta name="description" content="TimeFlow: tracciamento ore, clienti, compensi e sincronizzazione Google Calendar. Dati solo sul tuo dispositivo.">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -49,9 +49,7 @@
         .dark ::-webkit-scrollbar-thumb { background: #475569; }
         html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
         body { min-height: 100dvh; padding-bottom: env(safe-area-inset-bottom); }
-        #top-toolbar { padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
-        #top-toolbar ::-webkit-scrollbar { display: none; }
-        header.sticky { padding-top: env(safe-area-inset-top); padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
+        
         main { padding-left: max(0.75rem, env(safe-area-inset-left)); padding-right: max(0.75rem, env(safe-area-inset-right)); }
         #toast-container { bottom: calc(1rem + env(safe-area-inset-bottom)); z-index: 80; }
         div[id$="-modal"] > div { max-height: 92dvh; overflow-y: auto; overscroll-behavior: contain; }
@@ -65,6 +63,49 @@
         }
         @media (display-mode: standalone) { body { -webkit-user-select: none; user-select: none; } input, textarea, select { -webkit-user-select: text; user-select: text; } }
         @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+        body { margin: 0; }
+        .tf-app-header { position: sticky; top: 0; width: 100%; box-sizing: border-box; z-index: 40; padding-top: env(safe-area-inset-top); padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); background: linear-gradient(115deg,#0b1728 0%,#102b35 58%,#123d38 100%); border-bottom: 1px solid rgba(148,163,184,.2); }
+        .tf-app-header > .max-w-7xl { max-width: 80rem; margin-inline: auto; padding-inline: clamp(.75rem, 3vw, 2rem); }
+        .tf-brand-row { display: flex; align-items: center; justify-content: space-between; gap: .75rem; }
+        .tf-primary-action { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; gap: .5rem; padding: .5rem 1rem; border-radius: .8rem; font-weight: 800; white-space: nowrap; }
+        .tf-main-nav { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+        .tf-app-header button { cursor: pointer; }
+        @media (max-width: 639px) { .tf-app-header > .max-w-7xl { padding-inline: .7rem; } .tf-main-nav { gap: .42rem; } }
+        #top-toolbar { padding-left: 0; padding-right: 0; }
+        .tf-primary-action { color: #052e24; background: linear-gradient(135deg,#a7f3d0,#6ee7b7); box-shadow: 0 7px 18px rgba(16,185,129,.2); transition: transform .18s ease, box-shadow .18s ease, filter .18s ease; }
+        .tf-primary-action:hover { transform: translateY(-1px); filter: saturate(1.08); box-shadow: 0 10px 22px rgba(16,185,129,.28); }
+        .tf-plus-icon { width: 1.45rem; height: 1.45rem; display: inline-grid; place-items: center; border-radius: .55rem; background: rgba(255,255,255,.62); }
+        .tf-main-nav { min-height: 52px; }
+        .tf-nav-group-label { color: #9eb5c3; display: inline-flex; align-items: center; gap: .4rem; padding: 0 .25rem; font-size: 9px; font-weight: 800; letter-spacing: .075em; text-transform: uppercase; white-space: nowrap; }
+        .tf-nav-button, .tf-nav-icon-button { min-height: 36px; display: inline-flex; align-items: center; justify-content: center; gap: .48rem; padding: .45rem .7rem; border: 1px solid rgba(203,213,225,.17); border-radius: .72rem; color: #e5edf4; background: rgba(255,255,255,.055); font-size: 11px; font-weight: 700; line-height: 1; white-space: nowrap; transition: background .16s ease, border-color .16s ease, transform .16s ease, box-shadow .16s ease; }
+        .tf-nav-button:hover, .tf-nav-icon-button:hover { background: rgba(255,255,255,.13); border-color: rgba(203,213,225,.34); transform: translateY(-1px); }
+        .tf-nav-button-accent { background: rgba(16,185,129,.15); border-color: rgba(110,231,183,.28); color: #d1fae5; }
+        .tf-nav-button-backup { background: rgba(96,165,250,.13); border-color: rgba(147,197,253,.3); color: #eff6ff; }
+        .tf-nav-button-backup:hover { background: rgba(96,165,250,.24); }
+        .tf-calendar-status { color: #b6c7d2; font-weight: 600; }
+        .tf-nav-divider { width: 1px; height: 24px; margin: 0 .12rem; background: rgba(203,213,225,.22); }
+        .tf-nav-spacer { flex: 1 1 auto; }
+        .tf-nav-icon-button { min-width: 38px; padding: .45rem .58rem; color: #c5d3dc; }
+        .tf-backup-status { color: #9fb3c0; font-size: 10px; white-space: nowrap; }
+        .tf-app-header button:focus-visible, main button:focus-visible, .tf-app-header a:focus-visible { outline: 3px solid rgba(110,231,183,.75); outline-offset: 2px; }
+        button { font-family: inherit; transition: transform .16s ease, box-shadow .16s ease, filter .16s ease; }
+        button:focus-visible { outline: 3px solid rgba(16,185,129,.6); outline-offset: 2px; }
+        button:hover:not(:disabled) { filter: brightness(1.035); }
+        button:active:not(:disabled) { transform: scale(.98); }
+        button:disabled { cursor: not-allowed; opacity: .6; }
+        @media (pointer: coarse) { main button, #backup-manager button, #export-modal button, .tf-main-nav button { min-height: 40px; } }
+        @media (max-width: 639px) {
+            .tf-brand-row { min-height: 54px; }
+            .tf-main-nav { gap: .42rem; padding-top: .55rem; padding-bottom: .6rem; }
+            .tf-nav-group-label { display: none; }
+            .tf-nav-divider { display: none; }
+            .tf-nav-spacer { display: none; }
+            .tf-nav-button, .tf-nav-icon-button { min-height: 38px; padding: .5rem .65rem; }
+            .tf-nav-icon-button { gap: .38rem; }
+            .tf-backup-status { flex-basis: 100%; padding: .1rem .2rem 0; }
+            #top-toolbar #btn-google-auth { gap: .38rem; }
+        }
+        @media (prefers-reduced-motion: reduce) { button { transition: none; } }
         @media print {
             .no-print { display: none !important; }
             .print-only { display: block !important; }
@@ -73,77 +114,47 @@
             .border { border-color: #e2e8f0 !important; }
         }
     </style>
-    <script>window.APP_VERSION='3.1'; document.addEventListener('DOMContentLoaded',function(){var b=document.getElementById('app-version-badge'); if(b) b.textContent='v'+window.APP_VERSION;});</script>
-
-    <style>
-      .bottom-action{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:7px 2px;border-radius:11px;color:#334155;font-size:10px;font-weight:650;line-height:1.15;white-space:nowrap}
-      .dark .bottom-action{color:#e2e8f0}
-      .bottom-action i{font-size:17px}
-      .bottom-action:active{transform:scale(.96);background:rgba(100,116,139,.12)}
-      #bottom-toolbar{padding-bottom:0}
-      @media(min-width:640px){.bottom-action{font-size:11px;padding:8px 5px}.bottom-action i{font-size:18px}}
-      @media(max-width:380px){.bottom-action{font-size:9px}.bottom-action i{font-size:16px}}
-      body{padding-bottom:116px}
-      @media(min-width:640px){body{padding-bottom:78px}}
-    </style>
-
+    <script>window.APP_VERSION='3.4'; document.addEventListener('DOMContentLoaded',function(){var b=document.getElementById('app-version-badge'); if(b) b.textContent='v'+window.APP_VERSION;});</script>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-full flex flex-col transition-colors duration-200">
 
     <!-- Toast Container -->
     <div id="toast-container" class="fixed bottom-4 right-4 left-4 sm:left-auto z-50 flex flex-col gap-1.5 pointer-events-none no-print"></div>
 
-    <!-- Navigation Header -->
-    <header class="bg-slate-900 dark:bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30 no-print">
-        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-12 sm:h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-                <img src="./icons/icon-96.png" alt="" width="40" height="40" class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl shadow-md shadow-black/30 shrink-0">
-                <div>
-                    <div class="flex items-center gap-1.5">
-                        <span class="font-bold text-base sm:text-lg tracking-tight text-white leading-tight block">TimeFlow</span>
-                        <span id="app-version-badge" class="text-[10px] sm:text-xs font-semibold text-emerald-300 bg-emerald-500/15 border border-emerald-500/30 rounded-md px-1.5 py-px leading-tight" title="Versione dell'app">v3.1</span>
+    <!-- Intestazione e navigazione sempre disponibili -->
+    <header class="tf-app-header sticky top-0 z-40 no-print text-white shadow-xl shadow-slate-950/10">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+            <div class="tf-brand-row flex min-h-[58px] items-center justify-between gap-3">
+                <div class="flex min-w-0 items-center gap-2.5">
+                    <img src="./icons/icon-96.png" alt="" width="40" height="40" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl shadow-md shadow-black/30 shrink-0">
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-1.5">
+                            <span class="font-bold text-base sm:text-lg tracking-tight text-white leading-tight">TimeFlow</span>
+                            <span id="app-version-badge" class="text-[10px] font-bold text-emerald-100 bg-emerald-500/20 border border-emerald-300/20 rounded-md px-1.5 py-px leading-tight" title="Versione dell'app">v3.4</span>
+                        </div>
+                        <span class="text-[10px] sm:text-[11px] text-slate-300 block">Ore · attività · compensi</span>
                     </div>
-                    <span class="text-[10px] sm:text-xs text-slate-400 block -mt-0.5">Ore, Compensi & Calendar</span>
                 </div>
+                <button type="button" onclick="openManualEntryModal()" class="tf-primary-action inline-flex min-h-[44px] shrink-0 items-center justify-center gap-2 rounded-xl px-3.5 sm:px-5 text-xs sm:text-sm font-extrabold" aria-label="Crea una nuova attività">
+                    <span class="tf-plus-icon" aria-hidden="true"><i class="fa-solid fa-plus"></i></span><span>Nuova attività</span>
+                </button>
             </div>
+            <nav id="top-toolbar" aria-label="Navigazione e strumenti" class="tf-main-nav flex flex-wrap items-center gap-1.5 sm:gap-2 border-t border-white/10 py-2">
+                <span class="tf-nav-group-label"><i class="fa-solid fa-list-check" aria-hidden="true"></i> Gestione</span>
+                <button type="button" onclick="openClientModal()" title="Aggiungi, modifica e archivia i clienti" class="tf-nav-button tf-nav-button-accent"><i class="fa-solid fa-users" aria-hidden="true"></i><span>Clienti</span></button>
+                <button type="button" onclick="handleGoogleAuthClick()" id="btn-google-auth" title="Collega o sincronizza Google Calendar" class="tf-nav-button"><i class="fa-brands fa-google text-red-300" aria-hidden="true"></i><span>Calendar</span><span id="google-auth-status-text" class="tf-calendar-status">Connetti</span><span id="google-auth-dot" class="w-2 h-2 rounded-full bg-slate-400" aria-hidden="true"></span></button>
+                <span class="tf-nav-divider" aria-hidden="true"></span>
+                <span class="tf-nav-group-label"><i class="fa-solid fa-sliders" aria-hidden="true"></i> Strumenti</span>
+                <button type="button" onclick="openBackupManager()" title="Salva, ripristina e gestisci i backup" class="tf-nav-button tf-nav-button-backup"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i><span>Backup e ripristino</span></button>
+                <button type="button" onclick="openConfigModal()" title="Configura Google Calendar e Google Drive" class="tf-nav-button"><i class="fa-solid fa-gear" aria-hidden="true"></i><span>Configura Google</span></button>
+                <span id="backup-bar-last" class="tf-backup-status" aria-live="polite"></span>
+                <span class="tf-nav-spacer"></span>
+                <button type="button" onclick="openGuide()" title="Apri la guida utente" aria-label="Guida utente" class="tf-nav-icon-button"><i class="fa-solid fa-circle-question" aria-hidden="true"></i><span>Guida</span></button>
+                <button type="button" onclick="toggleDarkMode()" title="Passa tra tema chiaro e scuro" aria-label="Cambia tema" class="tf-nav-icon-button"><i id="theme-icon" class="fa-solid fa-moon" aria-hidden="true"></i><span>Tema</span></button>
+                <button id="btn-install" type="button" onclick="installApp()" title="Installa l'app sul dispositivo" aria-label="Installa l'app" class="tf-nav-icon-button hidden"><i class="fa-solid fa-circle-down" aria-hidden="true"></i><span>Installa</span></button>
+            </nav>
         </div>
     </header>
-
-    <!-- Barra comandi con etichette -->
-    <nav id="top-toolbar" aria-label="Comandi principali" class="bg-slate-800 dark:bg-slate-900/90 text-white border-b border-slate-700 dark:border-slate-800 no-print">
-        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-1.5 flex items-center gap-1.5 overflow-x-auto" style="scrollbar-width:none;-webkit-overflow-scrolling:touch">
-            <button onclick="openClientModal()" title="Aggiungi e gestisci i clienti e le loro tariffe" class="shrink-0 bg-brand-600 hover:bg-brand-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-all inline-flex items-center gap-1.5 shadow-sm whitespace-nowrap">
-                <i class="fa-solid fa-users"></i><span>Clienti</span>
-            </button>
-
-            <span class="shrink-0 w-px h-5 bg-slate-600 mx-1" aria-hidden="true"></span>
-
-            <button onclick="handleGoogleAuthClick()" id="btn-google-auth" title="Connetti Google Calendar e sincronizza le attività" class="shrink-0 bg-slate-700/70 hover:bg-slate-600 text-slate-100 border border-slate-600 px-3 py-1.5 rounded-lg text-xs font-medium transition-all inline-flex items-center gap-1.5 whitespace-nowrap">
-                <i class="fa-brands fa-google text-red-400"></i>
-                <span>Calendar:</span>
-                <span id="google-auth-status-text" class="text-slate-300">Connetti Google</span>
-                <span id="google-auth-dot" class="w-2 h-2 rounded-full bg-slate-500"></span>
-            </button>
-
-            <button onclick="openConfigModal()" title="Imposta il Google Client ID per la sincronizzazione" class="shrink-0 bg-slate-700/70 hover:bg-slate-600 text-slate-100 border border-slate-600 px-3 py-1.5 rounded-lg text-xs font-medium transition-all inline-flex items-center gap-1.5 whitespace-nowrap">
-                <i class="fa-solid fa-gear text-slate-300"></i><span>Client ID</span>
-            </button>
-
-            <span class="shrink-0 w-px h-5 bg-slate-600 mx-1" aria-hidden="true"></span>
-
-            <button onclick="openGuide()" title="Apri la guida utente" aria-label="Guida utente" class="shrink-0 bg-slate-700/70 hover:bg-slate-600 text-slate-100 border border-slate-600 px-3 py-1.5 rounded-lg text-xs font-medium transition-all inline-flex items-center gap-1.5 whitespace-nowrap">
-                <i class="fa-solid fa-circle-question text-blue-300"></i><span>Guida</span>
-            </button>
-
-            <button onclick="toggleDarkMode()" title="Passa tra tema chiaro e scuro" aria-label="Cambia tema" class="shrink-0 bg-slate-700/70 hover:bg-slate-600 text-slate-100 border border-slate-600 px-3 py-1.5 rounded-lg text-xs font-medium transition-all inline-flex items-center gap-1.5 whitespace-nowrap">
-                <i id="theme-icon" class="fa-solid fa-moon"></i><span>Tema</span>
-            </button>
-
-            <button id="btn-install" onclick="installApp()" title="Installa l'app sul dispositivo" aria-label="Installa l'app" class="hidden shrink-0 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all inline-flex items-center gap-1.5 whitespace-nowrap">
-                <i class="fa-solid fa-circle-down"></i><span>Installa</span>
-            </button>
-        </div>
-    </nav>
 
     <!-- Main Container -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-6 space-y-3 sm:space-y-6">
@@ -181,7 +192,6 @@
         <!-- ===== TimeFlow v2: promemoria backup ===== -->
         <div id="backup-banner" class="hidden no-print bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-900 dark:text-amber-200 p-2.5 sm:px-4 sm:py-3 rounded-xl sm:rounded-2xl flex flex-row items-center justify-between gap-2 text-[11px] sm:text-xs">
             <span><i class="fa-solid fa-triangle-exclamation mr-1.5"></i><span id="backup-banner-text"></span></span>
-            <button onclick="openExportFilterModal()" class="bg-amber-500 hover:bg-amber-600 text-white px-2.5 py-1 rounded-lg font-semibold whitespace-nowrap shrink-0">Backup ora</button>
         </div>
 
         <!-- ===== TimeFlow v2: timer ===== -->
@@ -311,9 +321,6 @@
                         </button>
                     </div>
 
-                    <button onclick="openManualEntryModal()" class="bg-brand-600 hover:bg-brand-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 shadow-sm">
-                        <i class="fa-solid fa-plus"></i> Nuova Attività
-                    </button>
                 </div>
 
                 <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2">
@@ -338,7 +345,11 @@
                     </div>
                 </div>
 
-                <!-- Esportazioni e backup sono raccolti nella barra inferiore per un accesso rapido da smartphone. -->
+                <div class="flex items-center gap-1.5 pt-2 border-t border-slate-100 dark:border-slate-800 overflow-x-auto">
+                    <button onclick="exportFilteredToCSV()" class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-3 py-2 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-700 whitespace-nowrap"><i class="fa-solid fa-file-csv text-emerald-600 mr-1"></i> Esporta report</button>
+                    <button onclick="printReport()" class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2.5 py-1 rounded-lg text-xs font-medium border border-slate-200 dark:border-slate-700 whitespace-nowrap"><i class="fa-solid fa-file-pdf text-red-500 mr-1"></i> Stampa</button>
+
+                </div>
             </div>
 
             <div id="bulk-actions-bar" class="hidden bg-slate-900 text-white p-2.5 rounded-lg flex items-center justify-between gap-2 shadow-sm">
@@ -540,7 +551,7 @@
     <div id="export-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-3 no-print">
         <div class="bg-white dark:bg-slate-900 rounded-xl max-w-md w-full p-4 sm:p-6 shadow-xl border border-slate-200 dark:border-slate-800 space-y-3">
             <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-2">
-                <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2"><i class="fa-solid fa-sliders text-brand-600"></i> Export & Backup</h3>
+                <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2"><i class="fa-solid fa-sliders text-brand-600"></i> Esporta report</h3>
                 <button onclick="closeExportFilterModal()" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="space-y-2">
@@ -564,14 +575,8 @@
                 </div>
             </div>
             <div class="flex flex-col gap-1.5 pt-2 border-t border-slate-100 dark:border-slate-800">
-                <button onclick="downloadFilteredJSON()" class="w-full bg-slate-900 dark:bg-slate-800 text-white px-3 py-1.5 rounded-lg text-xs font-medium flex items-center justify-center gap-2"><i class="fa-solid fa-file-code text-blue-400"></i> Backup JSON</button>
-                <button onclick="downloadFilteredCSV()" class="w-full bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium flex items-center justify-center gap-2"><i class="fa-solid fa-file-csv"></i> Report CSV</button>
-            </div>
-            <div class="pt-3 border-t border-slate-200 dark:border-slate-700 space-y-2">
-                <div class="flex items-center justify-between gap-2"><h4 class="text-sm font-bold text-slate-800 dark:text-white"><i class="fa-brands fa-google-drive text-emerald-500 mr-1"></i> Backup su Google Drive</h4><span id="drive-status" class="text-[10px] text-slate-500">Non collegato</span></div>
-                <p class="text-[11px] text-slate-500 dark:text-slate-400">Salva una copia completa nella cartella “TimeFlow Backups” di Drive.</p>
-                <button onclick="backupToGoogleDrive()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-xs font-semibold"><i class="fa-brands fa-google-drive mr-1"></i> Salva backup su Drive</button>
-                <button onclick="openBackupManager('drive')" class="w-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-3 py-2 rounded-lg text-xs font-medium"><i class="fa-solid fa-folder-open mr-1"></i> Gestisci backup (Drive e dispositivo)</button>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400">Esporta le attività del periodo selezionato in formato compatibile con Excel.</p>
+                <button onclick="downloadFilteredCSV()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-sm"><i class="fa-solid fa-file-csv"></i> Scarica report CSV</button>
             </div>
         </div>
     </div>
@@ -591,7 +596,8 @@
                 <div id="bm-pane-local" class="space-y-2.5">
                     <p id="bm-local-info" class="text-[11px] text-slate-500 dark:text-slate-400"></p>
                     <div class="flex flex-wrap gap-1.5">
-                        <button onclick="quickLocalBackup()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-xs font-semibold inline-flex items-center gap-1.5"><i class="fa-solid fa-floppy-disk"></i> Salva backup ora</button>
+                        <button onclick="quickLocalBackup()" class="bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-2.5 rounded-xl text-xs font-bold inline-flex items-center gap-2 shadow-sm"><i class="fa-solid fa-floppy-disk"></i> Salva backup dispositivo</button>
+                        <label class="cursor-pointer bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-100 border border-slate-200 dark:border-slate-600 px-3.5 py-2.5 rounded-xl text-xs font-bold inline-flex items-center gap-2"><i class="fa-solid fa-file-arrow-up text-violet-500"></i> Ripristina da file<input type="file" id="import-json-input" accept=".json,application/json" onchange="importBackupJSON(event)" class="hidden"></label>
                         <button id="bm-btn-perm" onclick="bmAllowFolder()" class="hidden bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 rounded-lg text-xs font-semibold inline-flex items-center gap-1.5"><i class="fa-solid fa-lock-open"></i> Consenti accesso alla cartella</button>
                         <button id="bm-btn-choose" onclick="bmChooseFolder()" class="hidden bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-3 py-2 rounded-lg text-xs font-medium inline-flex items-center gap-1.5"><i class="fa-solid fa-folder-tree"></i> Cambia posizione cartella</button>
                         <button onclick="bmRefresh()" class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-3 py-2 rounded-lg text-xs font-medium inline-flex items-center gap-1.5"><i class="fa-solid fa-rotate"></i> Aggiorna</button>
@@ -703,7 +709,7 @@
                         <ol class="list-decimal pl-5 space-y-1.5">
                             <li>Nella <b>Google Cloud Console</b> crea (o apri) un progetto, abilita <i>Google Calendar API</i> e <i>Google Drive API</i> e crea un <i>ID client OAuth</i> di tipo «Applicazione web».</li>
                             <li>Tra le <b>Origini JavaScript autorizzate</b> aggiungi l'indirizzo esatto da cui usi l'app (es. <code>https://tuosito.netlify.app</code>). Cambiando indirizzo va aggiunto anche il nuovo.</li>
-                            <li>Tocca l'ingranaggio <i class="fa-solid fa-gear"></i> e incolla il <b>Client ID</b>; poi <i>Connetti Google</i> e autorizza.</li>
+                            <li>Tocca l'ingranaggio <i class="fa-solid fa-gear"></i> e incolla il <b>Client ID</b>; poi <i>Calendar</i> e autorizza.</li>
                             <li>Ogni attività con l'opzione «Google Calendar» attiva diventa un evento; modifiche ed eliminazioni vengono ripetute sul calendario. Se sei offline, le operazioni restano in coda e partono al ritorno della connessione.</li>
                         </ol>
                         <p class="text-[12px] text-slate-500 dark:text-slate-400">Nota: su iPhone, nell'app installata, il popup di autorizzazione di Google può essere bloccato dal sistema; in tal caso autorizza una volta da Safari.</p>
@@ -717,7 +723,7 @@
                         <div class="rounded-lg bg-white dark:bg-slate-900 p-3 border border-slate-200 dark:border-slate-800"><b><i class="fa-brands fa-android text-emerald-500"></i> Android (Chrome / Edge)</b><br>Tocca <b>Installa</b> nell'intestazione, oppure menu ⋮ → <i>Installa app</i>.</div>
                         <div class="rounded-lg bg-white dark:bg-slate-900 p-3 border border-slate-200 dark:border-slate-800"><b><i class="fa-brands fa-apple"></i> iPhone / iPad (Safari)</b><br>Tocca <b>Condividi</b> <i class="fa-solid fa-arrow-up-from-bracket"></i> → <b>Aggiungi alla schermata Home</b>.</div>
                         <div class="rounded-lg bg-white dark:bg-slate-900 p-3 border border-slate-200 dark:border-slate-800"><b><i class="fa-solid fa-desktop"></i> Computer</b><br>Icona <i>Installa</i> nella barra degli indirizzi (Chrome/Edge) o pulsante <b>Installa</b> nell'app. Dall'icona dell'app puoi anche scegliere <i>Nuova attività</i> o <i>Avvia timer</i>.</div>
-                        <p class="text-[12px] text-slate-500 dark:text-slate-400">I dati stanno nel browser e sono legati all'indirizzo. Su alcuni sistemi l'app installata ha un archivio separato dal browser: trasferisci i dati con Backup → Ripristina.</p>
+                        <p class="text-[12px] text-slate-500 dark:text-slate-400">I dati stanno nel browser e sono legati all'indirizzo. Su alcuni sistemi l'app installata ha un archivio separato dal browser: trasferisci i dati con Backup e ripristino.</p>
                     </div>
                 </details>
 
@@ -726,11 +732,11 @@
                     <div class="px-3.5 pb-3.5 space-y-2">
                         <p>I dati risiedono <b>esclusivamente nel tuo browser</b> (LocalStorage). Per non perderli ed esportarli per il commercialista:</p>
                         <ul class="list-disc pl-5 space-y-1">
-                            <li><b>Export CSV:</b> foglio compatibile con Excel (separatore «;», accenti corretti). Puoi filtrare per periodo.</li>
-                            <li><b>Barra inferiore</b>: raccoglie backup su dispositivo e Drive, gestione/ripristino dei backup, esportazione PDF e file compatibile con Excel. I backup finiscono sempre in una cartella chiamata “TimeFlow Backups”, sul dispositivo e su Drive.</li>
-                            <li><b>Elenco backup:</b> mostra i backup del dispositivo e di Google Drive, con Ripristina, Scarica ed Elimina. Su Drive l’eliminazione sposta il file nel cestino.</li>
+                            <li><b>Esporta report:</b> file CSV compatibile con Excel (separatore «;», accenti corretti), filtrabile per periodo. Non è un backup completo.</li>
+                            <li><b>Backup e ripristino</b> (barra fissa in alto): da un solo pannello salvi una copia sul dispositivo o su Google Drive, ripristini da file e gestisci l'archivio. I backup finiscono nella cartella “TimeFlow Backups”.</li>
+                            <li><b>Gestisci backup:</b> mostra le copie del dispositivo e di Google Drive, con Ripristina, Scarica ed Elimina. Su Drive l’eliminazione sposta il file nel cestino.</li>
                             <li><b>Cartella sul dispositivo:</b> dove il browser lo permette (Chrome/Edge da computer) scegli una volta dove creare “TimeFlow Backups”. Su iPhone e su molti telefoni il browser non consente di creare cartelle: l’app tiene allora la cartella “TimeFlow Backups” al proprio interno e con <i>Scarica</i> copi il file in File/Download.</li>
-                            <li><b>Backup JSON</b> (finestra Export): salva anch’esso nella cartella dei backup.</li>
+                            <li><b>Esporta report</b>: produce un CSV delle attività nel periodo scelto; non è un backup completo.</li>
                             <li><b>Ripristina:</b> carica un backup JSON; ti viene mostrato quante attività contiene e ti chiedo conferma prima di sostituire i dati attuali.</li>
                             <li>Se passano più di 30 giorni dall'ultimo backup, l'app te lo ricorda con un avviso in alto.</li>
                         </ul>
@@ -752,7 +758,7 @@
                     <a href="./Guida_Utente_TimeFlow.pdf" target="_blank" rel="noopener" class="px-3.5 py-2.5 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold text-xs flex items-center gap-2"><i class="fa-solid fa-file-pdf"></i> Apri la guida PDF originale</a>
                     <button onclick="closeGuide()" class="px-3.5 py-2.5 rounded-xl bg-brand-600 text-white font-bold text-xs">Ho capito</button>
                 </div>
-                <p class="text-[10px] text-slate-400 text-center">TimeFlow · v2.1</p>
+                <p class="text-[10px] text-slate-400 text-center">TimeFlow · v3.4</p>
             </div>
         </div>
     </div>
@@ -1204,7 +1210,7 @@
         }
         window.backupStamp = backupStamp;
         function makeDriveBackup() {
-            return { app:'TimeFlow', version:(window.APP_VERSION||'3.1'), date:new Date().toISOString(), clients, timeEntries };
+            return { app:'TimeFlow', version:(window.APP_VERSION||'3.4'), date:new Date().toISOString(), clients, timeEntries };
         }
         // Upload unico multipart (metadati + contenuto) verso l'endpoint /upload/ di Drive API v3.
         async function driveUpload(folderId, filename, json) {
@@ -2168,8 +2174,8 @@
         const days = isFinite(t) ? Math.floor((Date.now() - t) / 86400000) : null;
         let msg = '';
         if (timeEntries.length > 0) {
-            if (days === null) msg = 'Non hai ancora fatto un backup dei tuoi dati.';
-            else if (days > 30) msg = `Ultimo backup ${days} giorni fa: è ora di farne uno nuovo.`;
+            if (days === null) msg = 'Non hai ancora fatto un backup. Apri “Backup e ripristino” nella barra in alto.';
+            else if (days > 30) msg = `Ultimo backup ${days} giorni fa. Apri “Backup e ripristino” nella barra in alto.`;
         }
         $('backup-banner-text').textContent = msg; b.classList.toggle('hidden', !msg);
     };
@@ -2200,30 +2206,7 @@
         const res = await saveBlobFile(new Blob([csv], { type: 'text/csv;charset=utf-8' }), `timeflow-report-${fdToday()}.csv`, 'text/csv');
         if (res !== 'cancelled') { closeExportFilterModal(); toast('CSV salvato!', 'success'); }
     };
-    window.downloadFilteredJSON = async function () {
-        const rows = getEntriesInSelectedRange();
-        const backup = { app: 'TimeFlow', version: (window.APP_VERSION||'3.1'), date: new Date().toISOString(), googleClientId, clients, timeEntries: rows };
-        const res = await saveBlobFile(new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' }), `TimeFlow-backup-${backupStamp()}.json`, 'application/json');
-        if (res !== 'cancelled') { markBackup(); closeExportFilterModal(); toast('Backup JSON salvato!', 'success'); }
-    };
-    window.importBackupJSON = function (event) {
-        const input = event.target; const file = input.files && input.files[0]; if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            input.value = '';
-            let p; try { p = JSON.parse(e.target.result); } catch (err) { toast('Errore lettura JSON.', 'error'); return; }
-            if (!p || !Array.isArray(p.clients) || !Array.isArray(p.timeEntries)) { toast('File JSON non valido.', 'error'); return; }
-            const cl = p.clients.filter(c => c && c.id && c.name).map(c => Object.assign({ color: '#3b82f6', isArchived: false, rate: 0 }, c));
-            const en = p.timeEntries.filter(x => x && x.id && x.clientId).map(x => Object.assign({}, x, { hours: Number(x.hours) || 0, rateApplied: Number(x.rateApplied) || 0, expenses: Number(x.expenses) || 0, totalAmount: Number(x.totalAmount) || 0, description: String(x.description || '') }));
-            if (!confirm(`Il backup contiene ${cl.length} clienti e ${en.length} attività.\nI dati attuali (${clients.length} clienti, ${timeEntries.length} attività) verranno sostituiti. Continuare?`)) return;
-            clients = cl; timeEntries = en;
-            if (p.googleClientId && !googleClientId) { googleClientId = p.googleClientId; LS.set('timeflow_google_client_id', googleClientId); }
-            saveClientsToStorage(); saveEntriesToStorage(); initGoogleIdentityServices(); renderApp();
-            toast('Ripristino completato!', 'success');
-        };
-        reader.onerror = () => { input.value = ''; toast('Impossibile leggere il file.', 'error'); };
-        reader.readAsText(file);
-    };
+
 
     // ---------- Installazione PWA ----------
     let deferredPrompt = null;
@@ -2416,7 +2399,7 @@
 
     // ---------- Creazione backup locale ----------
     function makeBackup() {
-        return { app: 'TimeFlow', version: (window.APP_VERSION || '3.1'), date: new Date().toISOString(), googleClientId, clients, timeEntries };
+        return { app: 'TimeFlow', version: (window.APP_VERSION || '3.4'), date: new Date().toISOString(), googleClientId, clients, timeEntries };
     }
     window.saveLocalBackup = async function (obj) {
         const text = JSON.stringify(obj || makeBackup(), null, 2);
@@ -2451,13 +2434,6 @@
         return { where, name };
     };
     window.quickLocalBackup = () => window.saveLocalBackup(makeBackup());
-
-    // Il pulsante “Backup JSON” della finestra Export salva ora nella cartella dei backup
-    window.downloadFilteredJSON = async function () {
-        const rows = getEntriesInSelectedRange();
-        const res = await window.saveLocalBackup({ app: 'TimeFlow', version: (window.APP_VERSION || '3.1'), date: new Date().toISOString(), googleClientId, clients, timeEntries: rows });
-        if (res && typeof closeExportFilterModal === 'function') closeExportFilterModal();
-    };
 
     // ---------- Ripristino ----------
     function applyBackup(p, label) {
@@ -2560,7 +2536,7 @@
         if (!box) return;
         box.innerHTML = '<div class="text-xs text-slate-500">Ricerca backup su Drive…</div>';
         try {
-            if (!googleClientId) throw new Error('Configura prima il Google Client ID (pulsante “Client ID” nella barra comandi).');
+            if (!googleClientId) throw new Error('Configura prima il Google Client ID (pulsante “Configura Google” nella barra fissa in alto).');
             await getDriveToken();
             const folderId = await getDriveFolder(false);
             if (!folderId) { box.innerHTML = '<div class="text-xs text-slate-500">Cartella non ancora creata. Premi “Salva su Drive” per crearla e caricare il primo backup.</div>'; if (status) status.textContent = 'Nessun backup'; return; }
@@ -2650,47 +2626,5 @@
     updateBar();
 })();
     </script>
-
-    <!-- Barra inferiore: azioni principali ed esportazioni, ottimizzata per smartphone -->
-    <input type="file" id="import-json-input" accept=".json" onchange="importBackupJSON(event)" class="hidden" aria-hidden="true">
-    <nav id="bottom-toolbar" aria-label="Azioni rapide e backup" class="no-print fixed bottom-0 inset-x-0 z-40 border-t border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-950/95 backdrop-blur-lg shadow-[0_-6px_24px_rgba(15,23,42,.12)]">
-      <div class="max-w-7xl mx-auto px-2 pt-2 pb-[calc(env(safe-area-inset-bottom)+.5rem)]">
-        <div class="grid grid-cols-5 sm:grid-cols-9 gap-1">
-          <button onclick="quickLocalBackup()" title="Backup sul dispositivo" class="bottom-action">
-            <i class="fa-solid fa-mobile-screen-button text-blue-600"></i><span>Dispositivo</span>
-          </button>
-          <button onclick="backupToGoogleDrive()" title="Backup su Google Drive" class="bottom-action">
-            <i class="fa-brands fa-google-drive text-emerald-600"></i><span>Drive</span>
-          </button>
-          <button onclick="openBackupManager()" title="Visualizza e gestisci i backup" class="bottom-action">
-            <i class="fa-solid fa-folder-open text-brand-600"></i><span>Backup</span>
-          </button>
-          <button onclick="printReport()" title="Esporta il report in PDF tramite stampa" class="bottom-action">
-            <i class="fa-solid fa-file-pdf text-red-500"></i><span>PDF</span>
-          </button>
-          <button onclick="exportFilteredToCSV()" title="Esporta in formato Excel compatibile CSV" class="bottom-action">
-            <i class="fa-solid fa-file-excel text-green-600"></i><span>Excel</span>
-          </button>
-          <button onclick="openExportFilterModal()" title="Esporta o crea un backup JSON" class="bottom-action hidden sm:flex">
-            <i class="fa-solid fa-file-code text-indigo-500"></i><span>Backup file</span>
-          </button>
-          <button onclick="document.getElementById('import-json-input').click()" title="Ripristina da file" class="bottom-action hidden sm:flex">
-            <i class="fa-solid fa-upload text-purple-500"></i><span>Ripristina</span>
-          </button>
-          <button onclick="openClientModal()" title="Gestisci clienti" class="bottom-action hidden sm:flex">
-            <i class="fa-solid fa-users text-brand-600"></i><span>Clienti</span>
-          </button>
-          <button onclick="openGuide()" title="Apri la guida" class="bottom-action hidden sm:flex">
-            <i class="fa-solid fa-circle-question text-sky-500"></i><span>Guida</span>
-          </button>
-        </div>
-        <div class="sm:hidden flex justify-center gap-4 mt-1">
-          <button onclick="openExportFilterModal()" class="text-[10px] font-semibold text-slate-500 dark:text-slate-400 px-2 py-1"><i class="fa-solid fa-file-code mr-1"></i>Backup file</button>
-          <button onclick="document.getElementById('import-json-input').click()" class="text-[10px] font-semibold text-slate-500 dark:text-slate-400 px-2 py-1"><i class="fa-solid fa-upload mr-1"></i>Ripristina</button>
-          <button onclick="openClientModal()" class="text-[10px] font-semibold text-slate-500 dark:text-slate-400 px-2 py-1"><i class="fa-solid fa-users mr-1"></i>Clienti</button>
-        </div>
-      </div>
-    </nav>
-
 </body>
 </html>

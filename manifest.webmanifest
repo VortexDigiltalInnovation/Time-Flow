@@ -13,8 +13,8 @@
     "minimal-ui"
   ],
   "orientation": "any",
-  "background_color": "#0f172a",
-  "theme_color": "#0f172a",
+  "background_color": "#102b35",
+  "theme_color": "#102b35",
   "categories": [
     "business",
     "productivity"

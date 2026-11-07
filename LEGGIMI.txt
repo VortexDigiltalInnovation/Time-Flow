@@ -1,4 +1,11 @@
-# TimeFlow — PWA v3.1
+# TimeFlow — PWA v3.4
+
+## Aggiornamento v3.4 — Navigazione e backup più semplici
+- Barra superiore fissa, riorganizzata in Gestione (Clienti, Calendar) e Strumenti (Backup e ripristino, Google, Guida, Tema, Installa).
+- “Nuova attività” è il pulsante principale nell’intestazione ed è sempre raggiungibile durante lo scorrimento.
+- Salvataggio, gestione e ripristino dei backup sono raccolti in un unico pannello. L’esportazione CSV resta nel filtro delle attività e non viene confusa con un backup completo.
+- Pulsanti, stati hover/focus e spaziature rinnovati con supporto per tema scuro e schermi piccoli.
+- Cache offline aggiornata alla v3-4: apri l’app online e riaprila per ricevere la nuova versione.
 
 ## Aggiornamento v3.3
 - Numero massimo di backup (3–30, predefinito 10): oltre il limite i più vecchi vengono sovrascritti, sia nella cartella del dispositivo sia in quella interna.
@@ -12,12 +19,12 @@
 - Nuova finestra "I tuoi backup" con due schede (Dispositivo / Google Drive): per ogni backup Ripristina, Scarica ed Elimina.
 - Backup locali in una cartella "TimeFlow Backups": dove il browser lo consente (Chrome/Edge da computer) scegli una volta dove crearla e l'app ci salva e ci legge i file; altrove (iPhone, molti browser mobili) la cartella "TimeFlow Backups" è interna all'app e "Scarica" copia il file in File/Download.
 - Su Drive "Elimina" sposta il file nel cestino di Drive (recuperabile).
-- Il pulsante "Backup JSON" della finestra Export salva anch'esso nella cartella dei backup.
+- Il backup completo si crea dal pannello unico “Backup e ripristino”; l'esportazione report produce un CSV filtrabile per periodo.
 - Service worker v3.1: apri l'app online e riaprila una seconda volta per aggiornare.
 
 ## Novità v3.0
 - Versione dell'app visibile accanto al logo (v3.0).
-- Nuova barra comandi sotto l'intestazione: pulsanti con icona e nome (Clienti, Calendar con stato di sincronizzazione, Client ID, Guida, Tema, Installa), scorrevole su smartphone.
+- Barra comandi con Clienti, Calendar, configurazione Google, Guida, Tema e Installa; nella versione 3.4 è fissa e riorganizzata per funzione.
 - Service worker v3.0 con cache aggiornata: apri l'app online e riaprila una seconda volta per ricevere l'aggiornamento.
 
 
@@ -34,7 +41,7 @@
 4. La prima apertura richiede Internet: librerie e font vengono salvati e poi l'app funziona offline.
 
 ## IMPORTANTE
-- I dati stanno nel browser e sono legati all'indirizzo: da un nuovo indirizzo l'app parte vuota. Trasferiscili con Backup JSON -> Ripristina.
+- I dati stanno nel browser e sono legati all'indirizzo: da un nuovo indirizzo l'app parte vuota. Trasferiscili dal pannello Backup e ripristino.
 - Google Calendar: aggiungi il NUOVO indirizzo tra le "Origini JavaScript autorizzate" del tuo ID client OAuth nella Google Cloud Console, altrimenti la connessione non funziona.
 
 ## Novità v2.1
