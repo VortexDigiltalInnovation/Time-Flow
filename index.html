@@ -73,7 +73,7 @@
             .border { border-color: #e2e8f0 !important; }
         }
     </style>
-    <script>window.APP_VERSION='3.0'; document.addEventListener('DOMContentLoaded',function(){var b=document.getElementById('app-version-badge'); if(b) b.textContent='v'+window.APP_VERSION;});</script>
+    <script>window.APP_VERSION='3.1'; document.addEventListener('DOMContentLoaded',function(){var b=document.getElementById('app-version-badge'); if(b) b.textContent='v'+window.APP_VERSION;});</script>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-full flex flex-col transition-colors duration-200">
 
@@ -88,7 +88,7 @@
                 <div>
                     <div class="flex items-center gap-1.5">
                         <span class="font-bold text-base sm:text-lg tracking-tight text-white leading-tight block">TimeFlow</span>
-                        <span id="app-version-badge" class="text-[10px] sm:text-xs font-semibold text-emerald-300 bg-emerald-500/15 border border-emerald-500/30 rounded-md px-1.5 py-px leading-tight" title="Versione dell'app">v3.0</span>
+                        <span id="app-version-badge" class="text-[10px] sm:text-xs font-semibold text-emerald-300 bg-emerald-500/15 border border-emerald-500/30 rounded-md px-1.5 py-px leading-tight" title="Versione dell'app">v3.1</span>
                     </div>
                     <span class="text-[10px] sm:text-xs text-slate-400 block -mt-0.5">Ore, Compensi & Calendar</span>
                 </div>
@@ -131,6 +131,18 @@
             </button>
         </div>
     </nav>
+
+    <!-- Barra backup (v3.1) -->
+    <div id="backup-bar" role="toolbar" aria-label="Backup" class="bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 no-print">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-1.5 flex items-center gap-1.5 overflow-x-auto" style="scrollbar-width:none;-webkit-overflow-scrolling:touch">
+            <span class="shrink-0 text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400 inline-flex items-center gap-1.5 pr-1"><i class="fa-solid fa-shield-halved text-emerald-600"></i>Backup</span>
+            <button onclick="quickLocalBackup()" title="Salva un backup completo nella cartella “TimeFlow Backups” del dispositivo" class="shrink-0 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 px-3 py-1.5 rounded-lg text-xs font-medium inline-flex items-center gap-1.5 whitespace-nowrap"><i class="fa-solid fa-floppy-disk text-blue-500"></i><span>Salva sul dispositivo</span></button>
+            <button onclick="backupToGoogleDrive()" title="Salva un backup completo nella cartella “TimeFlow Backups” di Google Drive" class="shrink-0 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 px-3 py-1.5 rounded-lg text-xs font-medium inline-flex items-center gap-1.5 whitespace-nowrap"><i class="fa-brands fa-google-drive text-emerald-500"></i><span>Salva su Drive</span></button>
+            <button onclick="openBackupManager()" title="Vedi, ripristina ed elimina i backup su dispositivo e su Drive" class="shrink-0 bg-brand-600 hover:bg-brand-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold inline-flex items-center gap-1.5 whitespace-nowrap shadow-sm"><i class="fa-solid fa-folder-open"></i><span>Elenco backup</span></button>
+            <button onclick="document.getElementById('import-json-input').click()" title="Ripristina i dati da un file di backup JSON" class="shrink-0 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 px-3 py-1.5 rounded-lg text-xs font-medium inline-flex items-center gap-1.5 whitespace-nowrap"><i class="fa-solid fa-upload text-purple-500"></i><span>Ripristina da file</span></button>
+            <span id="backup-bar-last" class="shrink-0 ml-auto pl-2 text-[11px] text-slate-500 dark:text-slate-400 whitespace-nowrap"></span>
+        </div>
+    </div>
 
     <!-- Main Container -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-6 space-y-3 sm:space-y-6">
@@ -564,10 +576,59 @@
             </div>
             <div class="pt-3 border-t border-slate-200 dark:border-slate-700 space-y-2">
                 <div class="flex items-center justify-between gap-2"><h4 class="text-sm font-bold text-slate-800 dark:text-white"><i class="fa-brands fa-google-drive text-emerald-500 mr-1"></i> Backup su Google Drive</h4><span id="drive-status" class="text-[10px] text-slate-500">Non collegato</span></div>
-                <p class="text-[11px] text-slate-500 dark:text-slate-400">Salva una copia completa su Drive e consulta i backup già presenti nella cartella TimeFlow Backups.</p>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400">Salva una copia completa nella cartella “TimeFlow Backups” di Drive.</p>
                 <button onclick="backupToGoogleDrive()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-xs font-semibold"><i class="fa-brands fa-google-drive mr-1"></i> Salva backup su Drive</button>
-                <button onclick="listGoogleDriveBackups()" class="w-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-3 py-2 rounded-lg text-xs font-medium">Mostra backup presenti</button>
-                <div id="drive-backup-list" class="space-y-1 max-h-40 overflow-y-auto text-xs"></div><a id="drive-open-folder" href="https://drive.google.com/drive/my-drive" target="_blank" rel="noopener" class="hidden text-[11px] text-blue-600 underline">Apri la cartella in Google Drive</a>
+                <button onclick="openBackupManager('drive')" class="w-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-3 py-2 rounded-lg text-xs font-medium"><i class="fa-solid fa-folder-open mr-1"></i> Gestisci backup (Drive e dispositivo)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== TimeFlow v3.1: gestione backup (dispositivo + Drive) ===== -->
+    <div id="backup-manager" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-end sm:items-center justify-center sm:p-3 no-print" role="dialog" aria-modal="true" aria-labelledby="bm-title" onclick="if(event.target===this)closeBackupManager()">
+        <div class="bg-white dark:bg-slate-900 rounded-t-2xl sm:rounded-xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-xl border border-slate-200 dark:border-slate-800" style="padding-bottom:env(safe-area-inset-bottom)">
+            <div class="shrink-0 flex justify-between items-center border-b border-slate-100 dark:border-slate-800 px-4 py-3">
+                <h3 id="bm-title" class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2"><i class="fa-solid fa-folder-open text-brand-600"></i> I tuoi backup</h3>
+                <button onclick="closeBackupManager()" aria-label="Chiudi" class="w-9 h-9 text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="shrink-0 grid grid-cols-2 gap-1.5 px-3 pt-2.5">
+                <button id="bm-tab-local" onclick="bmSetTab('local')" class="px-3 py-2 rounded-lg text-xs font-semibold inline-flex items-center justify-center gap-1.5"><i class="fa-solid fa-mobile-screen-button"></i> Dispositivo</button>
+                <button id="bm-tab-drive" onclick="bmSetTab('drive')" class="px-3 py-2 rounded-lg text-xs font-semibold inline-flex items-center justify-center gap-1.5"><i class="fa-brands fa-google-drive"></i> Google Drive</button>
+            </div>
+            <div class="flex-1 overflow-y-auto overscroll-contain px-3 py-3 space-y-2.5">
+                <div id="bm-pane-local" class="space-y-2.5">
+                    <p id="bm-local-info" class="text-[11px] text-slate-500 dark:text-slate-400"></p>
+                    <div class="flex flex-wrap gap-1.5">
+                        <button onclick="quickLocalBackup()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-xs font-semibold inline-flex items-center gap-1.5"><i class="fa-solid fa-floppy-disk"></i> Salva backup ora</button>
+                        <button id="bm-btn-perm" onclick="bmAllowFolder()" class="hidden bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 rounded-lg text-xs font-semibold inline-flex items-center gap-1.5"><i class="fa-solid fa-lock-open"></i> Consenti accesso alla cartella</button>
+                        <button id="bm-btn-choose" onclick="bmChooseFolder()" class="hidden bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-3 py-2 rounded-lg text-xs font-medium inline-flex items-center gap-1.5"><i class="fa-solid fa-folder-tree"></i> Cambia posizione cartella</button>
+                        <button onclick="bmRefresh()" class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-3 py-2 rounded-lg text-xs font-medium inline-flex items-center gap-1.5"><i class="fa-solid fa-rotate"></i> Aggiorna</button>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800 text-[11px] text-slate-600 dark:text-slate-300">
+                        <label for="bm-keep" class="font-semibold">Backup da conservare:</label>
+                        <select id="bm-keep" onchange="bmSetKeep(this.value)" class="h-8 rounded-md border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 px-2 text-xs">
+                            <option value="3">3</option><option value="5">5</option><option value="10">10</option><option value="20">20</option><option value="30">30</option>
+                        </select>
+                        <span>oltre questo numero i più vecchi vengono sovrascritti.</span>
+                    </div>
+                    <div id="bm-mobile-box" class="hidden p-2 rounded-lg bg-slate-50 dark:bg-slate-800 text-[11px] text-slate-600 dark:text-slate-300 space-y-1.5">
+                        <div class="font-semibold">Posizione della cartella sullo smartphone</div>
+                        <div id="bm-mobile-text"></div>
+                        <div class="flex flex-wrap gap-1.5">
+                            <button onclick="bmMobileChoose()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-xs font-semibold inline-flex items-center gap-1.5"><i class="fa-solid fa-folder-open"></i> Scegli / cambia posizione</button>
+                            <button id="bm-mobile-off" onclick="bmMobileOff()" class="hidden bg-slate-200 dark:bg-slate-700 px-3 py-2 rounded-lg text-xs font-medium">Solo cartella interna</button>
+                        </div>
+                    </div>
+                    <div id="bm-local-list" class="space-y-1.5"></div>
+                </div>
+                <div id="bm-pane-drive" class="hidden space-y-2.5">
+                    <p id="bm-drive-info" class="text-[11px] text-slate-500 dark:text-slate-400">Backup nella cartella “TimeFlow Backups” del tuo Google Drive.</p>
+                    <div class="flex flex-wrap gap-1.5">
+                        <button onclick="backupToGoogleDrive()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-xs font-semibold inline-flex items-center gap-1.5"><i class="fa-brands fa-google-drive"></i> Salva su Drive</button>
+                        <button onclick="bmRefresh()" class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-3 py-2 rounded-lg text-xs font-medium inline-flex items-center gap-1.5"><i class="fa-solid fa-rotate"></i> Aggiorna</button>
+                        <a id="drive-open-folder" href="https://drive.google.com/drive/my-drive" target="_blank" rel="noopener" class="hidden bg-slate-100 dark:bg-slate-800 text-blue-600 px-3 py-2 rounded-lg text-xs font-medium inline-flex items-center gap-1.5"><i class="fa-solid fa-arrow-up-right-from-square"></i> Apri su Drive</a>
+                    </div>
+                    <div id="bm-drive-list" class="space-y-1.5"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -673,7 +734,10 @@
                         <p>I dati risiedono <b>esclusivamente nel tuo browser</b> (LocalStorage). Per non perderli ed esportarli per il commercialista:</p>
                         <ul class="list-disc pl-5 space-y-1">
                             <li><b>Export CSV:</b> foglio compatibile con Excel (separatore «;», accenti corretti). Puoi filtrare per periodo.</li>
-                            <li><b>Backup JSON:</b> esporta i dati sul dispositivo. Dalla stessa finestra puoi anche caricare e consultare i backup direttamente nella cartella Google Drive “TimeFlow Backups”.</li>
+                            <li><b>Barra Backup</b> (sotto i comandi): <i>Salva sul dispositivo</i>, <i>Salva su Drive</i>, <i>Elenco backup</i> e <i>Ripristina da file</i>. I backup finiscono sempre in una cartella chiamata “TimeFlow Backups”, sul dispositivo e su Drive.</li>
+                            <li><b>Elenco backup:</b> mostra i backup del dispositivo e di Google Drive, con Ripristina, Scarica ed Elimina. Su Drive l’eliminazione sposta il file nel cestino.</li>
+                            <li><b>Cartella sul dispositivo:</b> dove il browser lo permette (Chrome/Edge da computer) scegli una volta dove creare “TimeFlow Backups”. Su iPhone e su molti telefoni il browser non consente di creare cartelle: l’app tiene allora la cartella “TimeFlow Backups” al proprio interno e con <i>Scarica</i> copi il file in File/Download.</li>
+                            <li><b>Backup JSON</b> (finestra Export): salva anch’esso nella cartella dei backup.</li>
                             <li><b>Ripristina:</b> carica un backup JSON; ti viene mostrato quante attività contiene e ti chiedo conferma prima di sostituire i dati attuali.</li>
                             <li>Se passano più di 30 giorni dall'ultimo backup, l'app te lo ricorda con un avviso in alto.</li>
                         </ul>
@@ -1147,7 +1211,7 @@
         }
         window.backupStamp = backupStamp;
         function makeDriveBackup() {
-            return { app:'TimeFlow', version:(window.APP_VERSION||'3.0'), date:new Date().toISOString(), clients, timeEntries };
+            return { app:'TimeFlow', version:(window.APP_VERSION||'3.1'), date:new Date().toISOString(), clients, timeEntries };
         }
         // Upload unico multipart (metadati + contenuto) verso l'endpoint /upload/ di Drive API v3.
         async function driveUpload(folderId, filename, json) {
@@ -2129,6 +2193,7 @@
         setTimeout(() => URL.revokeObjectURL(url), 60000);
         return 'downloaded';
     }
+    window.saveBlobFile = saveBlobFile;
     const STATUS_IT = { unbilled: 'Da Fatturare', invoiced: 'Fatturato', paid: 'Pagato' };
     function csvCell(v) { let s = String(v == null ? '' : v); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; }
     const csvNum = n => String(Number(n) || 0).replace('.', ',');
@@ -2144,7 +2209,7 @@
     };
     window.downloadFilteredJSON = async function () {
         const rows = getEntriesInSelectedRange();
-        const backup = { app: 'TimeFlow', version: (window.APP_VERSION||'3.0'), date: new Date().toISOString(), googleClientId, clients, timeEntries: rows };
+        const backup = { app: 'TimeFlow', version: (window.APP_VERSION||'3.1'), date: new Date().toISOString(), googleClientId, clients, timeEntries: rows };
         const res = await saveBlobFile(new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' }), `TimeFlow-backup-${backupStamp()}.json`, 'application/json');
         if (res !== 'cancelled') { markBackup(); closeExportFilterModal(); toast('Backup JSON salvato!', 'success'); }
     };
@@ -2212,6 +2277,385 @@
     window.addEventListener('offline', () => toast('Sei offline: i dati restano salvati sul dispositivo', 'info'));
 })();
 
+    </script>
+    <script>
+/* ===== TimeFlow v3.1 – Gestione backup (dispositivo + Google Drive) ===== */
+(function () {
+    'use strict';
+    const $ = id => document.getElementById(id);
+    const FOLDER = 'TimeFlow Backups';
+    const toast = (m, t) => { if (typeof showToast === 'function') showToast(m, t || 'info'); };
+    const fsOK = () => typeof window.showDirectoryPicker === 'function';
+    const fmtSize = n => { n = Number(n) || 0; return n < 1024 ? n + ' B' : n < 1048576 ? (n / 1024).toFixed(1).replace('.', ',') + ' KB' : (n / 1048576).toFixed(1).replace('.', ',') + ' MB'; };
+    const fmtDate = v => { const d = new Date(v); return isFinite(d) ? d.toLocaleString('it-IT') : ''; };
+    const isOpen = () => { const m = $('backup-manager'); return !!m && !m.classList.contains('hidden'); };
+    let tab = 'local';
+
+    // ---------- Archivio interno (IndexedDB): cartella “TimeFlow Backups” dell’app + memoria della cartella scelta ----------
+    let dbp = null;
+    function db() {
+        if (dbp) return dbp;
+        dbp = new Promise((res, rej) => {
+            const r = indexedDB.open('timeflow-backups', 1);
+            r.onupgradeneeded = () => {
+                const d = r.result;
+                if (!d.objectStoreNames.contains('kv')) d.createObjectStore('kv');
+                if (!d.objectStoreNames.contains('files')) d.createObjectStore('files', { keyPath: 'name' });
+            };
+            r.onsuccess = () => res(r.result);
+            r.onerror = () => rej(r.error);
+        });
+        return dbp;
+    }
+    function tx(store, mode, fn) {
+        return db().then(d => new Promise((res, rej) => {
+            const t = d.transaction(store, mode);
+            const rq = fn(t.objectStore(store));
+            t.oncomplete = () => res(rq ? rq.result : undefined);
+            t.onerror = () => rej(t.error);
+            t.onabort = () => rej(t.error);
+        }));
+    }
+    const appList = () => tx('files', 'readonly', s => s.getAll()).then(a => (a || []).map(f => ({ src: 'app', name: f.name, size: f.size, modified: f.modified })));
+    const appPut = (name, text) => tx('files', 'readwrite', s => s.put({ name, text, size: new Blob([text]).size, modified: Date.now() }));
+    const appGet = name => tx('files', 'readonly', s => s.get(name)).then(f => (f ? f.text : null));
+    const appDel = name => tx('files', 'readwrite', s => s.delete(name));
+
+    // ---------- Cartella sul dispositivo (File System Access API, dove supportata) ----------
+    // mode: 'check' (non chiede nulla) | 'request' (richiede il permesso) | 'pick' (permesso o scelta cartella) | 'repick' (nuova scelta)
+    async function getDeviceDir(mode) {
+        if (!fsOK()) return { state: 'unsupported' };
+        let h = null;
+        try { h = await tx('kv', 'readonly', s => s.get('dir')); } catch (e) {}
+        if (h && mode !== 'repick') {
+            let p = 'prompt';
+            try {
+                p = await h.queryPermission({ mode: 'readwrite' });
+                if (p !== 'granted' && mode !== 'check') p = await h.requestPermission({ mode: 'readwrite' });
+            } catch (e) {}
+            if (p === 'granted') return { state: 'ok', dir: h };
+            if (mode !== 'pick') return { state: p === 'denied' ? 'denied' : 'prompt', dir: h };
+        }
+        if (mode !== 'pick' && mode !== 'repick') return { state: 'none' };
+        const parent = await window.showDirectoryPicker({ id: 'timeflow-backups', mode: 'readwrite' });
+        const dir = parent.name === FOLDER ? parent : await parent.getDirectoryHandle(FOLDER, { create: true });
+        await tx('kv', 'readwrite', s => s.put(dir, 'dir'));
+        return { state: 'ok', dir };
+    }
+    async function dirFiles(dir) {
+        const out = [];
+        for await (const h of dir.values()) {
+            if (h.kind !== 'file' || !/\.json$/i.test(h.name)) continue;
+            const f = await h.getFile();
+            out.push({ src: 'device', name: h.name, size: f.size, modified: f.lastModified });
+        }
+        return out;
+    }
+    async function writeDevice(dir, name, text) {
+        const fh = await dir.getFileHandle(name, { create: true });
+        const w = await fh.createWritable();
+        await w.write(text); await w.close();
+    }
+    async function localItems() {
+        const info = { fs: await getDeviceDir('check'), items: [], fsError: false };
+        if (info.fs.state === 'ok') { try { info.items.push(...await dirFiles(info.fs.dir)); } catch (e) { info.fsError = true; } }
+        try {
+            const byName = new Map(info.items.map(i => [i.name, i]));
+            for (const a of await appList()) {
+                const d = byName.get(a.name);
+                if (d) d.both = true; else info.items.push(a);
+            }
+        } catch (e) {}
+        info.items.sort((a, b) => b.modified - a.modified);
+        return info;
+    }
+    async function readLocal(item) {
+        if (item.src === 'app') return appGet(item.name);
+        const r = await getDeviceDir('request');
+        if (r.state !== 'ok' && item.both) { const t = await appGet(item.name); if (t != null) return t; }
+        if (r.state !== 'ok') throw new Error('Consenti prima l’accesso alla cartella dei backup.');
+        const fh = await r.dir.getFileHandle(item.name);
+        return (await fh.getFile()).text();
+    }
+
+    // ---------- Limite backup (rotazione) ----------
+    const BK_RE = /^TimeFlow-backup-.*\.json$/i;
+    const getKeep = () => { const n = parseInt(localStorage.getItem('timeflow_backup_keep') || '10', 10); return n > 0 ? n : 10; };
+    window.bmSetKeep = async function (v) {
+        try { localStorage.setItem('timeflow_backup_keep', String(parseInt(v, 10) || 10)); } catch (e) {}
+        await pruneBackups(); toast(`Verranno conservati gli ultimi ${getKeep()} backup.`, 'success'); refreshLocal();
+    };
+    async function pruneBackups() {
+        const keep = getKeep();
+        try {
+            const list = (await appList()).filter(f => BK_RE.test(f.name)).sort((a, b) => b.modified - a.modified);
+            for (const f of list.slice(keep)) await appDel(f.name);
+        } catch (e) {}
+        try {
+            const r = await getDeviceDir('check');
+            if (r.state === 'ok') {
+                const list = (await dirFiles(r.dir)).filter(f => BK_RE.test(f.name)).sort((a, b) => b.modified - a.modified);
+                for (const f of list.slice(keep)) await r.dir.removeEntry(f.name);
+            }
+        } catch (e) { console.warn('TimeFlow: pulizia cartella non riuscita', e); }
+    }
+
+    // ---------- Smartphone: posizione scelta dall’utente tramite “Salva in / Condividi” ----------
+    const mobileExport = () => localStorage.getItem('timeflow_backup_export') === '1';
+    async function exportToPhone(name, text) {
+        const file = new File([text], name, { type: 'application/json' });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            try { await navigator.share({ files: [file], title: name }); return true; }
+            catch (e) { if (e && e.name === 'AbortError') return false; }
+        }
+        if (typeof window.saveBlobFile === 'function') await window.saveBlobFile(new Blob([text], { type: 'application/json' }), name, 'application/json');
+        return true;
+    }
+    window.bmMobileChoose = async function () {
+        try { localStorage.setItem('timeflow_backup_export', '1'); } catch (e) {}
+        const text = JSON.stringify(makeBackup(), null, 2), name = `TimeFlow-backup-${window.backupStamp()}.json`;
+        try { await appPut(name, text); await pruneBackups(); } catch (e) {}
+        toast('Scegli la cartella: su iPhone “Salva su File”, su Android l’app File o Drive.', 'info');
+        if (await exportToPhone(name, text) && typeof window.markBackup === 'function') window.markBackup();
+        refreshLocal();
+    };
+    window.bmMobileOff = function () { try { localStorage.removeItem('timeflow_backup_export'); } catch (e) {} toast('I backup restano solo nella cartella interna dell’app.', 'info'); refreshLocal(); };
+
+    // ---------- Creazione backup locale ----------
+    function makeBackup() {
+        return { app: 'TimeFlow', version: (window.APP_VERSION || '3.1'), date: new Date().toISOString(), googleClientId, clients, timeEntries };
+    }
+    window.saveLocalBackup = async function (obj) {
+        const text = JSON.stringify(obj || makeBackup(), null, 2);
+        const name = `TimeFlow-backup-${window.backupStamp()}.json`;
+        let where = 'app';
+        if (fsOK()) {
+            try {
+                const r = await getDeviceDir('pick');
+                await writeDevice(r.dir, name, text);
+                where = 'device';
+            } catch (e) {
+                if (e && e.name === 'AbortError') return null;
+                console.warn('TimeFlow: cartella del dispositivo non utilizzabile', e);
+                toast('Cartella del dispositivo non utilizzabile: salvo nella cartella interna dell’app.', 'info');
+            }
+        }
+        let internalOK = true;
+        try { await appPut(name, text); } catch (e) { internalOK = false; }
+        if (!internalOK && where === 'device') toast('Copia interna non riuscita: il backup è comunque nella cartella del dispositivo.', 'info');
+        if (!internalOK && where === 'app') {
+            // ultima risorsa: file scaricato
+            if (typeof window.saveBlobFile === 'function') { await window.saveBlobFile(new Blob([text], { type: 'application/json' }), name, 'application/json'); }
+            toast('Archivio interno non disponibile: il backup è stato scaricato come file.', 'info');
+            if (typeof window.markBackup === 'function') window.markBackup();
+            return { where: 'download', name };
+        }
+        await pruneBackups();
+        if (where === 'app' && mobileExport()) await exportToPhone(name, text);
+        if (typeof window.markBackup === 'function') window.markBackup();
+        toast(where === 'device' ? `Backup salvato nella cartella “${FOLDER}” e nella copia interna dell’app.` : `Backup salvato nella cartella interna “${FOLDER}”. Per averne una copia nei File usa “Elenco backup” → Scarica.`, 'success');
+        if (isOpen() && tab === 'local') refreshLocal();
+        return { where, name };
+    };
+    window.quickLocalBackup = () => window.saveLocalBackup(makeBackup());
+
+    // Il pulsante “Backup JSON” della finestra Export salva ora nella cartella dei backup
+    window.downloadFilteredJSON = async function () {
+        const rows = getEntriesInSelectedRange();
+        const res = await window.saveLocalBackup({ app: 'TimeFlow', version: (window.APP_VERSION || '3.1'), date: new Date().toISOString(), googleClientId, clients, timeEntries: rows });
+        if (res && typeof closeExportFilterModal === 'function') closeExportFilterModal();
+    };
+
+    // ---------- Ripristino ----------
+    function applyBackup(p, label) {
+        if (!p || !Array.isArray(p.clients) || !Array.isArray(p.timeEntries)) { toast('Il file selezionato non è un backup TimeFlow valido.', 'error'); return false; }
+        const cl = p.clients.filter(c => c && c.id && c.name).map(c => Object.assign({ color: '#3b82f6', isArchived: false, rate: 0 }, c));
+        const en = p.timeEntries.filter(x => x && x.id && x.clientId).map(x => Object.assign({}, x, { hours: Number(x.hours) || 0, rateApplied: Number(x.rateApplied) || 0, expenses: Number(x.expenses) || 0, totalAmount: Number(x.totalAmount) || 0, description: String(x.description || '') }));
+        if (!confirm(`Ripristinare “${label}”?\nContiene ${cl.length} clienti e ${en.length} attività.\nI dati attuali (${clients.length} clienti, ${timeEntries.length} attività) verranno sostituiti.`)) return false;
+        clients = cl; timeEntries = en;
+        if (p.googleClientId && !googleClientId) { googleClientId = p.googleClientId; try { localStorage.setItem('timeflow_google_client_id', googleClientId); } catch (e) {} }
+        saveClientsToStorage(); saveEntriesToStorage();
+        if (typeof initGoogleIdentityServices === 'function') initGoogleIdentityServices();
+        renderApp();
+        toast('Ripristino completato!', 'success');
+        return true;
+    }
+
+    // ---------- Interfaccia ----------
+    function makeRow(item, actions) {
+        const row = document.createElement('div');
+        row.className = 'flex items-center justify-between gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800';
+        const info = document.createElement('div'); info.className = 'min-w-0';
+        const n = document.createElement('div'); n.className = 'font-semibold truncate text-xs text-slate-700 dark:text-slate-200'; n.textContent = item.name;
+        const m = document.createElement('div'); m.className = 'text-[10px] text-slate-500 dark:text-slate-400';
+        m.textContent = [fmtDate(item.modified), item.size ? fmtSize(item.size) : '', item.tag].filter(Boolean).join(' · ');
+        info.append(n, m);
+        const act = document.createElement('div'); act.className = 'shrink-0 flex items-center gap-1';
+        actions.forEach(a => {
+            const b = document.createElement('button');
+            b.type = 'button'; b.className = a.cls; b.title = a.title; b.setAttribute('aria-label', a.title); b.innerHTML = a.html;
+            b.onclick = a.fn; act.appendChild(b);
+        });
+        row.append(info, act);
+        return row;
+    }
+    const BTN_RESTORE = 'px-2.5 h-9 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-semibold';
+    const BTN_ICON = 'w-9 h-9 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-200 text-xs';
+    const BTN_DEL = 'w-9 h-9 rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 text-xs';
+
+    async function refreshLocal() {
+        const box = $('bm-local-list'), info = $('bm-local-info');
+        if (!box) return;
+        box.innerHTML = '<div class="text-xs text-slate-500">Lettura backup…</div>';
+        let data;
+        try { data = await localItems(); } catch (e) { box.textContent = 'Impossibile leggere i backup locali.'; return; }
+        const st = data.fs.state;
+        $('bm-btn-choose').classList.toggle('hidden', !fsOK());
+        $('bm-keep').value = String(getKeep());
+        $('bm-mobile-box').classList.toggle('hidden', fsOK());
+        $('bm-mobile-off').classList.toggle('hidden', !mobileExport());
+        $('bm-mobile-text').textContent = mobileExport()
+            ? 'Attivo: a ogni backup si apre la finestra per salvarlo nella cartella che scegli (puoi cambiarla ogni volta). In quella cartella i vecchi file vanno eliminati a mano; nella cartella interna la rotazione è automatica.'
+            : 'Il telefono non permette all’app di scrivere da sola in una cartella: attiva questa opzione e a ogni backup potrai scegliere dove salvarlo (es. File › TimeFlow Backups).';
+        $('bm-btn-perm').classList.toggle('hidden', !(st === 'prompt' || st === 'denied'));
+        if (st === 'ok') info.textContent = `Cartella “${FOLDER}” sul dispositivo: qui vengono salvati i nuovi backup, con una copia anche nella memoria interna dell’app.`;
+        else if (st === 'prompt' || st === 'denied') info.textContent = `Il browser richiede di nuovo il permesso per la cartella “${FOLDER}” scelta in precedenza.`;
+        else if (st === 'unsupported') info.textContent = `Questo browser non può scrivere in una cartella del dispositivo: i backup stanno nella cartella “${FOLDER}” interna all’app. Con “Scarica” li copi in File/Download.`;
+        else info.textContent = `Nessuna cartella scelta: al primo salvataggio scegli dove creare “${FOLDER}”. Finché non lo fai i backup restano nella cartella interna dell’app.`;
+        if (data.fsError) info.textContent += ' Impossibile leggere la cartella del dispositivo.';
+        box.innerHTML = '';
+        if (!data.items.length) { box.innerHTML = '<div class="text-xs text-slate-500">Nessun backup salvato sul dispositivo. Premi “Salva backup ora”.</div>'; return; }
+        data.items.forEach(item => {
+            item.tag = item.src === 'device' ? (item.both ? 'Cartella dispositivo + copia interna' : 'Cartella dispositivo') : 'Cartella interna app';
+            box.appendChild(makeRow(item, [
+                { cls: BTN_RESTORE, title: 'Ripristina questo backup', html: 'Ripristina', fn: () => restoreLocal(item) },
+                { cls: BTN_ICON, title: 'Scarica / condividi il file', html: '<i class="fa-solid fa-download"></i>', fn: () => downloadLocal(item) },
+                { cls: BTN_DEL, title: 'Elimina questo backup', html: '<i class="fa-solid fa-trash-can"></i>', fn: () => deleteLocal(item) }
+            ]));
+        });
+    }
+    async function restoreLocal(item) {
+        try {
+            const text = await readLocal(item);
+            let p; try { p = JSON.parse(text); } catch (e) { throw new Error('Il file non è un JSON valido.'); }
+            if (applyBackup(p, item.name)) closeBackupManager();
+        } catch (e) { toast(e.message || 'Ripristino non riuscito.', 'error'); }
+    }
+    async function downloadLocal(item) {
+        try {
+            const text = await readLocal(item);
+            await window.saveBlobFile(new Blob([text], { type: 'application/json' }), item.name, 'application/json');
+        } catch (e) { toast(e.message || 'Download non riuscito.', 'error'); }
+    }
+    async function deleteLocal(item) {
+        if (!confirm(`Eliminare definitivamente “${item.name}”?`)) return;
+        try {
+            if (item.src === 'app' || item.both) await appDel(item.name);
+            if (item.src !== 'app') {
+                const r = await getDeviceDir('request');
+                if (r.state !== 'ok') throw new Error('Consenti prima l’accesso alla cartella dei backup.');
+                await r.dir.removeEntry(item.name);
+            }
+            toast('Backup eliminato.', 'success');
+            refreshLocal();
+        } catch (e) { toast(e.message || 'Eliminazione non riuscita.', 'error'); }
+    }
+
+    // Google Drive: elenco con Ripristina / Scarica / Elimina (sposta nel cestino)
+    window.listGoogleDriveBackups = async function () {
+        const box = $('bm-drive-list'), status = $('drive-status'), info = $('bm-drive-info');
+        if (!box) return;
+        box.innerHTML = '<div class="text-xs text-slate-500">Ricerca backup su Drive…</div>';
+        try {
+            if (!googleClientId) throw new Error('Configura prima il Google Client ID (pulsante “Client ID” nella barra comandi).');
+            await getDriveToken();
+            const folderId = await getDriveFolder(false);
+            if (!folderId) { box.innerHTML = '<div class="text-xs text-slate-500">Cartella non ancora creata. Premi “Salva su Drive” per crearla e caricare il primo backup.</div>'; if (status) status.textContent = 'Nessun backup'; return; }
+            const q = encodeURIComponent(`'${folderId}' in parents and trashed=false`);
+            const result = await driveRequest(`${DRIVE_API}/files?q=${q}&orderBy=modifiedTime desc&pageSize=50&fields=files(id,name,modifiedTime,size)`);
+            const files = result.files || [];
+            if (!files.length) { box.innerHTML = '<div class="text-xs text-slate-500">La cartella è vuota.</div>'; if (status) status.textContent = 'Nessun backup'; return; }
+            box.innerHTML = '';
+            files.forEach(f => {
+                const item = { id: f.id, name: f.name, size: f.size, modified: f.modifiedTime, tag: 'Google Drive' };
+                box.appendChild(makeRow(item, [
+                    { cls: BTN_RESTORE, title: 'Ripristina questo backup', html: 'Ripristina', fn: () => restoreDrive(item) },
+                    { cls: BTN_ICON, title: 'Scarica / condividi il file', html: '<i class="fa-solid fa-download"></i>', fn: () => downloadDrive(item) },
+                    { cls: BTN_DEL, title: 'Sposta nel cestino di Drive', html: '<i class="fa-solid fa-trash-can"></i>', fn: () => deleteDrive(item) }
+                ]));
+            });
+            if (status) status.textContent = `${files.length} backup su Drive`;
+            if (info) info.textContent = `${files.length} backup nella cartella “${FOLDER}” di Google Drive.`;
+        } catch (err) {
+            box.textContent = err.message || 'Impossibile leggere Google Drive.';
+            if (status) status.textContent = 'Drive non collegato';
+        }
+    };
+    async function restoreDrive(item) {
+        try {
+            const data = await driveRequest(`${DRIVE_API}/files/${encodeURIComponent(item.id)}?alt=media`);
+            if (applyBackup(data, item.name)) closeBackupManager();
+        } catch (e) { toast(e.message || 'Ripristino da Drive non riuscito.', 'error'); }
+    }
+    async function downloadDrive(item) {
+        try {
+            const data = await driveRequest(`${DRIVE_API}/files/${encodeURIComponent(item.id)}?alt=media`);
+            await window.saveBlobFile(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }), item.name, 'application/json');
+        } catch (e) { toast(e.message || 'Download da Drive non riuscito.', 'error'); }
+    }
+    async function deleteDrive(item) {
+        if (!confirm(`Eliminare “${item.name}” da Google Drive?\nIl file verrà spostato nel cestino di Drive.`)) return;
+        try {
+            await driveRequest(`${DRIVE_API}/files/${encodeURIComponent(item.id)}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ trashed: true }) });
+            toast('Backup spostato nel cestino di Drive.', 'success');
+            window.listGoogleDriveBackups();
+        } catch (e) { toast(e.message || 'Eliminazione non riuscita.', 'error'); }
+    }
+
+    // ---------- Schede, apertura/chiusura ----------
+    const TAB_ON = 'bg-brand-600 text-white shadow-sm';
+    const TAB_OFF = 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300';
+    window.bmSetTab = function (t) {
+        tab = t === 'drive' ? 'drive' : 'local';
+        $('bm-pane-local').classList.toggle('hidden', tab !== 'local');
+        $('bm-pane-drive').classList.toggle('hidden', tab !== 'drive');
+        ['local', 'drive'].forEach(k => {
+            const b = $('bm-tab-' + k); if (!b) return;
+            TAB_ON.split(' ').forEach(c => b.classList.toggle(c, k === tab));
+            TAB_OFF.split(' ').forEach(c => b.classList.toggle(c, k !== tab));
+        });
+        window.bmRefresh();
+    };
+    window.bmRefresh = function () { if (tab === 'drive') window.listGoogleDriveBackups(); else refreshLocal(); };
+    window.bmAllowFolder = async function () { try { await getDeviceDir('request'); } catch (e) {} refreshLocal(); };
+    window.bmChooseFolder = async function () {
+        try { await getDeviceDir('repick'); toast(`Cartella “${FOLDER}” pronta.`, 'success'); }
+        catch (e) { if (!e || e.name !== 'AbortError') toast('Il browser non consente questa cartella: scegline un’altra (non Download o Desktop).', 'error'); }
+        refreshLocal();
+    };
+    window.openBackupManager = function (which) {
+        if (typeof closeExportFilterModal === 'function') closeExportFilterModal();
+        $('backup-manager').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        window.bmSetTab(which || 'local');
+    };
+    window.closeBackupManager = function () {
+        $('backup-manager').classList.add('hidden');
+        document.body.style.overflow = '';
+    };
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && isOpen()) window.closeBackupManager(); });
+
+    // ---------- Etichetta “Ultimo backup” nella barra ----------
+    function updateBar() {
+        const el = $('backup-bar-last'); if (!el) return;
+        let v = null; try { v = localStorage.getItem('timeflow_last_backup'); } catch (e) {}
+        const t = v ? Date.parse(v) : NaN;
+        el.textContent = isFinite(t) ? 'Ultimo backup: ' + fmtDate(t) : 'Nessun backup ancora';
+    }
+    const _ub = window.updateBackupBanner;
+    window.updateBackupBanner = function () { if (_ub) _ub.apply(this, arguments); updateBar(); };
+    updateBar();
+})();
     </script>
 </body>
 </html>

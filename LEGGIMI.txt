@@ -1,4 +1,19 @@
-# TimeFlow — PWA v3.0
+# TimeFlow — PWA v3.1
+
+## Aggiornamento v3.3
+- Numero massimo di backup (3–30, predefinito 10): oltre il limite i più vecchi vengono sovrascritti, sia nella cartella del dispositivo sia in quella interna.
+- Smartphone: "Scegli / cambia posizione" apre la finestra Salva su File / Condividi a ogni backup, per salvarlo nella cartella che preferisci.
+
+## Aggiornamento – Doppio salvataggio
+- Ogni backup viene salvato sia nella cartella "TimeFlow Backups" creata sul dispositivo sia nella memoria interna dell'app (copia di sicurezza). Nell'elenco compare una sola riga "Cartella dispositivo + copia interna"; Elimina rimuove entrambe le copie.
+
+## Novità v3.1 – Gestione backup
+- Nuova barra "Backup" sotto la barra comandi: Salva sul dispositivo, Salva su Drive, Elenco backup, Ripristina da file; mostra la data dell'ultimo backup.
+- Nuova finestra "I tuoi backup" con due schede (Dispositivo / Google Drive): per ogni backup Ripristina, Scarica ed Elimina.
+- Backup locali in una cartella "TimeFlow Backups": dove il browser lo consente (Chrome/Edge da computer) scegli una volta dove crearla e l'app ci salva e ci legge i file; altrove (iPhone, molti browser mobili) la cartella "TimeFlow Backups" è interna all'app e "Scarica" copia il file in File/Download.
+- Su Drive "Elimina" sposta il file nel cestino di Drive (recuperabile).
+- Il pulsante "Backup JSON" della finestra Export salva anch'esso nella cartella dei backup.
+- Service worker v3.1: apri l'app online e riaprila una seconda volta per aggiornare.
 
 ## Novità v3.0
 - Versione dell'app visibile accanto al logo (v3.0).
