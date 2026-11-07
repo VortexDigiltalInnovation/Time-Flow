@@ -74,6 +74,19 @@
         }
     </style>
     <script>window.APP_VERSION='3.1'; document.addEventListener('DOMContentLoaded',function(){var b=document.getElementById('app-version-badge'); if(b) b.textContent='v'+window.APP_VERSION;});</script>
+
+    <style>
+      .bottom-action{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:7px 2px;border-radius:11px;color:#334155;font-size:10px;font-weight:650;line-height:1.15;white-space:nowrap}
+      .dark .bottom-action{color:#e2e8f0}
+      .bottom-action i{font-size:17px}
+      .bottom-action:active{transform:scale(.96);background:rgba(100,116,139,.12)}
+      #bottom-toolbar{padding-bottom:0}
+      @media(min-width:640px){.bottom-action{font-size:11px;padding:8px 5px}.bottom-action i{font-size:18px}}
+      @media(max-width:380px){.bottom-action{font-size:9px}.bottom-action i{font-size:16px}}
+      body{padding-bottom:116px}
+      @media(min-width:640px){body{padding-bottom:78px}}
+    </style>
+
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-full flex flex-col transition-colors duration-200">
 
@@ -131,18 +144,6 @@
             </button>
         </div>
     </nav>
-
-    <!-- Barra backup (v3.1) -->
-    <div id="backup-bar" role="toolbar" aria-label="Backup" class="bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 no-print">
-        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-1.5 flex items-center gap-1.5 overflow-x-auto" style="scrollbar-width:none;-webkit-overflow-scrolling:touch">
-            <span class="shrink-0 text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400 inline-flex items-center gap-1.5 pr-1"><i class="fa-solid fa-shield-halved text-emerald-600"></i>Backup</span>
-            <button onclick="quickLocalBackup()" title="Salva un backup completo nella cartella “TimeFlow Backups” del dispositivo" class="shrink-0 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 px-3 py-1.5 rounded-lg text-xs font-medium inline-flex items-center gap-1.5 whitespace-nowrap"><i class="fa-solid fa-floppy-disk text-blue-500"></i><span>Salva sul dispositivo</span></button>
-            <button onclick="backupToGoogleDrive()" title="Salva un backup completo nella cartella “TimeFlow Backups” di Google Drive" class="shrink-0 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 px-3 py-1.5 rounded-lg text-xs font-medium inline-flex items-center gap-1.5 whitespace-nowrap"><i class="fa-brands fa-google-drive text-emerald-500"></i><span>Salva su Drive</span></button>
-            <button onclick="openBackupManager()" title="Vedi, ripristina ed elimina i backup su dispositivo e su Drive" class="shrink-0 bg-brand-600 hover:bg-brand-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold inline-flex items-center gap-1.5 whitespace-nowrap shadow-sm"><i class="fa-solid fa-folder-open"></i><span>Elenco backup</span></button>
-            <button onclick="document.getElementById('import-json-input').click()" title="Ripristina i dati da un file di backup JSON" class="shrink-0 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 px-3 py-1.5 rounded-lg text-xs font-medium inline-flex items-center gap-1.5 whitespace-nowrap"><i class="fa-solid fa-upload text-purple-500"></i><span>Ripristina da file</span></button>
-            <span id="backup-bar-last" class="shrink-0 ml-auto pl-2 text-[11px] text-slate-500 dark:text-slate-400 whitespace-nowrap"></span>
-        </div>
-    </div>
 
     <!-- Main Container -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-6 space-y-3 sm:space-y-6">
@@ -337,15 +338,7 @@
                     </div>
                 </div>
 
-                <div class="flex items-center gap-1.5 pt-2 border-t border-slate-100 dark:border-slate-800 overflow-x-auto">
-                    <button onclick="exportFilteredToCSV()" class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2.5 py-1 rounded-lg text-xs font-medium border border-slate-200 dark:border-slate-700 whitespace-nowrap"><i class="fa-solid fa-file-csv text-emerald-600 mr-1"></i> CSV</button>
-                    <button onclick="printReport()" class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2.5 py-1 rounded-lg text-xs font-medium border border-slate-200 dark:border-slate-700 whitespace-nowrap"><i class="fa-solid fa-file-pdf text-red-500 mr-1"></i> Stampa</button>
-                    <button onclick="openExportFilterModal()" class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2.5 py-1 rounded-lg text-xs font-medium border border-slate-200 dark:border-slate-700 whitespace-nowrap"><i class="fa-solid fa-download text-blue-500 mr-1"></i> Backup</button>
-                    <label class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2.5 py-1 rounded-lg text-xs font-medium border border-slate-200 dark:border-slate-700 cursor-pointer whitespace-nowrap">
-                        <i class="fa-solid fa-upload text-purple-500 mr-1"></i> Ripristina
-                        <input type="file" id="import-json-input" accept=".json" onchange="importBackupJSON(event)" class="hidden">
-                    </label>
-                </div>
+                <!-- Esportazioni e backup sono raccolti nella barra inferiore per un accesso rapido da smartphone. -->
             </div>
 
             <div id="bulk-actions-bar" class="hidden bg-slate-900 text-white p-2.5 rounded-lg flex items-center justify-between gap-2 shadow-sm">
@@ -734,7 +727,7 @@
                         <p>I dati risiedono <b>esclusivamente nel tuo browser</b> (LocalStorage). Per non perderli ed esportarli per il commercialista:</p>
                         <ul class="list-disc pl-5 space-y-1">
                             <li><b>Export CSV:</b> foglio compatibile con Excel (separatore «;», accenti corretti). Puoi filtrare per periodo.</li>
-                            <li><b>Barra Backup</b> (sotto i comandi): <i>Salva sul dispositivo</i>, <i>Salva su Drive</i>, <i>Elenco backup</i> e <i>Ripristina da file</i>. I backup finiscono sempre in una cartella chiamata “TimeFlow Backups”, sul dispositivo e su Drive.</li>
+                            <li><b>Barra inferiore</b>: raccoglie backup su dispositivo e Drive, gestione/ripristino dei backup, esportazione PDF e file compatibile con Excel. I backup finiscono sempre in una cartella chiamata “TimeFlow Backups”, sul dispositivo e su Drive.</li>
                             <li><b>Elenco backup:</b> mostra i backup del dispositivo e di Google Drive, con Ripristina, Scarica ed Elimina. Su Drive l’eliminazione sposta il file nel cestino.</li>
                             <li><b>Cartella sul dispositivo:</b> dove il browser lo permette (Chrome/Edge da computer) scegli una volta dove creare “TimeFlow Backups”. Su iPhone e su molti telefoni il browser non consente di creare cartelle: l’app tiene allora la cartella “TimeFlow Backups” al proprio interno e con <i>Scarica</i> copi il file in File/Download.</li>
                             <li><b>Backup JSON</b> (finestra Export): salva anch’esso nella cartella dei backup.</li>
@@ -2657,5 +2650,47 @@
     updateBar();
 })();
     </script>
+
+    <!-- Barra inferiore: azioni principali ed esportazioni, ottimizzata per smartphone -->
+    <input type="file" id="import-json-input" accept=".json" onchange="importBackupJSON(event)" class="hidden" aria-hidden="true">
+    <nav id="bottom-toolbar" aria-label="Azioni rapide e backup" class="no-print fixed bottom-0 inset-x-0 z-40 border-t border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-950/95 backdrop-blur-lg shadow-[0_-6px_24px_rgba(15,23,42,.12)]">
+      <div class="max-w-7xl mx-auto px-2 pt-2 pb-[calc(env(safe-area-inset-bottom)+.5rem)]">
+        <div class="grid grid-cols-5 sm:grid-cols-9 gap-1">
+          <button onclick="quickLocalBackup()" title="Backup sul dispositivo" class="bottom-action">
+            <i class="fa-solid fa-mobile-screen-button text-blue-600"></i><span>Dispositivo</span>
+          </button>
+          <button onclick="backupToGoogleDrive()" title="Backup su Google Drive" class="bottom-action">
+            <i class="fa-brands fa-google-drive text-emerald-600"></i><span>Drive</span>
+          </button>
+          <button onclick="openBackupManager()" title="Visualizza e gestisci i backup" class="bottom-action">
+            <i class="fa-solid fa-folder-open text-brand-600"></i><span>Backup</span>
+          </button>
+          <button onclick="printReport()" title="Esporta il report in PDF tramite stampa" class="bottom-action">
+            <i class="fa-solid fa-file-pdf text-red-500"></i><span>PDF</span>
+          </button>
+          <button onclick="exportFilteredToCSV()" title="Esporta in formato Excel compatibile CSV" class="bottom-action">
+            <i class="fa-solid fa-file-excel text-green-600"></i><span>Excel</span>
+          </button>
+          <button onclick="openExportFilterModal()" title="Esporta o crea un backup JSON" class="bottom-action hidden sm:flex">
+            <i class="fa-solid fa-file-code text-indigo-500"></i><span>Backup file</span>
+          </button>
+          <button onclick="document.getElementById('import-json-input').click()" title="Ripristina da file" class="bottom-action hidden sm:flex">
+            <i class="fa-solid fa-upload text-purple-500"></i><span>Ripristina</span>
+          </button>
+          <button onclick="openClientModal()" title="Gestisci clienti" class="bottom-action hidden sm:flex">
+            <i class="fa-solid fa-users text-brand-600"></i><span>Clienti</span>
+          </button>
+          <button onclick="openGuide()" title="Apri la guida" class="bottom-action hidden sm:flex">
+            <i class="fa-solid fa-circle-question text-sky-500"></i><span>Guida</span>
+          </button>
+        </div>
+        <div class="sm:hidden flex justify-center gap-4 mt-1">
+          <button onclick="openExportFilterModal()" class="text-[10px] font-semibold text-slate-500 dark:text-slate-400 px-2 py-1"><i class="fa-solid fa-file-code mr-1"></i>Backup file</button>
+          <button onclick="document.getElementById('import-json-input').click()" class="text-[10px] font-semibold text-slate-500 dark:text-slate-400 px-2 py-1"><i class="fa-solid fa-upload mr-1"></i>Ripristina</button>
+          <button onclick="openClientModal()" class="text-[10px] font-semibold text-slate-500 dark:text-slate-400 px-2 py-1"><i class="fa-solid fa-users mr-1"></i>Clienti</button>
+        </div>
+      </div>
+    </nav>
+
 </body>
 </html>
