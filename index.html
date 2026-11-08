@@ -114,9 +114,9 @@
             .border { border-color: #e2e8f0 !important; }
         }
     </style>
-    <script>window.APP_VERSION='3.5'; document.addEventListener('DOMContentLoaded',function(){var b=document.getElementById('app-version-badge'); if(b) b.textContent='v'+window.APP_VERSION;});</script>
+    <script>window.APP_VERSION='3.6'; document.addEventListener('DOMContentLoaded',function(){var b=document.getElementById('app-version-badge'); if(b) b.textContent='v'+window.APP_VERSION;});</script>
 <style id="tf-ui-v35">
-.tf-app-header{position:static!important;background:#0f172a!important;border-bottom:1px solid #1e293b;box-shadow:none!important}
+.tf-app-header{position:sticky!important;top:0;z-index:45;background:#0f172a!important;border-bottom:1px solid #1e293b;box-shadow:none!important}
 .tf2-top{display:flex;align-items:center;justify-content:space-between;gap:.5rem;min-height:48px;padding-inline:clamp(.75rem,3vw,2rem)}
 .tf2-new{display:inline-flex;align-items:center;gap:.4rem;min-height:40px;padding:0 .8rem;border-radius:.7rem;background:#059669;color:#fff;font-size:12px;font-weight:700;white-space:nowrap}
 .tf2-new:hover{background:#10b981}
@@ -140,6 +140,29 @@
 .dark .tf2-dot{border-color:#0f172a}
 body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
 @media print{.tf2-bottom{display:none!important}body{padding-bottom:0}}
+.tf2-tab{--c:#1d4ed8;--cd:#93c5fd;--bg:rgba(37,99,235,.10)}
+.tf2-tab.c-violet{--c:#6d28d9;--cd:#c4b5fd;--bg:rgba(124,58,237,.10)}
+.tf2-tab.c-green{--c:#047857;--cd:#6ee7b7;--bg:rgba(5,150,105,.10)}
+.tf2-tab.c-orange{--c:#c2410c;--cd:#fdba74;--bg:rgba(234,88,12,.10)}
+.tf2-tab i{width:34px;height:26px;display:inline-flex;align-items:center;justify-content:center;border-radius:9999px;background:var(--bg);color:var(--c)}
+.tf2-tab .tf2-l{color:var(--c)}
+.dark .tf2-tab i,.dark .tf2-tab .tf2-l{color:var(--cd)}
+.tf2-tab:hover,.dark .tf2-tab:hover{background:var(--bg)}
+.tf2-tab:hover .tf2-l{color:var(--c)}
+.dark .tf2-tab:hover .tf2-l{color:var(--cd)}
+.tf2-menu{position:absolute;right:0;top:calc(100% + 6px);min-width:15rem;background:#fff;color:#0f172a;border:1px solid #e2e8f0;border-radius:.9rem;box-shadow:0 12px 30px rgba(15,23,42,.25);padding:.35rem;z-index:60}
+.dark .tf2-menu{background:#1e293b;color:#f1f5f9;border-color:#334155}
+.tf2-menu[hidden]{display:none}
+.tf2-mi{display:flex;align-items:center;gap:.7rem;width:100%;min-height:48px;padding:.4rem .6rem;border-radius:.65rem;text-align:left;font-size:13px;font-weight:700}
+.tf2-mi small{display:block;font-size:11px;font-weight:400;color:#475569}
+.dark .tf2-mi small{color:#cbd5e1}
+.tf2-mi:hover,.tf2-mi:focus-visible{background:rgba(100,116,139,.14)}
+.tf2-mi .ic{width:34px;height:34px;border-radius:.6rem;display:inline-flex;align-items:center;justify-content:center;font-size:15px;flex:none}
+.ic-x{background:#d1fae5;color:#047857}.ic-p{background:#fee2e2;color:#b91c1c}.ic-c{background:#e0e7ff;color:#4338ca}
+.tf2-exp{position:relative}
+#tf-print-report{display:none}
+@media print{body.tf-printing>*:not(#tf-print-report){display:none!important}body.tf-printing #tf-print-report{display:block!important;color:#000;background:#fff;padding:0;font-family:system-ui,sans-serif}
+#tf-print-report table{width:100%;border-collapse:collapse;font-size:11px}#tf-print-report th,#tf-print-report td{border:1px solid #94a3b8;padding:4px 6px;text-align:left}#tf-print-report td.n,#tf-print-report th.n{text-align:right}#tf-print-report h1{font-size:18px;margin:0 0 4px}#tf-print-report p{margin:0 0 10px;font-size:11px}}
 </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-full flex flex-col transition-colors duration-200">
@@ -153,10 +176,16 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
             <div class="flex min-w-0 items-center gap-2">
                 <img src="./icons/icon-96.png" alt="" width="32" height="32" class="w-8 h-8 rounded-lg shrink-0">
                 <span class="font-bold text-base tracking-tight text-white leading-tight">TimeFlow</span>
-                <span id="app-version-badge" class="text-[10px] font-bold text-emerald-100 bg-emerald-500/20 rounded-md px-1.5 py-px leading-tight" title="Versione dell'app">v3.5</span>
+                <span id="app-version-badge" class="text-[10px] font-bold text-emerald-100 bg-emerald-500/20 rounded-md px-1.5 py-px leading-tight" title="Versione dell'app">v3.6</span>
             </div>
             <div class="flex items-center gap-1">
                 <button type="button" onclick="openManualEntryModal()" class="tf2-new" aria-label="Crea una nuova attività"><i class="fa-solid fa-plus" aria-hidden="true"></i><span>Nuova attività</span></button>
+                <div class="tf2-exp" id="tf2-exp"><button type="button" id="tf2-exp-btn" onclick="tfToggleExport(event)" aria-haspopup="true" aria-expanded="false" aria-controls="tf2-exp-menu" title="Esporta le attività" aria-label="Esporta" class="tf2-icon"><i class="fa-solid fa-file-export" aria-hidden="true"></i></button>
+                <div id="tf2-exp-menu" class="tf2-menu" hidden>
+                    <button type="button" class="tf2-mi" onclick="tfExport('xlsx')"><span class="ic ic-x"><i class="fa-solid fa-file-excel" aria-hidden="true"></i></span><span>Excel<small>Foglio .xlsx con le attività</small></span></button>
+                    <button type="button" class="tf2-mi" onclick="tfExport('pdf')"><span class="ic ic-p"><i class="fa-solid fa-file-pdf" aria-hidden="true"></i></span><span>PDF<small>Report da salvare o stampare</small></span></button>
+                    <button type="button" class="tf2-mi" onclick="tfExport('csv')"><span class="ic ic-c"><i class="fa-solid fa-file-csv" aria-hidden="true"></i></span><span>CSV<small>Per altri programmi</small></span></button>
+                </div></div>
                 <button type="button" onclick="toggleDarkMode()" title="Passa tra tema chiaro e scuro" aria-label="Cambia tema" class="tf2-icon"><i id="theme-icon" class="fa-solid fa-moon" aria-hidden="true"></i></button>
                 <button type="button" onclick="openGuide()" title="Apri la guida utente" aria-label="Guida utente" class="tf2-icon"><i class="fa-solid fa-circle-question" aria-hidden="true"></i></button>
                 <button id="btn-install" type="button" onclick="installApp()" title="Installa l'app sul dispositivo" aria-label="Installa l'app" class="tf2-icon hidden"><i class="fa-solid fa-circle-down" aria-hidden="true"></i></button>
@@ -168,9 +197,9 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
     <nav id="top-toolbar" aria-label="Gestione e strumenti" class="tf2-bottom no-print">
         <div class="tf2-bottom-in">
             <button type="button" onclick="openClientModal()" class="tf2-tab"><i class="fa-solid fa-users" aria-hidden="true"></i><span class="tf2-l">Clienti</span></button>
-            <button type="button" onclick="handleGoogleAuthClick()" id="btn-google-auth" title="Collega o sincronizza Google Calendar" class="tf2-tab"><i class="fa-brands fa-google" aria-hidden="true"></i><span class="tf2-l">Calendar</span><span id="google-auth-status-text" class="tf2-s">Connetti</span><span id="google-auth-dot" class="tf2-dot bg-slate-400" aria-hidden="true"></span></button>
-            <button type="button" onclick="openBackupManager()" title="Salva, ripristina e gestisci i backup" class="tf2-tab"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i><span class="tf2-l">Backup</span><span id="backup-bar-last" class="tf2-s" aria-live="polite"></span></button>
-            <button type="button" onclick="openConfigModal()" title="Configura Google Calendar e Google Drive" class="tf2-tab"><i class="fa-solid fa-gear" aria-hidden="true"></i><span class="tf2-l">Impostazioni</span></button>
+            <button type="button" onclick="handleGoogleAuthClick()" id="btn-google-auth" title="Collega o sincronizza Google Calendar" class="tf2-tab c-violet"><i class="fa-brands fa-google" aria-hidden="true"></i><span class="tf2-l">Calendar</span><span id="google-auth-status-text" class="tf2-s">Connetti</span><span id="google-auth-dot" class="tf2-dot bg-slate-400" aria-hidden="true"></span></button>
+            <button type="button" onclick="openBackupManager()" title="Salva, ripristina e gestisci i backup" class="tf2-tab c-green"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i><span class="tf2-l">Backup</span><span id="backup-bar-last" class="tf2-s" aria-live="polite"></span></button>
+            <button type="button" onclick="openConfigModal()" title="Configura Google Calendar e Google Drive" class="tf2-tab c-orange"><i class="fa-solid fa-gear" aria-hidden="true"></i><span class="tf2-l">Impostazioni</span></button>
         </div>
     </nav>
 
@@ -190,7 +219,8 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
         </div>
 
         <!-- EMBEDDED AI QUICK ENTRY BAR -->
-        <section class="bg-gradient-to-r from-emerald-50 dark:from-slate-900 to-slate-50 dark:to-slate-900 border border-emerald-200/80 dark:border-slate-800 rounded-xl sm:rounded-2xl p-3 shadow-xs no-print">
+        <div class="no-print bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-xl sm:rounded-2xl p-3 shadow-xs">
+        <section class="no-print">
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                 <div class="flex items-center gap-2 px-2 text-emerald-600 dark:text-brand-400 font-semibold text-xs shrink-0">
                     <i class="fa-solid fa-wand-magic-sparkles text-sm animate-pulse"></i>
@@ -213,7 +243,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
         </div>
 
         <!-- ===== TimeFlow v2: timer ===== -->
-        <section id="timer-card" class="no-print bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-xl sm:rounded-2xl p-3 shadow-xs space-y-2">
+        <section id="timer-card" class="no-print pt-3 mt-3 border-t border-slate-200 dark:border-slate-800 space-y-2">
             <div class="flex items-center justify-between gap-2">
                 <div class="flex items-center gap-2 text-xs font-semibold text-slate-700 dark:text-slate-200"><i class="fa-solid fa-stopwatch text-brand-600 dark:text-brand-500 text-sm"></i> Timer attività</div>
                 <label class="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5">Arrotonda
@@ -233,9 +263,10 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
                 </div>
             </div>
         </section>
+        </div>
 
         <!-- 1. FINANCIAL KPI BANNERS -->
-        <section class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-4 no-print">
+        <section class="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 no-print">
             <div class="bg-white dark:bg-slate-900 p-3 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between">
                 <div class="flex items-center justify-between">
                     <span class="text-[10px] sm:text-[11px] font-semibold uppercase text-slate-400 tracking-wider">Fatturato</span>
@@ -277,17 +308,6 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
                 <div class="mt-1.5 sm:mt-3">
                     <div id="kpi-paid" class="text-lg sm:text-3xl font-bold text-emerald-700 dark:text-emerald-400">€ 0.00</div>
                     <p class="text-[10px] sm:text-xs text-emerald-600/80 dark:text-emerald-400/80 mt-0.5">Saldato</p>
-                </div>
-            </div>
-
-            <div class="col-span-2 sm:col-span-2 lg:col-span-1 bg-gradient-to-br from-slate-900 to-slate-800 dark:from-slate-800 dark:to-slate-900 text-white p-3 sm:p-5 rounded-xl sm:rounded-2xl shadow-xs flex flex-col justify-between">
-                <div class="flex items-center justify-between">
-                    <span class="text-[10px] sm:text-[11px] font-semibold uppercase text-slate-400 tracking-wider">Tariffa Media</span>
-                    <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-md sm:rounded-lg bg-slate-800 flex items-center justify-center text-brand-400 text-xs sm:text-sm"><i class="fa-solid fa-chart-line"></i></div>
-                </div>
-                <div class="mt-1.5 sm:mt-3">
-                    <div id="kpi-avg-rate" class="text-lg sm:text-3xl font-bold text-white">€ 0.00<span class="text-xs font-normal text-slate-400">/h</span></div>
-                    <p class="text-[10px] sm:text-xs text-slate-400 mt-0.5">Rendimento orario</p>
                 </div>
             </div>
         </section>
@@ -361,12 +381,6 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
                             <input type="text" id="search-input" onkeyup="renderApp()" placeholder="Cerca attività..." class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs rounded-lg pl-7 pr-2.5 py-1.5">
                         </div>
                     </div>
-                </div>
-
-                <div class="flex items-center gap-1.5 pt-2 border-t border-slate-100 dark:border-slate-800 overflow-x-auto">
-                    <button onclick="exportFilteredToCSV()" class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-3 py-2 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-700 whitespace-nowrap"><i class="fa-solid fa-file-csv text-emerald-600 mr-1"></i> Esporta report</button>
-                    <button onclick="printReport()" class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2.5 py-1 rounded-lg text-xs font-medium border border-slate-200 dark:border-slate-700 whitespace-nowrap"><i class="fa-solid fa-file-pdf text-red-500 mr-1"></i> Stampa</button>
-
                 </div>
             </div>
 
@@ -594,7 +608,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
             </div>
             <div class="flex flex-col gap-1.5 pt-2 border-t border-slate-100 dark:border-slate-800">
                 <p class="text-[11px] text-slate-500 dark:text-slate-400">Esporta le attività del periodo selezionato in formato compatibile con Excel.</p>
-                <button onclick="downloadFilteredCSV()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-sm"><i class="fa-solid fa-file-csv"></i> Scarica report CSV</button>
+                <button onclick="downloadReport()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-sm"><i id="export-go-icon" class="fa-solid fa-file-csv"></i> <span id="export-go-label">Scarica report CSV</span></button>
             </div>
         </div>
     </div>
@@ -716,7 +730,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
                 <details id="g-kpi" class="group rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60">
                     <summary class="cursor-pointer list-none px-3.5 py-3 font-bold text-slate-900 dark:text-white flex items-center justify-between">4. KPI finanziari e analisi IA <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform group-open:rotate-180"></i></summary>
                     <div class="px-3.5 pb-3.5 space-y-2">
-                        <p>In alto trovi 5 indicatori sempre aggiornati: <b>Fatturato Totale, Da Fatturare, In Attesa Saldo, Incassato, Tariffa Media</b>.</p>
+                        <p>In alto trovi 4 indicatori sempre aggiornati: <b>Fatturato Totale, Da Fatturare, In Attesa Saldo, Incassato</b>.</p>
                         <p>Il modulo <b>Analisi Finanziaria IA Nativa</b> genera in un tocco, anche offline, un report sulla distribuzione del volume d'affari per cliente e sul rendimento orario effettivo. Le <b>Statistiche Mensili</b> riassumono ore e compensi mese per mese.</p>
                     </div>
                 </details>
@@ -776,7 +790,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
                     <a href="./Guida_Utente_TimeFlow.pdf" target="_blank" rel="noopener" class="px-3.5 py-2.5 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold text-xs flex items-center gap-2"><i class="fa-solid fa-file-pdf"></i> Apri la guida PDF originale</a>
                     <button onclick="closeGuide()" class="px-3.5 py-2.5 rounded-xl bg-brand-600 text-white font-bold text-xs">Ho capito</button>
                 </div>
-                <p class="text-[10px] text-slate-400 text-center">TimeFlow · v3.5</p>
+                <p class="text-[10px] text-slate-400 text-center">TimeFlow · v3.6</p>
             </div>
         </div>
     </div>
@@ -1228,7 +1242,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
         }
         window.backupStamp = backupStamp;
         function makeDriveBackup() {
-            return { app:'TimeFlow', version:(window.APP_VERSION||'3.5'), date:new Date().toISOString(), clients, timeEntries };
+            return { app:'TimeFlow', version:(window.APP_VERSION||'3.6'), date:new Date().toISOString(), clients, timeEntries };
         }
         // Upload unico multipart (metadati + contenuto) verso l'endpoint /upload/ di Drive API v3.
         async function driveUpload(folderId, filename, json) {
@@ -1454,7 +1468,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
             document.getElementById('kpi-unbilled').innerText = `€ ${unbilled.toFixed(2)}`;
             document.getElementById('kpi-invoiced').innerText = `€ ${invoiced.toFixed(2)}`;
             document.getElementById('kpi-paid').innerText = `€ ${paid.toFixed(2)}`;
-            document.getElementById('kpi-avg-rate').innerHTML = `€ ${avgRate.toFixed(2)}<span class="text-xs font-normal text-slate-400">/h</span>`;
+            const _ar = document.getElementById('kpi-avg-rate'); if (_ar) _ar.innerHTML = `€ ${avgRate.toFixed(2)}<span class="text-xs font-normal text-slate-400">/h</span>`;
             document.getElementById('kpi-hours-sub').innerText = `${totalHours.toFixed(1)}h totali`;
         }
 
@@ -2225,6 +2239,68 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
         if (res !== 'cancelled') { closeExportFilterModal(); toast('CSV salvato!', 'success'); }
     };
 
+    // ---------- v3.6: menu Esporta (Excel / PDF / CSV) ----------
+    const _crcT=(()=>{const t=[];for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+    const _crc=b=>{let c=0xFFFFFFFF;for(let i=0;i<b.length;i++)c=_crcT[(c^b[i])&255]^(c>>>8);return(c^0xFFFFFFFF)>>>0};
+    function _zip(files){const enc=new TextEncoder(),parts=[],cd=[];let off=0;
+        for(const f of files){const nm=enc.encode(f.n),d=enc.encode(f.d),crc=_crc(d);
+            const h=new DataView(new ArrayBuffer(30));h.setUint32(0,0x04034b50,true);h.setUint16(4,20,true);h.setUint16(6,0x0800,true);h.setUint32(14,crc,true);h.setUint32(18,d.length,true);h.setUint32(22,d.length,true);h.setUint16(26,nm.length,true);
+            parts.push(h.buffer,nm,d);
+            const e=new DataView(new ArrayBuffer(46));e.setUint32(0,0x02014b50,true);e.setUint16(4,20,true);e.setUint16(6,20,true);e.setUint16(8,0x0800,true);e.setUint32(16,crc,true);e.setUint32(20,d.length,true);e.setUint32(24,d.length,true);e.setUint16(28,nm.length,true);e.setUint32(42,off,true);
+            cd.push(e.buffer,nm);off+=30+nm.length+d.length}
+        let cl=0;cd.forEach(x=>cl+=x.byteLength);
+        const en=new DataView(new ArrayBuffer(22));en.setUint32(0,0x06054b50,true);en.setUint16(8,files.length,true);en.setUint16(10,files.length,true);en.setUint32(12,cl,true);en.setUint32(16,off,true);
+        return new Blob([...parts,...cd,en.buffer],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})}
+    const _x=v=>String(v==null?'':v).replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g,'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    const _h=_x;
+    function _xlsx(rows){
+        const col=i=>String.fromCharCode(65+i);
+        const head=['Data','Cliente','Descrizione','Ora inizio','Ore','Tariffa oraria','Spese','Totale (€)','Stato'];
+        const sc=(r,c,v,st)=>'<c r="'+col(c)+r+'" t="inlineStr"'+(st?' s="1"':'')+'><is><t xml:space="preserve">'+_x(v)+'</t></is></c>';
+        const nc=(r,c,v)=>'<c r="'+col(c)+r+'" s="2"><v>'+(Number(v)||0)+'</v></c>';
+        let sh='<row r="1">'+head.map((t,i)=>sc(1,i,t,1)).join('')+'</row>';
+        rows.forEach((e,i)=>{const r=i+2;sh+='<row r="'+r+'">'+sc(r,0,e.date)+sc(r,1,getClientName(e.clientId))+sc(r,2,e.description)+sc(r,3,e.startTime||'')+nc(r,4,e.hours)+nc(r,5,e.rateApplied)+nc(r,6,e.expenses)+nc(r,7,e.totalAmount)+sc(r,8,STATUS_IT[e.status]||e.status||'')+'</row>'});
+        const T='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+        return _zip([
+            {n:'[Content_Types].xml',d:T+'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>'},
+            {n:'_rels/.rels',d:T+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>'},
+            {n:'xl/workbook.xml',d:T+'<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Attività" sheetId="1" r:id="rId1"/></sheets></workbook>'},
+            {n:'xl/_rels/workbook.xml.rels',d:T+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>'},
+            {n:'xl/styles.xml',d:T+'<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="1"><numFmt numFmtId="164" formatCode="#,##0.00"/></numFmts><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="3"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/></cellXfs></styleSheet>'},
+            {n:'xl/worksheets/sheet1.xml',d:T+'<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><cols><col min="1" max="1" width="12" customWidth="1"/><col min="2" max="2" width="22" customWidth="1"/><col min="3" max="3" width="40" customWidth="1"/><col min="4" max="9" width="14" customWidth="1"/></cols><sheetData>'+sh+'</sheetData></worksheet>'}
+        ]);
+    }
+    function _pdf(rows){
+        let box=document.getElementById('tf-print-report');if(!box){box=document.createElement('div');box.id='tf-print-report';document.body.appendChild(box)}
+        const a=($('export-start-date')||{}).value,b=($('export-end-date')||{}).value;
+        const per=a||b?('Periodo: '+(a||'inizio')+' – '+(b||'oggi')):'Tutte le attività';
+        let tot=0,ore=0;
+        const tr=rows.map(e=>{tot+=Number(e.totalAmount)||0;ore+=Number(e.hours)||0;return '<tr><td>'+_h(e.date)+'</td><td>'+_h(getClientName(e.clientId))+'</td><td>'+_h(e.description)+'</td><td class="n">'+(Number(e.hours)||0).toFixed(2)+'</td><td class="n">'+(Number(e.expenses)||0).toFixed(2)+'</td><td class="n">'+(Number(e.totalAmount)||0).toFixed(2)+'</td><td>'+_h(STATUS_IT[e.status]||e.status||'')+'</td></tr>'}).join('');
+        box.innerHTML='<h1>TimeFlow – Report attività</h1><p>'+_h(per)+' · '+rows.length+' attività · '+ore.toFixed(2)+' ore · € '+tot.toFixed(2)+'</p><table><thead><tr><th>Data</th><th>Cliente</th><th>Descrizione</th><th class="n">Ore</th><th class="n">Spese €</th><th class="n">Totale €</th><th>Stato</th></tr></thead><tbody>'+tr+'</tbody></table>';
+        document.body.classList.add('tf-printing');
+        const done=()=>{document.body.classList.remove('tf-printing');window.removeEventListener('afterprint',done)};
+        window.addEventListener('afterprint',done);
+        setTimeout(()=>window.print(),50);
+    }
+    window.downloadReport=async function(){
+        const f=window.__tfFmt||'csv';
+        if(f==='csv') return window.downloadFilteredCSV();
+        const rows=getEntriesInSelectedRange();
+        if(!rows.length){toast('Nessuna registrazione.','error');return}
+        if(f==='pdf'){closeExportFilterModal();_pdf(rows);return}
+        const res=await saveBlobFile(_xlsx(rows),'timeflow-report-'+fdToday()+'.xlsx','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        if(res!=='cancelled'){closeExportFilterModal();toast('Excel salvato!','success')}
+    };
+    window.tfExport=function(f){
+        window.__tfFmt=f;tfCloseExport();openExportFilterModal();
+        const L={xlsx:['Scarica Excel','fa-file-excel'],pdf:['Crea PDF','fa-file-pdf'],csv:['Scarica report CSV','fa-file-csv']}[f];
+        const l=$('export-go-label'),i=$('export-go-icon');if(l)l.textContent=L[0];if(i)i.className='fa-solid '+L[1];
+    };
+    function tfCloseExport(){const m=$('tf2-exp-menu'),b=$('tf2-exp-btn');if(m)m.hidden=true;if(b)b.setAttribute('aria-expanded','false')}
+    window.tfToggleExport=function(ev){ev.stopPropagation();const m=$('tf2-exp-menu'),b=$('tf2-exp-btn');m.hidden=!m.hidden;b.setAttribute('aria-expanded',String(!m.hidden));if(!m.hidden){const f=m.querySelector('button');if(f)f.focus()}};
+    document.addEventListener('click',e=>{if(!e.target.closest('#tf2-exp'))tfCloseExport()});
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'){const m=$('tf2-exp-menu');if(m&&!m.hidden){tfCloseExport();const b=$('tf2-exp-btn');if(b)b.focus()}}});
+
 
     // ---------- Installazione PWA ----------
     let deferredPrompt = null;
@@ -2417,7 +2493,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
 
     // ---------- Creazione backup locale ----------
     function makeBackup() {
-        return { app: 'TimeFlow', version: (window.APP_VERSION || '3.5'), date: new Date().toISOString(), googleClientId, clients, timeEntries };
+        return { app: 'TimeFlow', version: (window.APP_VERSION || '3.6'), date: new Date().toISOString(), googleClientId, clients, timeEntries };
     }
     window.saveLocalBackup = async function (obj) {
         const text = JSON.stringify(obj || makeBackup(), null, 2);

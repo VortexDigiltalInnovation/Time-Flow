@@ -1,4 +1,10 @@
-# TimeFlow — PWA v3.5
+# TimeFlow — PWA v3.6
+
+## Novità v3.6 — barra fissa, menu Esporta, colori
+- Barra superiore sempre visibile in alto, con il nuovo menu Esporta: Excel (.xlsx), PDF o CSV. I pulsanti di esportazione sono stati tolti dalla ricerca attività.
+- Barra inferiore con un colore per ogni tasto (blu, viola, verde, arancione).
+- Timer e inserimento con l'IA riuniti in un'unica scheda.
+- Tolto il riquadro «Tariffa Media».
 
 ## Novità v3.5 — nuova disposizione dei pulsanti
 - Barra superiore sottile con logo, "Nuova attività", Tema e Guida; torna ai colori classici (blu notte e verde).
