@@ -114,7 +114,7 @@
             .border { border-color: #e2e8f0 !important; }
         }
     </style>
-    <script>window.APP_VERSION='3.6'; document.addEventListener('DOMContentLoaded',function(){var b=document.getElementById('app-version-badge'); if(b) b.textContent='v'+window.APP_VERSION;});</script>
+    <script>window.APP_VERSION='3.7'; document.addEventListener('DOMContentLoaded',function(){var b=document.getElementById('app-version-badge'); if(b) b.textContent='v'+window.APP_VERSION;});</script>
 <style id="tf-ui-v35">
 .tf-app-header{position:sticky!important;top:0;z-index:45;background:#0f172a!important;border-bottom:1px solid #1e293b;box-shadow:none!important}
 .tf2-top{display:flex;align-items:center;justify-content:space-between;gap:.5rem;min-height:48px;padding-inline:clamp(.75rem,3vw,2rem)}
@@ -176,7 +176,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
             <div class="flex min-w-0 items-center gap-2">
                 <img src="./icons/icon-96.png" alt="" width="32" height="32" class="w-8 h-8 rounded-lg shrink-0">
                 <span class="font-bold text-base tracking-tight text-white leading-tight">TimeFlow</span>
-                <span id="app-version-badge" class="text-[10px] font-bold text-emerald-100 bg-emerald-500/20 rounded-md px-1.5 py-px leading-tight" title="Versione dell'app">v3.6</span>
+                <span id="app-version-badge" class="text-[10px] font-bold text-emerald-100 bg-emerald-500/20 rounded-md px-1.5 py-px leading-tight" title="Versione dell'app">v3.7</span>
             </div>
             <div class="flex items-center gap-1">
                 <button type="button" onclick="openManualEntryModal()" class="tf2-new" aria-label="Crea una nuova attività"><i class="fa-solid fa-plus" aria-hidden="true"></i><span>Nuova attività</span></button>
@@ -653,6 +653,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
                 </div>
                 <div id="bm-pane-drive" class="hidden space-y-2.5">
                     <p id="bm-drive-info" class="text-[11px] text-slate-500 dark:text-slate-400">Backup nella cartella “TimeFlow Backups” del tuo Google Drive.</p>
+                    <p id="drive-status" class="text-[11px] font-semibold text-slate-600 dark:text-slate-300" aria-live="polite"></p>
                     <div class="flex flex-wrap gap-1.5">
                         <button onclick="backupToGoogleDrive()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-xs font-semibold inline-flex items-center gap-1.5"><i class="fa-brands fa-google-drive"></i> Salva su Drive</button>
                         <button onclick="bmRefresh()" class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-3 py-2 rounded-lg text-xs font-medium inline-flex items-center gap-1.5"><i class="fa-solid fa-rotate"></i> Aggiorna</button>
@@ -790,7 +791,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
                     <a href="./Guida_Utente_TimeFlow.pdf" target="_blank" rel="noopener" class="px-3.5 py-2.5 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold text-xs flex items-center gap-2"><i class="fa-solid fa-file-pdf"></i> Apri la guida PDF originale</a>
                     <button onclick="closeGuide()" class="px-3.5 py-2.5 rounded-xl bg-brand-600 text-white font-bold text-xs">Ho capito</button>
                 </div>
-                <p class="text-[10px] text-slate-400 text-center">TimeFlow · v3.6</p>
+                <p class="text-[10px] text-slate-400 text-center">TimeFlow · v3.7</p>
             </div>
         </div>
     </div>
@@ -1220,7 +1221,9 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
             const response = await fetch(path, { ...options, headers: { Authorization: `Bearer ${token}`, ...(options.headers || {}) } });
             if (response.status === 401 && !_retry) { driveAccessToken = null; driveTokenExpiry = 0; return driveRequest(path, options, true); }
             if (!response.ok) { const detail = await response.text().catch(() => ''); throw makeDriveError(response.status, detail); }
-            return response.status === 204 ? null : response.json();
+            if (response.status === 204) return null;
+            const txt = await response.text();
+            try { return JSON.parse(txt.replace(/^\uFEFF/, '')); } catch (_) { throw new Error('Risposta di Google Drive non valida: il file non è un JSON leggibile.'); }
         }
         function showDriveFolderLink(id) {
             const a = document.getElementById('drive-open-folder');
@@ -1242,7 +1245,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
         }
         window.backupStamp = backupStamp;
         function makeDriveBackup() {
-            return { app:'TimeFlow', version:(window.APP_VERSION||'3.6'), date:new Date().toISOString(), clients, timeEntries };
+            return { app:'TimeFlow', version:(window.APP_VERSION||'3.7'), date:new Date().toISOString(), clients, timeEntries };
         }
         // Upload unico multipart (metadati + contenuto) verso l'endpoint /upload/ di Drive API v3.
         async function driveUpload(folderId, filename, json) {
@@ -1259,7 +1262,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
             return res.json();
         }
         window.backupToGoogleDrive = async function () {
-            const status = document.getElementById('drive-status');
+            const status = document.getElementById('drive-status') || {};
             try {
                 if (!googleClientId) { openConfigModal(); throw new Error('Inserisci il Google OAuth Client ID nelle impostazioni.'); }
                 status.textContent = 'Collegamento…';
@@ -1305,43 +1308,6 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
                 return null;
             }
         };
-        window.listGoogleDriveBackups = async function () {
-            const box = document.getElementById('drive-backup-list');
-            const status = document.getElementById('drive-status');
-            box.innerHTML = '<span class="text-slate-500">Ricerca backup…</span>';
-            try {
-                if (!googleClientId) throw new Error('Configura prima il Google Client ID.');
-                await getDriveToken();
-                const folderId = await getDriveFolder(false);
-                if (!folderId) { box.innerHTML='<span class="text-slate-500">Cartella non ancora creata. Premi “Salva backup su Drive” per crearla e caricare il primo backup.</span>'; status.textContent='Nessun backup'; return; }
-                const q = encodeURIComponent(`'${folderId}' in parents and trashed=false`);
-                const result = await driveRequest(`${DRIVE_API}/files?q=${q}&orderBy=modifiedTime desc&pageSize=50&fields=files(id,name,modifiedTime,size)`);
-                const files = result.files || [];
-                if (!files.length) { box.innerHTML='<span class="text-slate-500">La cartella è vuota.</span>'; status.textContent='Nessun backup'; return; }
-                box.innerHTML = '';
-                files.forEach(file => {
-                    const row = document.createElement('div'); row.className='flex items-center justify-between gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800';
-                    const info = document.createElement('div'); info.className='min-w-0';
-                    const name = document.createElement('div'); name.className='font-semibold truncate text-slate-700 dark:text-slate-200'; name.textContent=file.name;
-                    const date = document.createElement('div'); date.className='text-[10px] text-slate-500'; date.textContent=file.modifiedTime ? new Date(file.modifiedTime).toLocaleString('it-IT') : '';
-                    info.append(name,date);
-                    const btn = document.createElement('button'); btn.className='shrink-0 px-2 py-1 rounded bg-blue-600 text-white text-[10px] font-semibold'; btn.textContent='Ripristina'; btn.onclick=()=>restoreDriveBackup(file.id,file.name);
-                    row.append(info,btn); box.appendChild(row);
-                });
-                status.textContent = `${files.length} backup su Drive`;
-            } catch (err) { box.textContent = err.message || 'Impossibile leggere Google Drive.'; status.textContent='Drive non collegato'; }
-        };
-        async function restoreDriveBackup(fileId, filename) {
-            if (!confirm(`Vuoi ripristinare "${filename}"? I dati attuali verranno sostituiti.`)) return;
-            try {
-                const data = await driveRequest(`${DRIVE_API}/files/${encodeURIComponent(fileId)}?alt=media`);
-                if (!data || !Array.isArray(data.clients) || !Array.isArray(data.timeEntries)) throw new Error('Il file selezionato non è un backup TimeFlow valido.');
-                clients = data.clients; timeEntries = data.timeEntries;
-                saveClientsToStorage(); saveEntriesToStorage(); renderApp();
-                showToast(`Ripristinati ${clients.length} clienti e ${timeEntries.length} attività.`, 'success');
-            } catch (err) { showToast(err.message || 'Ripristino da Drive non riuscito.', 'error'); }
-        }
-
         function initGoogleIdentityServices() {
             restoreGoogleToken();
             updateGoogleStatusUI();
@@ -2441,6 +2407,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
     }
     async function readLocal(item) {
         if (item.src === 'app') return appGet(item.name);
+        if (item.both) { try { const t = await appGet(item.name); if (t != null) return t; } catch (e) {} }
         const r = await getDeviceDir('request');
         if (r.state !== 'ok' && item.both) { const t = await appGet(item.name); if (t != null) return t; }
         if (r.state !== 'ok') throw new Error('Consenti prima l’accesso alla cartella dei backup.');
@@ -2493,7 +2460,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
 
     // ---------- Creazione backup locale ----------
     function makeBackup() {
-        return { app: 'TimeFlow', version: (window.APP_VERSION || '3.6'), date: new Date().toISOString(), googleClientId, clients, timeEntries };
+        return { app: 'TimeFlow', version: (window.APP_VERSION || '3.7'), date: new Date().toISOString(), googleClientId, clients, timeEntries };
     }
     window.saveLocalBackup = async function (obj) {
         const text = JSON.stringify(obj || makeBackup(), null, 2);
@@ -2530,6 +2497,25 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
     window.quickLocalBackup = () => window.saveLocalBackup(makeBackup());
 
     // ---------- Ripristino ----------
+    function parseBackupText(text) {
+        const t = String(text == null ? '' : text).replace(/^\uFEFF/, '').trim();
+        let p; try { p = JSON.parse(t); } catch (e) { throw new Error('Il file non è un JSON valido.'); }
+        if (p && p.data && Array.isArray(p.data.clients)) p = p.data;
+        if (p && !Array.isArray(p.timeEntries) && Array.isArray(p.entries)) p.timeEntries = p.entries;
+        return p;
+    }
+    window.importBackupJSON = function (ev) {
+        const input = ev && ev.target, file = input && input.files && input.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+            try { if (applyBackup(parseBackupText(reader.result), file.name)) window.closeBackupManager(); }
+            catch (e) { toast(e.message || 'Ripristino non riuscito.', 'error'); }
+            finally { input.value = ''; }
+        };
+        reader.onerror = () => { toast('Impossibile leggere il file selezionato.', 'error'); input.value = ''; };
+        reader.readAsText(file);
+    };
     function applyBackup(p, label) {
         if (!p || !Array.isArray(p.clients) || !Array.isArray(p.timeEntries)) { toast('Il file selezionato non è un backup TimeFlow valido.', 'error'); return false; }
         const cl = p.clients.filter(c => c && c.id && c.name).map(c => Object.assign({ color: '#3b82f6', isArchived: false, rate: 0 }, c));
@@ -2600,7 +2586,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
     async function restoreLocal(item) {
         try {
             const text = await readLocal(item);
-            let p; try { p = JSON.parse(text); } catch (e) { throw new Error('Il file non è un JSON valido.'); }
+            const p = parseBackupText(text);
             if (applyBackup(p, item.name)) closeBackupManager();
         } catch (e) { toast(e.message || 'Ripristino non riuscito.', 'error'); }
     }
@@ -2626,7 +2612,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
 
     // Google Drive: elenco con Ripristina / Scarica / Elimina (sposta nel cestino)
     window.listGoogleDriveBackups = async function () {
-        const box = $('bm-drive-list'), status = $('drive-status'), info = $('bm-drive-info');
+        const box = $('bm-drive-list'), status = $('drive-status') || {}, info = $('bm-drive-info') || {};
         if (!box) return;
         box.innerHTML = '<div class="text-xs text-slate-500">Ricerca backup su Drive…</div>';
         try {
@@ -2687,6 +2673,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
             TAB_ON.split(' ').forEach(c => b.classList.toggle(c, k === tab));
             TAB_OFF.split(' ').forEach(c => b.classList.toggle(c, k !== tab));
         });
+        if (tab === 'drive' && googleClientId && typeof loadGIS === 'function') loadGIS().catch(() => {});
         window.bmRefresh();
     };
     window.bmRefresh = function () { if (tab === 'drive') window.listGoogleDriveBackups(); else refreshLocal(); };

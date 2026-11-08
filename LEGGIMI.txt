@@ -1,4 +1,11 @@
-# TimeFlow — PWA v3.6
+# TimeFlow — PWA v3.7
+
+## Novità v3.7 — correzione backup su Drive e ripristino
+- «Salva su Drive» ora funziona: il pulsante si bloccava senza messaggi perché mancava la riga di stato nel pannello; ora lo stato è visibile e ogni errore mostra un avviso.
+- «Ripristina da file» ora funziona (la funzione di lettura del file era sparita nella v3.6). Accetta anche file con BOM o con le attività sotto la chiave «entries».
+- Ripristino dalla cartella dispositivo: se esiste la copia interna viene letta quella, senza chiedere di nuovo il permesso alla cartella.
+- Ripristino da Drive: messaggio chiaro se il file non è un JSON leggibile.
+- Cache offline v3-7: apri l'app online e riaprila per aggiornare.
 
 ## Novità v3.6 — barra fissa, menu Esporta, colori
 - Barra superiore sempre visibile in alto, con il nuovo menu Esporta: Excel (.xlsx), PDF o CSV. I pulsanti di esportazione sono stati tolti dalla ricerca attività.
