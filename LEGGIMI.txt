@@ -1,4 +1,9 @@
-# TimeFlow — PWA v3.4
+# TimeFlow — PWA v3.5
+
+## Novità v3.5 — nuova disposizione dei pulsanti
+- Barra superiore sottile con logo, "Nuova attività", Tema e Guida; torna ai colori classici (blu notte e verde).
+- Nuova barra inferiore con Clienti, Calendar (con lo stato di sincronizzazione), Backup e Impostazioni.
+- Il riquadro blu "Google Calendar Sync" è stato tolto: lo stato si legge sul tasto Calendar.
 
 ## Aggiornamento v3.4 — Navigazione e backup più semplici
 - Barra superiore fissa, riorganizzata in Gestione (Clienti, Calendar) e Strumenti (Backup e ripristino, Google, Guida, Tema, Installa).

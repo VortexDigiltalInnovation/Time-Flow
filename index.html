@@ -114,53 +114,71 @@
             .border { border-color: #e2e8f0 !important; }
         }
     </style>
-    <script>window.APP_VERSION='3.4'; document.addEventListener('DOMContentLoaded',function(){var b=document.getElementById('app-version-badge'); if(b) b.textContent='v'+window.APP_VERSION;});</script>
+    <script>window.APP_VERSION='3.5'; document.addEventListener('DOMContentLoaded',function(){var b=document.getElementById('app-version-badge'); if(b) b.textContent='v'+window.APP_VERSION;});</script>
+<style id="tf-ui-v35">
+.tf-app-header{position:static!important;background:#0f172a!important;border-bottom:1px solid #1e293b;box-shadow:none!important}
+.tf2-top{display:flex;align-items:center;justify-content:space-between;gap:.5rem;min-height:48px;padding-inline:clamp(.75rem,3vw,2rem)}
+.tf2-new{display:inline-flex;align-items:center;gap:.4rem;min-height:40px;padding:0 .8rem;border-radius:.7rem;background:#059669;color:#fff;font-size:12px;font-weight:700;white-space:nowrap}
+.tf2-new:hover{background:#10b981}
+.tf2-icon{width:40px;height:40px;display:inline-flex;align-items:center;justify-content:center;border-radius:.7rem;color:#e2e8f0;font-size:15px}
+.tf2-icon:hover{background:rgba(255,255,255,.1)}
+.tf2-icon.hidden{display:none}
+@media(max-width:420px){.tf2-new span{display:none}.tf2-new{width:40px;padding:0;justify-content:center}}
+.tf2-bottom{position:fixed;left:0;right:0;bottom:0;z-index:40;background:#fff;border-top:1px solid #e2e8f0;padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -4px 14px rgba(15,23,42,.08)}
+.dark .tf2-bottom{background:#0f172a;border-top-color:#1e293b;box-shadow:0 -4px 14px rgba(0,0,0,.4)}
+.tf2-bottom-in{display:grid;grid-template-columns:repeat(4,1fr);max-width:40rem;margin-inline:auto}
+.tf2-tab{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:60px;padding:6px 2px;color:#475569;background:transparent;min-width:0}
+.dark .tf2-tab{color:#cbd5e1}
+.tf2-tab:hover{color:#047857;background:rgba(16,185,129,.08)}
+.dark .tf2-tab:hover{color:#6ee7b7}
+.tf2-tab i{font-size:18px}
+.tf2-l{font-size:11px;font-weight:700;line-height:1.1}
+.tf2-s{font-size:9.5px;line-height:1.1;color:#64748b;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dark .tf2-s{color:#94a3b8}
+.tf2-s:empty{display:none}
+.tf2-dot{position:absolute;top:8px;left:calc(50% + 10px);width:9px;height:9px;border-radius:9999px;border:2px solid #fff}
+.dark .tf2-dot{border-color:#0f172a}
+body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
+@media print{.tf2-bottom{display:none!important}body{padding-bottom:0}}
+</style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-full flex flex-col transition-colors duration-200">
 
     <!-- Toast Container -->
-    <div id="toast-container" class="fixed bottom-4 right-4 left-4 sm:left-auto z-50 flex flex-col gap-1.5 pointer-events-none no-print"></div>
+    <div id="toast-container" class="fixed bottom-20 right-4 left-4 sm:left-auto z-50 flex flex-col gap-1.5 pointer-events-none no-print"></div>
 
-    <!-- Intestazione e navigazione sempre disponibili -->
-    <header class="tf-app-header sticky top-0 z-40 no-print text-white shadow-xl shadow-slate-950/10">
-        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-            <div class="tf-brand-row flex min-h-[58px] items-center justify-between gap-3">
-                <div class="flex min-w-0 items-center gap-2.5">
-                    <img src="./icons/icon-96.png" alt="" width="40" height="40" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl shadow-md shadow-black/30 shrink-0">
-                    <div class="min-w-0">
-                        <div class="flex items-center gap-1.5">
-                            <span class="font-bold text-base sm:text-lg tracking-tight text-white leading-tight">TimeFlow</span>
-                            <span id="app-version-badge" class="text-[10px] font-bold text-emerald-100 bg-emerald-500/20 border border-emerald-300/20 rounded-md px-1.5 py-px leading-tight" title="Versione dell'app">v3.4</span>
-                        </div>
-                        <span class="text-[10px] sm:text-[11px] text-slate-300 block">Ore · attività · compensi</span>
-                    </div>
-                </div>
-                <button type="button" onclick="openManualEntryModal()" class="tf-primary-action inline-flex min-h-[44px] shrink-0 items-center justify-center gap-2 rounded-xl px-3.5 sm:px-5 text-xs sm:text-sm font-extrabold" aria-label="Crea una nuova attività">
-                    <span class="tf-plus-icon" aria-hidden="true"><i class="fa-solid fa-plus"></i></span><span>Nuova attività</span>
-                </button>
+    <!-- Barra superiore sottile -->
+    <header class="tf-app-header no-print text-white">
+        <div class="tf2-top max-w-7xl mx-auto">
+            <div class="flex min-w-0 items-center gap-2">
+                <img src="./icons/icon-96.png" alt="" width="32" height="32" class="w-8 h-8 rounded-lg shrink-0">
+                <span class="font-bold text-base tracking-tight text-white leading-tight">TimeFlow</span>
+                <span id="app-version-badge" class="text-[10px] font-bold text-emerald-100 bg-emerald-500/20 rounded-md px-1.5 py-px leading-tight" title="Versione dell'app">v3.5</span>
             </div>
-            <nav id="top-toolbar" aria-label="Navigazione e strumenti" class="tf-main-nav flex flex-wrap items-center gap-1.5 sm:gap-2 border-t border-white/10 py-2">
-                <span class="tf-nav-group-label"><i class="fa-solid fa-list-check" aria-hidden="true"></i> Gestione</span>
-                <button type="button" onclick="openClientModal()" title="Aggiungi, modifica e archivia i clienti" class="tf-nav-button tf-nav-button-accent"><i class="fa-solid fa-users" aria-hidden="true"></i><span>Clienti</span></button>
-                <button type="button" onclick="handleGoogleAuthClick()" id="btn-google-auth" title="Collega o sincronizza Google Calendar" class="tf-nav-button"><i class="fa-brands fa-google text-red-300" aria-hidden="true"></i><span>Calendar</span><span id="google-auth-status-text" class="tf-calendar-status">Connetti</span><span id="google-auth-dot" class="w-2 h-2 rounded-full bg-slate-400" aria-hidden="true"></span></button>
-                <span class="tf-nav-divider" aria-hidden="true"></span>
-                <span class="tf-nav-group-label"><i class="fa-solid fa-sliders" aria-hidden="true"></i> Strumenti</span>
-                <button type="button" onclick="openBackupManager()" title="Salva, ripristina e gestisci i backup" class="tf-nav-button tf-nav-button-backup"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i><span>Backup e ripristino</span></button>
-                <button type="button" onclick="openConfigModal()" title="Configura Google Calendar e Google Drive" class="tf-nav-button"><i class="fa-solid fa-gear" aria-hidden="true"></i><span>Configura Google</span></button>
-                <span id="backup-bar-last" class="tf-backup-status" aria-live="polite"></span>
-                <span class="tf-nav-spacer"></span>
-                <button type="button" onclick="openGuide()" title="Apri la guida utente" aria-label="Guida utente" class="tf-nav-icon-button"><i class="fa-solid fa-circle-question" aria-hidden="true"></i><span>Guida</span></button>
-                <button type="button" onclick="toggleDarkMode()" title="Passa tra tema chiaro e scuro" aria-label="Cambia tema" class="tf-nav-icon-button"><i id="theme-icon" class="fa-solid fa-moon" aria-hidden="true"></i><span>Tema</span></button>
-                <button id="btn-install" type="button" onclick="installApp()" title="Installa l'app sul dispositivo" aria-label="Installa l'app" class="tf-nav-icon-button hidden"><i class="fa-solid fa-circle-down" aria-hidden="true"></i><span>Installa</span></button>
-            </nav>
+            <div class="flex items-center gap-1">
+                <button type="button" onclick="openManualEntryModal()" class="tf2-new" aria-label="Crea una nuova attività"><i class="fa-solid fa-plus" aria-hidden="true"></i><span>Nuova attività</span></button>
+                <button type="button" onclick="toggleDarkMode()" title="Passa tra tema chiaro e scuro" aria-label="Cambia tema" class="tf2-icon"><i id="theme-icon" class="fa-solid fa-moon" aria-hidden="true"></i></button>
+                <button type="button" onclick="openGuide()" title="Apri la guida utente" aria-label="Guida utente" class="tf2-icon"><i class="fa-solid fa-circle-question" aria-hidden="true"></i></button>
+                <button id="btn-install" type="button" onclick="installApp()" title="Installa l'app sul dispositivo" aria-label="Installa l'app" class="tf2-icon hidden"><i class="fa-solid fa-circle-down" aria-hidden="true"></i></button>
+            </div>
         </div>
     </header>
+
+    <!-- Barra inferiore: gestione, Calendar e backup -->
+    <nav id="top-toolbar" aria-label="Gestione e strumenti" class="tf2-bottom no-print">
+        <div class="tf2-bottom-in">
+            <button type="button" onclick="openClientModal()" class="tf2-tab"><i class="fa-solid fa-users" aria-hidden="true"></i><span class="tf2-l">Clienti</span></button>
+            <button type="button" onclick="handleGoogleAuthClick()" id="btn-google-auth" title="Collega o sincronizza Google Calendar" class="tf2-tab"><i class="fa-brands fa-google" aria-hidden="true"></i><span class="tf2-l">Calendar</span><span id="google-auth-status-text" class="tf2-s">Connetti</span><span id="google-auth-dot" class="tf2-dot bg-slate-400" aria-hidden="true"></span></button>
+            <button type="button" onclick="openBackupManager()" title="Salva, ripristina e gestisci i backup" class="tf2-tab"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i><span class="tf2-l">Backup</span><span id="backup-bar-last" class="tf2-s" aria-live="polite"></span></button>
+            <button type="button" onclick="openConfigModal()" title="Configura Google Calendar e Google Drive" class="tf2-tab"><i class="fa-solid fa-gear" aria-hidden="true"></i><span class="tf2-l">Impostazioni</span></button>
+        </div>
+    </nav>
 
     <!-- Main Container -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-6 space-y-3 sm:space-y-6">
 
         <!-- GOOGLE CALENDAR BANNER ALERT -->
-        <div id="google-calendar-banner" class="bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60 text-blue-900 dark:text-blue-200 p-2.5 sm:px-4 sm:py-3 rounded-xl sm:rounded-2xl flex flex-row items-center justify-between gap-2 text-xs no-print">
+        <div id="google-calendar-banner" hidden style="display:none" class="bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60 text-blue-900 dark:text-blue-200 p-2.5 sm:px-4 sm:py-3 rounded-xl sm:rounded-2xl flex flex-row items-center justify-between gap-2 text-xs no-print">
             <div class="flex items-center gap-2">
                 <i class="fa-brands fa-google text-blue-600 dark:text-blue-400 text-sm sm:text-base shrink-0"></i>
                 <div class="text-[11px] sm:text-xs">
@@ -424,7 +442,7 @@
     </main>
 
     <!-- Footer -->
-    <footer class="mt-auto border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-4 text-center text-[11px] text-slate-400 no-print">
+    <footer class="tf2-footer mt-auto border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-4 text-center text-[11px] text-slate-400 no-print">
         <p>© 2026 TimeFlow — Tracciamento Ore, Compensi & Calendar Sync</p>
     </footer>
 
@@ -758,7 +776,7 @@
                     <a href="./Guida_Utente_TimeFlow.pdf" target="_blank" rel="noopener" class="px-3.5 py-2.5 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold text-xs flex items-center gap-2"><i class="fa-solid fa-file-pdf"></i> Apri la guida PDF originale</a>
                     <button onclick="closeGuide()" class="px-3.5 py-2.5 rounded-xl bg-brand-600 text-white font-bold text-xs">Ho capito</button>
                 </div>
-                <p class="text-[10px] text-slate-400 text-center">TimeFlow · v3.4</p>
+                <p class="text-[10px] text-slate-400 text-center">TimeFlow · v3.5</p>
             </div>
         </div>
     </div>
@@ -1210,7 +1228,7 @@
         }
         window.backupStamp = backupStamp;
         function makeDriveBackup() {
-            return { app:'TimeFlow', version:(window.APP_VERSION||'3.4'), date:new Date().toISOString(), clients, timeEntries };
+            return { app:'TimeFlow', version:(window.APP_VERSION||'3.5'), date:new Date().toISOString(), clients, timeEntries };
         }
         // Upload unico multipart (metadati + contenuto) verso l'endpoint /upload/ di Drive API v3.
         async function driveUpload(folderId, filename, json) {
@@ -1348,7 +1366,7 @@
                 banner = n > 0 ? ` ${n} elementi in coda: riconnetti per inviarli.` : " Client ID salvato. Fai clic su 'Connetti' per autorizzare.";
                 btnLabel = isGoogleLinked() ? 'Riconnetti' : 'Connetti';
             }
-            if (dot) dot.className = 'w-2 h-2 rounded-full ' + dotCls;
+            if (dot) dot.className = 'tf2-dot ' + dotCls;
             if (text) text.innerText = label;
             if (bannerText) bannerText.innerText = banner;
             if (btn) btn.innerText = btnLabel;
@@ -2399,7 +2417,7 @@
 
     // ---------- Creazione backup locale ----------
     function makeBackup() {
-        return { app: 'TimeFlow', version: (window.APP_VERSION || '3.4'), date: new Date().toISOString(), googleClientId, clients, timeEntries };
+        return { app: 'TimeFlow', version: (window.APP_VERSION || '3.5'), date: new Date().toISOString(), googleClientId, clients, timeEntries };
     }
     window.saveLocalBackup = async function (obj) {
         const text = JSON.stringify(obj || makeBackup(), null, 2);
@@ -2619,7 +2637,7 @@
         const el = $('backup-bar-last'); if (!el) return;
         let v = null; try { v = localStorage.getItem('timeflow_last_backup'); } catch (e) {}
         const t = v ? Date.parse(v) : NaN;
-        el.textContent = isFinite(t) ? 'Ultimo backup: ' + fmtDate(t) : 'Nessun backup ancora';
+        el.textContent = isFinite(t) ? fmtDate(t) : 'Mai salvato';
     }
     const _ub = window.updateBackupBanner;
     window.updateBackupBanner = function () { if (_ub) _ub.apply(this, arguments); updateBar(); };
