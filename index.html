@@ -114,7 +114,7 @@
             .border { border-color: #e2e8f0 !important; }
         }
     </style>
-    <script>window.APP_VERSION='3.7'; document.addEventListener('DOMContentLoaded',function(){var b=document.getElementById('app-version-badge'); if(b) b.textContent='v'+window.APP_VERSION;});</script>
+    <script>window.APP_VERSION='3.8'; document.addEventListener('DOMContentLoaded',function(){var b=document.getElementById('app-version-badge'); if(b) b.textContent='v'+window.APP_VERSION;});</script>
 <style id="tf-ui-v35">
 .tf-app-header{position:sticky!important;top:0;z-index:45;background:#0f172a!important;border-bottom:1px solid #1e293b;box-shadow:none!important}
 .tf2-top{display:flex;align-items:center;justify-content:space-between;gap:.5rem;min-height:48px;padding-inline:clamp(.75rem,3vw,2rem)}
@@ -126,7 +126,7 @@
 @media(max-width:420px){.tf2-new span{display:none}.tf2-new{width:40px;padding:0;justify-content:center}}
 .tf2-bottom{position:fixed;left:0;right:0;bottom:0;z-index:40;background:#fff;border-top:1px solid #e2e8f0;padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -4px 14px rgba(15,23,42,.08)}
 .dark .tf2-bottom{background:#0f172a;border-top-color:#1e293b;box-shadow:0 -4px 14px rgba(0,0,0,.4)}
-.tf2-bottom-in{display:grid;grid-template-columns:repeat(4,1fr);max-width:40rem;margin-inline:auto}
+.tf2-bottom-in{display:grid;grid-template-columns:1fr 1fr 84px 1fr 1fr;max-width:40rem;margin-inline:auto}
 .tf2-tab{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:60px;padding:6px 2px;color:#475569;background:transparent;min-width:0}
 .dark .tf2-tab{color:#cbd5e1}
 .tf2-tab:hover{color:#047857;background:rgba(16,185,129,.08)}
@@ -140,6 +140,21 @@
 .dark .tf2-dot{border-color:#0f172a}
 body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
 @media print{.tf2-bottom{display:none!important}body{padding-bottom:0}}
+.tf2-fabw{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-height:60px;padding-bottom:6px}
+.tf2-fab{position:absolute;top:-24px;left:50%;transform:translateX(-50%);width:62px;height:62px;border-radius:9999px;display:flex;align-items:center;justify-content:center;font-size:26px;color:#fff;background:linear-gradient(145deg,#10b981,#047857);border:4px solid #fff;box-shadow:0 8px 18px rgba(5,150,105,.5),0 0 0 1px rgba(4,120,87,.25);transition:transform .12s ease,box-shadow .12s ease}
+.dark .tf2-fab{border-color:#0f172a;box-shadow:0 8px 18px rgba(16,185,129,.35),0 0 0 1px rgba(110,231,183,.25)}
+.tf2-fab:hover{filter:brightness(1.06)}
+.tf2-fab:active{transform:translateX(-50%) scale(.93);box-shadow:0 3px 8px rgba(5,150,105,.5)}
+.tf2-fab:focus-visible{outline:3px solid #6ee7b7;outline-offset:3px}
+.tf2-fabw .tf2-l{color:#047857}
+.dark .tf2-fabw .tf2-l{color:#6ee7b7}
+.tf2-switch{position:relative;display:inline-block;width:46px;height:26px;flex:none}
+.tf2-switch input{position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;cursor:pointer;z-index:1}
+.tf2-switch i{position:absolute;inset:0;border-radius:9999px;background:#cbd5e1;transition:background .15s}
+.tf2-switch i::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:9999px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .15s}
+.tf2-switch input:checked+i{background:#059669}
+.tf2-switch input:checked+i::after{transform:translateX(20px)}
+.tf2-switch input:focus-visible+i{outline:3px solid #6ee7b7;outline-offset:2px}
 .tf2-tab{--c:#1d4ed8;--cd:#93c5fd;--bg:rgba(37,99,235,.10)}
 .tf2-tab.c-violet{--c:#6d28d9;--cd:#c4b5fd;--bg:rgba(124,58,237,.10)}
 .tf2-tab.c-green{--c:#047857;--cd:#6ee7b7;--bg:rgba(5,150,105,.10)}
@@ -176,10 +191,9 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
             <div class="flex min-w-0 items-center gap-2">
                 <img src="./icons/icon-96.png" alt="" width="32" height="32" class="w-8 h-8 rounded-lg shrink-0">
                 <span class="font-bold text-base tracking-tight text-white leading-tight">TimeFlow</span>
-                <span id="app-version-badge" class="text-[10px] font-bold text-emerald-100 bg-emerald-500/20 rounded-md px-1.5 py-px leading-tight" title="Versione dell'app">v3.7</span>
+                <span id="app-version-badge" class="text-[10px] font-bold text-emerald-100 bg-emerald-500/20 rounded-md px-1.5 py-px leading-tight" title="Versione dell'app">v3.8</span>
             </div>
             <div class="flex items-center gap-1">
-                <button type="button" onclick="openManualEntryModal()" class="tf2-new" aria-label="Crea una nuova attività"><i class="fa-solid fa-plus" aria-hidden="true"></i><span>Nuova attività</span></button>
                 <div class="tf2-exp" id="tf2-exp"><button type="button" id="tf2-exp-btn" onclick="tfToggleExport(event)" aria-haspopup="true" aria-expanded="false" aria-controls="tf2-exp-menu" title="Esporta le attività" aria-label="Esporta" class="tf2-icon"><i class="fa-solid fa-file-export" aria-hidden="true"></i></button>
                 <div id="tf2-exp-menu" class="tf2-menu" hidden>
                     <button type="button" class="tf2-mi" onclick="tfExport('xlsx')"><span class="ic ic-x"><i class="fa-solid fa-file-excel" aria-hidden="true"></i></span><span>Excel<small>Foglio .xlsx con le attività</small></span></button>
@@ -198,6 +212,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
         <div class="tf2-bottom-in">
             <button type="button" onclick="openClientModal()" class="tf2-tab"><i class="fa-solid fa-users" aria-hidden="true"></i><span class="tf2-l">Clienti</span></button>
             <button type="button" onclick="handleGoogleAuthClick()" id="btn-google-auth" title="Collega o sincronizza Google Calendar" class="tf2-tab c-violet"><i class="fa-brands fa-google" aria-hidden="true"></i><span class="tf2-l">Calendar</span><span id="google-auth-status-text" class="tf2-s">Connetti</span><span id="google-auth-dot" class="tf2-dot bg-slate-400" aria-hidden="true"></span></button>
+            <div class="tf2-fabw"><button type="button" id="btn-new-entry" onclick="openManualEntryModal()" class="tf2-fab" title="Crea una nuova attività" aria-label="Crea una nuova attività"><i class="fa-solid fa-plus" aria-hidden="true"></i></button><span class="tf2-l">Nuova</span></div>
             <button type="button" onclick="openBackupManager()" title="Salva, ripristina e gestisci i backup" class="tf2-tab c-green"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i><span class="tf2-l">Backup</span><span id="backup-bar-last" class="tf2-s" aria-live="polite"></span></button>
             <button type="button" onclick="openConfigModal()" title="Configura Google Calendar e Google Drive" class="tf2-tab c-orange"><i class="fa-solid fa-gear" aria-hidden="true"></i><span class="tf2-l">Impostazioni</span></button>
         </div>
@@ -464,12 +479,20 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
     <div id="config-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-3 no-print">
         <div class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl max-w-md w-full p-4 sm:p-6 shadow-xl border border-slate-200 dark:border-slate-800 space-y-3">
             <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-2">
-                <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2"><i class="fa-solid fa-gear text-brand-600"></i> Configurazione Google OAuth</h3>
+                <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2"><i class="fa-solid fa-gear text-brand-600"></i> Impostazioni</h3>
                 <button onclick="closeConfigModal()" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div>
                 <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Google OAuth Client ID (Calendar e Drive)</label>
                 <input type="text" id="config-client-id" placeholder="1234...apps.googleusercontent.com" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-lg px-3 py-1.5 text-xs">
+            </div>
+            <div class="flex items-center justify-between gap-3 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800">
+                <div class="min-w-0">
+                    <div class="text-xs font-semibold text-slate-700 dark:text-slate-200"><i class="fa-solid fa-hand-pointer text-emerald-600 mr-1" aria-hidden="true"></i> Feedback aptico</div>
+                    <div class="text-[11px] text-slate-500 dark:text-slate-400">Breve vibrazione per barra inferiore, salvataggi, timer, backup ed errori.</div>
+                    <div id="config-haptics-hint" class="text-[11px] text-amber-600 dark:text-amber-400 hidden">Questo dispositivo non sembra supportare la vibrazione.</div>
+                </div>
+                <label class="tf2-switch" title="Attiva o disattiva il feedback aptico"><input type="checkbox" id="config-haptics" role="switch" aria-label="Feedback aptico" onchange="tfSetHaptics(this.checked)"><i aria-hidden="true"></i></label>
             </div>
             <div class="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
                 <button onclick="closeConfigModal()" class="px-3 py-1.5 text-xs text-slate-500">Annulla</button>
@@ -791,7 +814,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
                     <a href="./Guida_Utente_TimeFlow.pdf" target="_blank" rel="noopener" class="px-3.5 py-2.5 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold text-xs flex items-center gap-2"><i class="fa-solid fa-file-pdf"></i> Apri la guida PDF originale</a>
                     <button onclick="closeGuide()" class="px-3.5 py-2.5 rounded-xl bg-brand-600 text-white font-bold text-xs">Ho capito</button>
                 </div>
-                <p class="text-[10px] text-slate-400 text-center">TimeFlow · v3.7</p>
+                <p class="text-[10px] text-slate-400 text-center">TimeFlow · v3.8</p>
             </div>
         </div>
     </div>
@@ -1245,7 +1268,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
         }
         window.backupStamp = backupStamp;
         function makeDriveBackup() {
-            return { app:'TimeFlow', version:(window.APP_VERSION||'3.7'), date:new Date().toISOString(), clients, timeEntries };
+            return { app:'TimeFlow', version:(window.APP_VERSION||'3.8'), date:new Date().toISOString(), clients, timeEntries };
         }
         // Upload unico multipart (metadati + contenuto) verso l'endpoint /upload/ di Drive API v3.
         async function driveUpload(folderId, filename, json) {
@@ -2172,8 +2195,8 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
         const days = isFinite(t) ? Math.floor((Date.now() - t) / 86400000) : null;
         let msg = '';
         if (timeEntries.length > 0) {
-            if (days === null) msg = 'Non hai ancora fatto un backup. Apri “Backup e ripristino” nella barra in alto.';
-            else if (days > 30) msg = `Ultimo backup ${days} giorni fa. Apri “Backup e ripristino” nella barra in alto.`;
+            if (days === null) msg = 'Non hai ancora fatto un backup. Apri “Backup” nella barra in basso.';
+            else if (days > 30) msg = `Ultimo backup ${days} giorni fa. Apri “Backup” nella barra in basso.`;
         }
         $('backup-banner-text').textContent = msg; b.classList.toggle('hidden', !msg);
     };
@@ -2460,7 +2483,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
 
     // ---------- Creazione backup locale ----------
     function makeBackup() {
-        return { app: 'TimeFlow', version: (window.APP_VERSION || '3.7'), date: new Date().toISOString(), googleClientId, clients, timeEntries };
+        return { app: 'TimeFlow', version: (window.APP_VERSION || '3.8'), date: new Date().toISOString(), googleClientId, clients, timeEntries };
     }
     window.saveLocalBackup = async function (obj) {
         const text = JSON.stringify(obj || makeBackup(), null, 2);
@@ -2616,7 +2639,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
         if (!box) return;
         box.innerHTML = '<div class="text-xs text-slate-500">Ricerca backup su Drive…</div>';
         try {
-            if (!googleClientId) throw new Error('Configura prima il Google Client ID (pulsante “Configura Google” nella barra fissa in alto).');
+            if (!googleClientId) throw new Error('Configura prima il Google Client ID (pulsante “Impostazioni” nella barra in basso).');
             await getDriveToken();
             const folderId = await getDriveFolder(false);
             if (!folderId) { box.innerHTML = '<div class="text-xs text-slate-500">Cartella non ancora creata. Premi “Salva su Drive” per crearla e caricare il primo backup.</div>'; if (status) status.textContent = 'Nessun backup'; return; }
@@ -2707,5 +2730,63 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
     updateBar();
 })();
     </script>
+<script>
+/* ===== TimeFlow v3.8 – feedback aptico (disattivabile da Impostazioni) ===== */
+(function () {
+    'use strict';
+    var KEY = 'timeflow_haptics', lastGesture = 0, iosEl = null;
+    var hasVibrate = typeof navigator.vibrate === 'function';
+    var isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints || 0) > 0;
+    function enabled() { try { return localStorage.getItem(KEY) !== '0'; } catch (e) { return true; } }
+    var PAT = { tap: 8, success: [14, 50, 14], warn: [30, 40, 30], error: [50, 40, 50, 40, 50] };
+    // iOS Safari 17.4+: un interruttore "switch" nascosto produce un tocco aptico
+    function iosTick() {
+        try {
+            if (!iosEl) {
+                iosEl = document.createElement('label');
+                iosEl.setAttribute('aria-hidden', 'true');
+                iosEl.style.cssText = 'position:fixed;left:-100px;top:-100px;opacity:0;pointer-events:none';
+                var i = document.createElement('input'); i.type = 'checkbox'; i.setAttribute('switch', ''); i.tabIndex = -1;
+                iosEl.appendChild(i); document.body.appendChild(iosEl);
+            }
+            iosEl.click();
+        } catch (e) {}
+    }
+    window.tfHaptic = function (kind) {
+        if (!enabled() || !isTouch) return false;
+        var pat = PAT[kind] || PAT.tap;
+        if (hasVibrate) { try { return navigator.vibrate(pat); } catch (e) { return false; } }
+        iosTick(); if (Array.isArray(pat)) setTimeout(iosTick, 90);
+        return true;
+    };
+    window.tfSetHaptics = function (on) {
+        try { localStorage.setItem(KEY, on ? '1' : '0'); } catch (e) {}
+        if (on) window.tfHaptic('success');
+    };
+    // solo i toast che seguono un'azione dell'utente (non le sincronizzazioni automatiche)
+    ['pointerdown', 'keydown'].forEach(function (ev) { document.addEventListener(ev, function () { lastGesture = Date.now(); }, true); });
+    document.addEventListener('click', function (e) {
+        if (e.target.closest && e.target.closest('.tf2-tab, .tf2-fab')) window.tfHaptic('tap');
+    }, true);
+    var origToast = window.showToast;
+    if (typeof origToast === 'function') {
+        window.showToast = function (m, t) {
+            if (Date.now() - lastGesture < 5000) {
+                if (t === 'success') window.tfHaptic('success');
+                else if (t === 'error') window.tfHaptic('error');
+            }
+            return origToast.apply(this, arguments);
+        };
+    }
+    function syncSwitch() {
+        var c = document.getElementById('config-haptics'), h = document.getElementById('config-haptics-hint');
+        if (c) c.checked = enabled();
+        if (h) h.classList.toggle('hidden', hasVibrate || isTouch);
+    }
+    var origOpen = window.openConfigModal;
+    if (typeof origOpen === 'function') window.openConfigModal = function () { var r = origOpen.apply(this, arguments); syncSwitch(); return r; };
+    document.addEventListener('DOMContentLoaded', syncSwitch);
+})();
+</script>
 </body>
 </html>

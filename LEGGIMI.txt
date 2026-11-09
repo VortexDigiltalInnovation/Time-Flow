@@ -1,4 +1,13 @@
-# TimeFlow — PWA v3.7
+# TimeFlow — PWA v3.8
+
+## Novità v3.8 — pulsante centrale e feedback aptico
+- «Nuova attività» è ora il pulsante verde al centro della barra inferiore, rialzato e ben visibile. La barra superiore resta con logo, Esporta, Tema e Guida.
+- Feedback aptico: breve vibrazione sui tasti della barra inferiore, per salvataggi, avvio/stop del timer, backup e ripristini riusciti, ed errori (solo dopo un tuo tocco, non per le sincronizzazioni automatiche).
+- Si disattiva da Impostazioni → «Feedback aptico». Funziona su Android (Chrome) e, in forma semplice, su iPhone con iOS 17.4 o successivo; su computer non ha effetto.
+- «Configurazione Google OAuth» diventa «Impostazioni».
+- Cache offline v3-8: apri l'app online e riaprila per aggiornare.
+
+# (storico) v3.7
 
 ## Novità v3.7 — correzione backup su Drive e ripristino
 - «Salva su Drive» ora funziona: il pulsante si bloccava senza messaggi perché mancava la riga di stato nel pannello; ora lo stato è visibile e ogni errore mostra un avviso.
