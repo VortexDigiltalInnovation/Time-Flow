@@ -1,5 +1,5 @@
-/* TimeFlow – Service Worker v3.8 */
-const VERSION = 'v3-8';
+/* TimeFlow – Service Worker v3.9 */
+const VERSION = 'v3-9';
 const SHELL_CACHE = 'timeflow-shell-' + VERSION;
 const RUNTIME_CACHE = 'timeflow-runtime-' + VERSION;
 const RUNTIME_MAX_ENTRIES = 80;

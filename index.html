@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <script>try{var __f=parseFloat(localStorage.getItem("timeflow_font_scale"));if([0.9,1,1.15,1.3].indexOf(__f)>=0)document.documentElement.style.setProperty("--tf-fs",String(__f))}catch(e){}</script>
     <meta name="theme-color" content="#102b35">
     <meta name="description" content="TimeFlow: tracciamento ore, clienti, compensi e sincronizzazione Google Calendar. Dati solo sul tuo dispositivo.">
     <meta name="mobile-web-app-capable" content="yes">
@@ -114,9 +115,24 @@
             .border { border-color: #e2e8f0 !important; }
         }
     </style>
-    <script>window.APP_VERSION='3.8'; document.addEventListener('DOMContentLoaded',function(){var b=document.getElementById('app-version-badge'); if(b) b.textContent='v'+window.APP_VERSION;});</script>
+    <script>window.APP_VERSION='3.9'; document.addEventListener('DOMContentLoaded',function(){var b=document.getElementById('app-version-badge'); if(b) b.textContent='v'+window.APP_VERSION;});</script>
 <style id="tf-ui-v35">
 .tf-app-header{position:sticky!important;top:0;z-index:45;background:#0f172a!important;border-bottom:1px solid #1e293b;box-shadow:none!important}
+html{font-size:calc(100% * var(--tf-fs,1))}
+@media print{html{font-size:100%!important}}
+button:focus-visible,a:focus-visible,summary:focus-visible,[role=radio]:focus-visible{outline:2px solid #10b981;outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+#time-entries-tbody button,#time-entries-mobile-list button{min-height:40px;min-width:40px}
+#time-entries-mobile-list button{display:inline-flex;align-items:center;justify-content:center;padding:0 .6rem}
+#btn-toggle-monthly{min-height:36px;padding:0 .5rem;display:inline-flex;align-items:center;gap:.35rem}
+.tf-ai-collapsed #ai-analysis-container{display:none}
+.tf-ai-collapsed .tf-ai-head{border-bottom:0!important;padding-bottom:0!important}
+.tf-ai-collapsed{padding-top:.6rem!important;padding-bottom:.6rem!important}
+.tf-fs-opt{flex:1;min-height:48px;border:1px solid #cbd5e1;border-radius:.6rem;background:#fff;color:#334155;font-weight:700;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;line-height:1;padding:.25rem}
+.dark .tf-fs-opt{background:#0f172a;border-color:#334155;color:#e2e8f0}
+.tf-fs-opt small{font-size:.625rem;font-weight:500;opacity:.85}
+.tf-fs-opt[aria-checked="true"]{border-color:#059669;box-shadow:0 0 0 2px rgba(5,150,105,.35);color:#047857}
+.dark .tf-fs-opt[aria-checked="true"]{color:#6ee7b7}
 .tf2-top{display:flex;align-items:center;justify-content:space-between;gap:.5rem;min-height:48px;padding-inline:clamp(.75rem,3vw,2rem)}
 .tf2-new{display:inline-flex;align-items:center;gap:.4rem;min-height:40px;padding:0 .8rem;border-radius:.7rem;background:#059669;color:#fff;font-size:12px;font-weight:700;white-space:nowrap}
 .tf2-new:hover{background:#10b981}
@@ -126,14 +142,14 @@
 @media(max-width:420px){.tf2-new span{display:none}.tf2-new{width:40px;padding:0;justify-content:center}}
 .tf2-bottom{position:fixed;left:0;right:0;bottom:0;z-index:40;background:#fff;border-top:1px solid #e2e8f0;padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -4px 14px rgba(15,23,42,.08)}
 .dark .tf2-bottom{background:#0f172a;border-top-color:#1e293b;box-shadow:0 -4px 14px rgba(0,0,0,.4)}
-.tf2-bottom-in{display:grid;grid-template-columns:1fr 1fr 84px 1fr 1fr;max-width:40rem;margin-inline:auto}
+.tf2-bottom-in{display:grid;grid-template-columns:1fr 1fr 76px 1fr 1fr;max-width:40rem;margin-inline:auto}
 .tf2-tab{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:60px;padding:6px 2px;color:#475569;background:transparent;min-width:0}
 .dark .tf2-tab{color:#cbd5e1}
 .tf2-tab:hover{color:#047857;background:rgba(16,185,129,.08)}
 .dark .tf2-tab:hover{color:#6ee7b7}
 .tf2-tab i{font-size:18px}
-.tf2-l{font-size:11px;font-weight:700;line-height:1.1}
-.tf2-s{font-size:9.5px;line-height:1.1;color:#64748b;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tf2-l{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:calc(11px*min(var(--tf-fs,1),1.05));font-weight:700;line-height:1.1}
+.tf2-s{font-size:calc(9.5px*min(var(--tf-fs,1),1.12));line-height:1.1;color:#64748b;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dark .tf2-s{color:#94a3b8}
 .tf2-s:empty{display:none}
 .tf2-dot{position:absolute;top:8px;left:calc(50% + 10px);width:9px;height:9px;border-radius:9999px;border:2px solid #fff}
@@ -168,8 +184,8 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
 .tf2-menu{position:absolute;right:0;top:calc(100% + 6px);min-width:15rem;background:#fff;color:#0f172a;border:1px solid #e2e8f0;border-radius:.9rem;box-shadow:0 12px 30px rgba(15,23,42,.25);padding:.35rem;z-index:60}
 .dark .tf2-menu{background:#1e293b;color:#f1f5f9;border-color:#334155}
 .tf2-menu[hidden]{display:none}
-.tf2-mi{display:flex;align-items:center;gap:.7rem;width:100%;min-height:48px;padding:.4rem .6rem;border-radius:.65rem;text-align:left;font-size:13px;font-weight:700}
-.tf2-mi small{display:block;font-size:11px;font-weight:400;color:#475569}
+.tf2-mi{display:flex;align-items:center;gap:.7rem;width:100%;min-height:48px;padding:.4rem .6rem;border-radius:.65rem;text-align:left;font-size:.8125rem;font-weight:700}
+.tf2-mi small{display:block;font-size:.6875rem;font-weight:400;color:#475569}
 .dark .tf2-mi small{color:#cbd5e1}
 .tf2-mi:hover,.tf2-mi:focus-visible{background:rgba(100,116,139,.14)}
 .tf2-mi .ic{width:34px;height:34px;border-radius:.6rem;display:inline-flex;align-items:center;justify-content:center;font-size:15px;flex:none}
@@ -191,7 +207,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
             <div class="flex min-w-0 items-center gap-2">
                 <img src="./icons/icon-96.png" alt="" width="32" height="32" class="w-8 h-8 rounded-lg shrink-0">
                 <span class="font-bold text-base tracking-tight text-white leading-tight">TimeFlow</span>
-                <span id="app-version-badge" class="text-[10px] font-bold text-emerald-100 bg-emerald-500/20 rounded-md px-1.5 py-px leading-tight" title="Versione dell'app">v3.8</span>
+                <span id="app-version-badge" class="text-[0.625rem] font-bold text-emerald-100 bg-emerald-500/20 rounded-md px-1.5 py-px leading-tight" title="Versione dell'app">v3.9</span>
             </div>
             <div class="flex items-center gap-1">
                 <div class="tf2-exp" id="tf2-exp"><button type="button" id="tf2-exp-btn" onclick="tfToggleExport(event)" aria-haspopup="true" aria-expanded="false" aria-controls="tf2-exp-menu" title="Esporta le attività" aria-label="Esporta" class="tf2-icon"><i class="fa-solid fa-file-export" aria-hidden="true"></i></button>
@@ -225,12 +241,12 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
         <div id="google-calendar-banner" hidden style="display:none" class="bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60 text-blue-900 dark:text-blue-200 p-2.5 sm:px-4 sm:py-3 rounded-xl sm:rounded-2xl flex flex-row items-center justify-between gap-2 text-xs no-print">
             <div class="flex items-center gap-2">
                 <i class="fa-brands fa-google text-blue-600 dark:text-blue-400 text-sm sm:text-base shrink-0"></i>
-                <div class="text-[11px] sm:text-xs">
+                <div class="text-[0.6875rem] sm:text-xs">
                     <span class="font-bold">Google Calendar Sync:</span>
                     <span id="google-banner-text" class="hidden sm:inline"> Configura il Google Client ID per sincronizzare gli eventi in calendario.</span>
                 </div>
             </div>
-            <button id="google-banner-btn" onclick="handleBannerClick()" class="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-medium transition-all whitespace-nowrap shrink-0">Configura</button>
+            <button id="google-banner-btn" onclick="handleBannerClick()" class="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded-lg text-[0.6875rem] sm:text-xs font-medium transition-all whitespace-nowrap shrink-0">Configura</button>
         </div>
 
         <!-- EMBEDDED AI QUICK ENTRY BAR -->
@@ -238,7 +254,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
         <section class="no-print">
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                 <div class="flex items-center gap-2 px-2 text-emerald-600 dark:text-brand-400 font-semibold text-xs shrink-0">
-                    <i class="fa-solid fa-wand-magic-sparkles text-sm animate-pulse"></i>
+                    <i class="fa-solid fa-wand-magic-sparkles text-sm" aria-hidden="true"></i>
                     <span>Inserimento IA Nativo:</span>
                 </div>
                 <div class="relative flex-grow">
@@ -247,13 +263,13 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
                            class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs rounded-xl px-3 py-2 focus:ring-2 focus:ring-brand-500 focus:outline-none shadow-xs">
                 </div>
                 <button onclick="processEmbeddedAIPrompt(document.getElementById('ai-quick-input').value)" class="bg-brand-600 hover:bg-brand-500 text-white px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 shadow-sm shrink-0">
-                    <i class="fa-solid fa-paper-plane text-[10px]"></i> Analizza e Salva
+                    <i class="fa-solid fa-paper-plane text-[0.625rem]"></i> Analizza e Salva
                 </button>
             </div>
         </section>
 
         <!-- ===== TimeFlow v2: promemoria backup ===== -->
-        <div id="backup-banner" class="hidden no-print bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-900 dark:text-amber-200 p-2.5 sm:px-4 sm:py-3 rounded-xl sm:rounded-2xl flex flex-row items-center justify-between gap-2 text-[11px] sm:text-xs">
+        <div id="backup-banner" class="hidden no-print bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-900 dark:text-amber-200 p-2.5 sm:px-4 sm:py-3 rounded-xl sm:rounded-2xl flex flex-row items-center justify-between gap-2 text-[0.6875rem] sm:text-xs">
             <span><i class="fa-solid fa-triangle-exclamation mr-1.5"></i><span id="backup-banner-text"></span></span>
         </div>
 
@@ -261,8 +277,8 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
         <section id="timer-card" class="no-print pt-3 mt-3 border-t border-slate-200 dark:border-slate-800 space-y-2">
             <div class="flex items-center justify-between gap-2">
                 <div class="flex items-center gap-2 text-xs font-semibold text-slate-700 dark:text-slate-200"><i class="fa-solid fa-stopwatch text-brand-600 dark:text-brand-500 text-sm"></i> Timer attività</div>
-                <label class="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5">Arrotonda
-                    <select id="timer-round" onchange="setTimerRound(this.value)" class="bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-1.5 py-0.5 text-[11px]">
+                <label class="text-[0.6875rem] text-slate-500 dark:text-slate-400 flex items-center gap-1.5">Arrotonda
+                    <select id="timer-round" onchange="setTimerRound(this.value)" class="bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-1.5 py-0.5 text-[0.6875rem]">
                         <option value="0">esatto</option>
                         <option value="0.25">15 min</option>
                         <option value="0.5">30 min</option>
@@ -274,7 +290,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
                 <input type="text" id="timer-desc" maxlength="200" placeholder="Cosa stai facendo? (facoltativo)" class="flex-grow bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none">
                 <div class="flex items-center justify-between sm:justify-end gap-3">
                     <div id="timer-display" class="font-mono text-xl font-bold tabular-nums text-slate-900 dark:text-white" aria-live="off">00:00:00</div>
-                    <button id="timer-btn" onclick="toggleTimer()" class="bg-brand-600 hover:bg-brand-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm min-w-[104px] justify-center"><i class="fa-solid fa-play text-[10px]"></i> Avvia</button>
+                    <button id="timer-btn" onclick="toggleTimer()" class="bg-brand-600 hover:bg-brand-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm min-w-[104px] justify-center"><i class="fa-solid fa-play text-[0.625rem]"></i> Avvia</button>
                 </div>
             </div>
         </section>
@@ -284,68 +300,68 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
         <section class="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 no-print">
             <div class="bg-white dark:bg-slate-900 p-3 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between">
                 <div class="flex items-center justify-between">
-                    <span class="text-[10px] sm:text-[11px] font-semibold uppercase text-slate-400 tracking-wider">Fatturato</span>
+                    <span class="text-[0.625rem] sm:text-[0.6875rem] font-semibold uppercase text-slate-400 tracking-wider">Fatturato</span>
                     <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-md sm:rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 text-xs sm:text-sm"><i class="fa-solid fa-wallet"></i></div>
                 </div>
                 <div class="mt-1.5 sm:mt-3">
                     <div id="kpi-total-revenue" class="text-lg sm:text-3xl font-bold text-slate-900 dark:text-white">€ 0.00</div>
-                    <p id="kpi-hours-sub" class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5">0.0h totali</p>
+                    <p id="kpi-hours-sub" class="text-[0.625rem] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5">0.0h totali</p>
                 </div>
             </div>
 
             <div class="bg-white dark:bg-slate-900 p-3 sm:p-5 rounded-xl sm:rounded-2xl border border-amber-200/60 dark:border-amber-900/40 shadow-xs flex flex-col justify-between bg-gradient-to-br from-amber-50/30 dark:from-amber-950/20 to-transparent">
                 <div class="flex items-center justify-between">
-                    <span class="text-[10px] sm:text-[11px] font-semibold uppercase text-amber-600 dark:text-amber-400 tracking-wider">Da Fatturare</span>
+                    <span class="text-[0.625rem] sm:text-[0.6875rem] font-semibold uppercase text-amber-600 dark:text-amber-400 tracking-wider">Da Fatturare</span>
                     <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-md sm:rounded-lg bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center text-amber-600 dark:text-amber-400 text-xs sm:text-sm"><i class="fa-solid fa-hourglass-half"></i></div>
                 </div>
                 <div class="mt-1.5 sm:mt-3">
                     <div id="kpi-unbilled" class="text-lg sm:text-3xl font-bold text-amber-700 dark:text-amber-400">€ 0.00</div>
-                    <p class="text-[10px] sm:text-xs text-amber-600/80 dark:text-amber-400/80 mt-0.5">Da emettere</p>
+                    <p class="text-[0.625rem] sm:text-xs text-amber-600/80 dark:text-amber-400/80 mt-0.5">Da emettere</p>
                 </div>
             </div>
 
             <div class="bg-white dark:bg-slate-900 p-3 sm:p-5 rounded-xl sm:rounded-2xl border border-blue-200/60 dark:border-blue-900/40 shadow-xs flex flex-col justify-between bg-gradient-to-br from-blue-50/30 dark:from-blue-950/20 to-transparent">
                 <div class="flex items-center justify-between">
-                    <span class="text-[10px] sm:text-[11px] font-semibold uppercase text-blue-600 dark:text-blue-400 tracking-wider">In Attesa Saldo</span>
+                    <span class="text-[0.625rem] sm:text-[0.6875rem] font-semibold uppercase text-blue-600 dark:text-blue-400 tracking-wider">In Attesa Saldo</span>
                     <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-md sm:rounded-lg bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-blue-600 dark:text-blue-400 text-xs sm:text-sm"><i class="fa-solid fa-file-invoice-dollar"></i></div>
                 </div>
                 <div class="mt-1.5 sm:mt-3">
                     <div id="kpi-invoiced" class="text-lg sm:text-3xl font-bold text-blue-700 dark:text-blue-400">€ 0.00</div>
-                    <p class="text-[10px] sm:text-xs text-blue-600/80 dark:text-blue-400/80 mt-0.5">Non incassato</p>
+                    <p class="text-[0.625rem] sm:text-xs text-blue-600/80 dark:text-blue-400/80 mt-0.5">Non incassato</p>
                 </div>
             </div>
 
             <div class="bg-white dark:bg-slate-900 p-3 sm:p-5 rounded-xl sm:rounded-2xl border border-emerald-200/60 dark:border-emerald-900/40 shadow-xs flex flex-col justify-between bg-gradient-to-br from-emerald-50/30 dark:from-emerald-950/20 to-transparent">
                 <div class="flex items-center justify-between">
-                    <span class="text-[10px] sm:text-[11px] font-semibold uppercase text-emerald-600 dark:text-emerald-400 tracking-wider">Incassato</span>
+                    <span class="text-[0.625rem] sm:text-[0.6875rem] font-semibold uppercase text-emerald-600 dark:text-emerald-400 tracking-wider">Incassato</span>
                     <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-md sm:rounded-lg bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center text-emerald-600 dark:text-emerald-400 text-xs sm:text-sm"><i class="fa-solid fa-circle-check"></i></div>
                 </div>
                 <div class="mt-1.5 sm:mt-3">
                     <div id="kpi-paid" class="text-lg sm:text-3xl font-bold text-emerald-700 dark:text-emerald-400">€ 0.00</div>
-                    <p class="text-[10px] sm:text-xs text-emerald-600/80 dark:text-emerald-400/80 mt-0.5">Saldato</p>
+                    <p class="text-[0.625rem] sm:text-xs text-emerald-600/80 dark:text-emerald-400/80 mt-0.5">Saldato</p>
                 </div>
             </div>
         </section>
 
         <!-- EMBEDDED AI FINANCIAL ANALYTICS SECTION -->
-        <section class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white border border-indigo-900/50 rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-md no-print space-y-3">
-            <div class="flex items-center justify-between border-b border-indigo-900/60 pb-3">
+        <section id="tf-ai-panel" class="tf-ai-collapsed bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white border border-indigo-900/50 rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-md no-print space-y-3">
+            <div class="tf-ai-head flex items-center justify-between border-b border-indigo-900/60 pb-3">
                 <div class="flex items-center gap-2">
                     <div class="w-7 h-7 rounded-lg bg-indigo-600/30 border border-indigo-500/40 flex items-center justify-center text-indigo-300 text-sm">
                         <i class="fa-solid fa-brain"></i>
                     </div>
                     <div>
                         <h2 class="text-xs sm:text-sm font-bold tracking-wide text-white">Analisi Finanziaria IA Nativa</h2>
-                        <p class="text-[10px] text-indigo-300">Report strategico e KPI calcolati offline in tempo reale</p>
+                        <p class="text-[0.625rem] text-indigo-300">Report strategico e KPI calcolati offline in tempo reale</p>
                     </div>
                 </div>
-                <button onclick="generateEmbeddedAIFinancialAnalysis()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 shadow-sm">
+                <div class="flex items-center gap-1"><button onclick="generateEmbeddedAIFinancialAnalysis()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 shadow-sm">
                     <i class="fa-solid fa-sparkles text-xs"></i> Genera Analisi
-                </button>
+                </button><button type="button" id="tf-ai-toggle" onclick="tfToggleAiPanel()" aria-expanded="false" aria-controls="ai-analysis-container" aria-label="Mostra o nascondi l'analisi" class="text-indigo-300 hover:text-white w-10 h-10 rounded-lg flex items-center justify-center"><i id="tf-ai-chev" class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i></button></div>
             </div>
 
             <div id="ai-analysis-container" class="text-xs text-slate-300 leading-relaxed min-h-[40px] flex items-center">
-                <p class="italic text-slate-400 text-[11px]">Fai clic su "Genera Analisi" per avviare l'algoritmo di sintesi contabile e la distribuzione dei compensi per cliente.</p>
+                <p class="italic text-slate-400 text-[0.6875rem]">Fai clic su "Genera Analisi" per avviare l'algoritmo di sintesi contabile e la distribuzione dei compensi per cliente.</p>
             </div>
         </section>
 
@@ -356,7 +372,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
                     <i class="fa-solid fa-chart-column text-brand-600 dark:text-brand-500"></i>
                     Statistiche Mensili
                 </h2>
-                <button onclick="toggleMonthlyView()" id="btn-toggle-monthly" class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium">Mostra/Nascondi</button>
+                <button type="button" onclick="toggleMonthlyView()" id="btn-toggle-monthly" aria-expanded="true" aria-controls="monthly-stats-container" class="text-[0.6875rem] sm:text-xs text-slate-500 dark:text-slate-400 font-medium"><span id="tf-monthly-lbl">Nascondi</span> <i id="tf-monthly-chev" class="fa-solid fa-chevron-up text-[0.625rem]" aria-hidden="true"></i></button>
             </div>
             <div id="monthly-stats-container" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3"></div>
         </section>
@@ -399,6 +415,8 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
                 </div>
             </div>
 
+            <div id="tf-filter-summary" class="no-print flex items-center justify-between gap-2 text-[0.6875rem] text-slate-500 dark:text-slate-400"><span id="tf-filter-text"></span><button type="button" id="tf-filter-reset" onclick="tfResetFilters()" class="hidden font-semibold text-brand-600 dark:text-brand-400 min-h-[40px] px-2">Azzera filtri</button></div>
+
             <div id="bulk-actions-bar" class="hidden bg-slate-900 text-white p-2.5 rounded-lg flex items-center justify-between gap-2 shadow-sm">
                 <span id="bulk-selected-count" class="text-xs font-semibold">0 sel.</span>
                 <div class="flex items-center gap-1 text-xs">
@@ -429,7 +447,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
             <div class="hidden md:block overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="bg-slate-50/80 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                        <tr class="bg-slate-50/80 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 text-[0.6875rem] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                             <th class="p-3 w-10 text-center no-print"><input type="checkbox" id="select-all-checkbox" onchange="toggleSelectAll(this)" class="rounded border-slate-300 text-brand-600 h-4 w-4 cursor-pointer"></th>
                             <th class="p-3">Cliente</th>
                             <th class="p-3">Attività / Descrizione</th>
@@ -450,6 +468,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
                 <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 mx-auto"><i class="fa-solid fa-folder-open text-lg"></i></div>
                 <h3 class="text-slate-800 dark:text-slate-200 font-bold text-sm">Nessuna registrazione trovata</h3>
                 <p class="text-slate-500 dark:text-slate-400 text-xs max-w-xs mx-auto">Nessun dato corrispondente ai filtri selezionati.</p>
+                <button type="button" id="tf-empty-btn" class="mt-1 bg-brand-600 hover:bg-brand-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold min-h-[44px]"></button>
             </div>
         </section>
 
@@ -461,9 +480,9 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
                     <h3 id="calendar-month-title" class="text-xs sm:text-base font-bold text-slate-900 dark:text-white capitalize">Ottobre 2026</h3>
                     <button onclick="changeCalendarMonth(1)" class="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-600 dark:text-slate-300"><i class="fa-solid fa-chevron-right text-xs"></i></button>
                 </div>
-                <button onclick="resetCalendarToCurrentMonth()" class="text-[10px] sm:text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded font-medium">Oggi</button>
+                <button onclick="resetCalendarToCurrentMonth()" class="text-[0.625rem] sm:text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded font-medium">Oggi</button>
             </div>
-            <div class="grid grid-cols-7 text-center text-[10px] font-semibold text-slate-400 uppercase tracking-wider py-1 border-b border-slate-100 dark:border-slate-800">
+            <div class="grid grid-cols-7 text-center text-[0.625rem] font-semibold text-slate-400 uppercase tracking-wider py-1 border-b border-slate-100 dark:border-slate-800">
                 <div>Lun</div><div>Mar</div><div>Mer</div><div>Gio</div><div>Ven</div><div>Sab</div><div>Dom</div>
             </div>
             <div id="calendar-days-grid" class="grid grid-cols-7 gap-1 min-h-[320px]"></div>
@@ -471,7 +490,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
     </main>
 
     <!-- Footer -->
-    <footer class="tf2-footer mt-auto border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-4 text-center text-[11px] text-slate-400 no-print">
+    <footer class="tf2-footer mt-auto border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-4 text-center text-[0.6875rem] text-slate-400 no-print">
         <p>© 2026 TimeFlow — Tracciamento Ore, Compensi & Calendar Sync</p>
     </footer>
 
@@ -486,11 +505,21 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
                 <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Google OAuth Client ID (Calendar e Drive)</label>
                 <input type="text" id="config-client-id" placeholder="1234...apps.googleusercontent.com" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-lg px-3 py-1.5 text-xs">
             </div>
+            <div class="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800 space-y-2">
+                <div class="text-xs font-semibold text-slate-700 dark:text-slate-200"><i class="fa-solid fa-text-height text-emerald-600 mr-1" aria-hidden="true"></i> Dimensione del testo</div>
+                <div id="tf-fs-group" role="radiogroup" aria-label="Dimensione del testo" class="flex gap-1.5">
+                    <button type="button" role="radio" aria-checked="false" class="tf-fs-opt" data-fs="0.9" onclick="tfSetFontScale(0.9)"><span style="font-size:13px">A</span><small>Piccolo</small></button>
+                    <button type="button" role="radio" aria-checked="true" class="tf-fs-opt" data-fs="1" onclick="tfSetFontScale(1)"><span style="font-size:16px">A</span><small>Normale</small></button>
+                    <button type="button" role="radio" aria-checked="false" class="tf-fs-opt" data-fs="1.15" onclick="tfSetFontScale(1.15)"><span style="font-size:19px">A</span><small>Grande</small></button>
+                    <button type="button" role="radio" aria-checked="false" class="tf-fs-opt" data-fs="1.3" onclick="tfSetFontScale(1.3)"><span style="font-size:22px">A</span><small>Extra</small></button>
+                </div>
+                <div class="text-[0.6875rem] text-slate-500 dark:text-slate-400">Ingrandisce o riduce tutti i testi dell'app. Si applica subito e viene ricordato.</div>
+            </div>
             <div class="flex items-center justify-between gap-3 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800">
                 <div class="min-w-0">
                     <div class="text-xs font-semibold text-slate-700 dark:text-slate-200"><i class="fa-solid fa-hand-pointer text-emerald-600 mr-1" aria-hidden="true"></i> Feedback aptico</div>
-                    <div class="text-[11px] text-slate-500 dark:text-slate-400">Breve vibrazione per barra inferiore, salvataggi, timer, backup ed errori.</div>
-                    <div id="config-haptics-hint" class="text-[11px] text-amber-600 dark:text-amber-400 hidden">Questo dispositivo non sembra supportare la vibrazione.</div>
+                    <div class="text-[0.6875rem] text-slate-500 dark:text-slate-400">Breve vibrazione per barra inferiore, salvataggi, timer, backup ed errori.</div>
+                    <div id="config-haptics-hint" class="text-[0.6875rem] text-amber-600 dark:text-amber-400 hidden">Questo dispositivo non sembra supportare la vibrazione.</div>
                 </div>
                 <label class="tf2-switch" title="Attiva o disattiva il feedback aptico"><input type="checkbox" id="config-haptics" role="switch" aria-label="Feedback aptico" onchange="tfSetHaptics(this.checked)"><i aria-hidden="true"></i></label>
             </div>
@@ -511,17 +540,17 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
                 <input type="hidden" id="client-id-edit">
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">Nome Cliente</label>
+                        <label class="block text-[0.6875rem] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">Nome Cliente</label>
                         <input type="text" id="client-name-input" required placeholder="Es. Acme" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-lg px-2.5 py-1 text-xs">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">Tariffa (€/h)</label>
+                        <label class="block text-[0.6875rem] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">Tariffa (€/h)</label>
                         <input type="number" step="0.5" id="client-rate-input" required placeholder="50.00" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-lg px-2.5 py-1 text-xs">
                     </div>
                 </div>
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
-                        <label class="text-[11px] font-semibold text-slate-600 dark:text-slate-300">Colore:</label>
+                        <label class="text-[0.6875rem] font-semibold text-slate-600 dark:text-slate-300">Colore:</label>
                         <input type="color" id="client-color-input" value="#3b82f6" class="w-7 h-7 p-0.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-md cursor-pointer">
                     </div>
                     <div class="flex gap-2">
@@ -552,39 +581,39 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
             <form id="entry-form" onsubmit="saveTimeEntry(event)" class="space-y-2.5">
                 <input type="hidden" id="entry-id-edit">
                 <div>
-                    <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">Cliente</label>
+                    <label class="block text-[0.6875rem] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">Cliente</label>
                     <select id="entry-client-select" required onchange="updateModalRateFromClient()" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-medium"></select>
                 </div>
                 <div>
-                    <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">Descrizione Attività</label>
+                    <label class="block text-[0.6875rem] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">Descrizione Attività</label>
                     <input type="text" id="entry-desc-input" required placeholder="Es. Pulizia ordinaria" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-lg px-2.5 py-1.5 text-xs">
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">Data</label>
+                        <label class="block text-[0.6875rem] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">Data</label>
                         <input type="date" id="entry-date-input" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-lg px-2 py-1 text-xs">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">Durata (Ore)</label>
+                        <label class="block text-[0.6875rem] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">Durata (Ore)</label>
                         <input type="number" step="0.25" min="0" id="entry-hours-input" required placeholder="2.5" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-lg px-2 py-1 text-xs">
                     </div>
                 </div>
                 <div class="grid grid-cols-3 gap-2">
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">Ora Inizio</label>
+                        <label class="block text-[0.6875rem] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">Ora Inizio</label>
                         <input type="time" id="entry-start-time" value="09:00" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-lg px-1.5 py-1 text-xs">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">Tariffa (€/h)</label>
+                        <label class="block text-[0.6875rem] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">Tariffa (€/h)</label>
                         <input type="number" step="0.5" id="entry-rate-input" required placeholder="50.00" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-lg px-1.5 py-1 text-xs">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">Extra (€)</label>
+                        <label class="block text-[0.6875rem] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">Extra (€)</label>
                         <input type="number" step="0.5" min="0" id="entry-expenses-input" value="0" placeholder="0.00" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-lg px-1.5 py-1 text-xs">
                     </div>
                 </div>
                 <div>
-                    <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">Stato Iniziale</label>
+                    <label class="block text-[0.6875rem] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">Stato Iniziale</label>
                     <select id="entry-status-select" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-lg px-2.5 py-1 text-xs font-medium">
                         <option value="unbilled">Da Fatturare</option>
                         <option value="invoiced">Fatturato</option>
@@ -611,7 +640,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
             </div>
             <div class="space-y-2">
                 <div>
-                    <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">Filtro Periodo</label>
+                    <label class="block text-[0.6875rem] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">Filtro Periodo</label>
                     <select id="export-preset-select" onchange="applyExportPreset()" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-lg px-2.5 py-1 text-xs">
                         <option value="ALL">Tutto lo Storico</option>
                         <option value="THIS_YEAR">Anno Corrente (2026)</option>
@@ -620,17 +649,17 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">Da</label>
+                        <label class="block text-[0.6875rem] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">Da</label>
                         <input type="date" id="export-start-date" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-lg px-2 py-1 text-xs">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">A</label>
+                        <label class="block text-[0.6875rem] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">A</label>
                         <input type="date" id="export-end-date" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-lg px-2 py-1 text-xs">
                     </div>
                 </div>
             </div>
             <div class="flex flex-col gap-1.5 pt-2 border-t border-slate-100 dark:border-slate-800">
-                <p class="text-[11px] text-slate-500 dark:text-slate-400">Esporta le attività del periodo selezionato in formato compatibile con Excel.</p>
+                <p class="text-[0.6875rem] text-slate-500 dark:text-slate-400">Esporta le attività del periodo selezionato in formato compatibile con Excel.</p>
                 <button onclick="downloadReport()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-sm"><i id="export-go-icon" class="fa-solid fa-file-csv"></i> <span id="export-go-label">Scarica report CSV</span></button>
             </div>
         </div>
@@ -649,7 +678,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
             </div>
             <div class="flex-1 overflow-y-auto overscroll-contain px-3 py-3 space-y-2.5">
                 <div id="bm-pane-local" class="space-y-2.5">
-                    <p id="bm-local-info" class="text-[11px] text-slate-500 dark:text-slate-400"></p>
+                    <p id="bm-local-info" class="text-[0.6875rem] text-slate-500 dark:text-slate-400"></p>
                     <div class="flex flex-wrap gap-1.5">
                         <button onclick="quickLocalBackup()" class="bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-2.5 rounded-xl text-xs font-bold inline-flex items-center gap-2 shadow-sm"><i class="fa-solid fa-floppy-disk"></i> Salva backup dispositivo</button>
                         <label class="cursor-pointer bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-100 border border-slate-200 dark:border-slate-600 px-3.5 py-2.5 rounded-xl text-xs font-bold inline-flex items-center gap-2"><i class="fa-solid fa-file-arrow-up text-violet-500"></i> Ripristina da file<input type="file" id="import-json-input" accept=".json,application/json" onchange="importBackupJSON(event)" class="hidden"></label>
@@ -657,14 +686,14 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
                         <button id="bm-btn-choose" onclick="bmChooseFolder()" class="hidden bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-3 py-2 rounded-lg text-xs font-medium inline-flex items-center gap-1.5"><i class="fa-solid fa-folder-tree"></i> Cambia posizione cartella</button>
                         <button onclick="bmRefresh()" class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-3 py-2 rounded-lg text-xs font-medium inline-flex items-center gap-1.5"><i class="fa-solid fa-rotate"></i> Aggiorna</button>
                     </div>
-                    <div class="flex flex-wrap items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800 text-[11px] text-slate-600 dark:text-slate-300">
+                    <div class="flex flex-wrap items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800 text-[0.6875rem] text-slate-600 dark:text-slate-300">
                         <label for="bm-keep" class="font-semibold">Backup da conservare:</label>
                         <select id="bm-keep" onchange="bmSetKeep(this.value)" class="h-8 rounded-md border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 px-2 text-xs">
                             <option value="3">3</option><option value="5">5</option><option value="10">10</option><option value="20">20</option><option value="30">30</option>
                         </select>
                         <span>oltre questo numero i più vecchi vengono sovrascritti.</span>
                     </div>
-                    <div id="bm-mobile-box" class="hidden p-2 rounded-lg bg-slate-50 dark:bg-slate-800 text-[11px] text-slate-600 dark:text-slate-300 space-y-1.5">
+                    <div id="bm-mobile-box" class="hidden p-2 rounded-lg bg-slate-50 dark:bg-slate-800 text-[0.6875rem] text-slate-600 dark:text-slate-300 space-y-1.5">
                         <div class="font-semibold">Posizione della cartella sullo smartphone</div>
                         <div id="bm-mobile-text"></div>
                         <div class="flex flex-wrap gap-1.5">
@@ -675,8 +704,8 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
                     <div id="bm-local-list" class="space-y-1.5"></div>
                 </div>
                 <div id="bm-pane-drive" class="hidden space-y-2.5">
-                    <p id="bm-drive-info" class="text-[11px] text-slate-500 dark:text-slate-400">Backup nella cartella “TimeFlow Backups” del tuo Google Drive.</p>
-                    <p id="drive-status" class="text-[11px] font-semibold text-slate-600 dark:text-slate-300" aria-live="polite"></p>
+                    <p id="bm-drive-info" class="text-[0.6875rem] text-slate-500 dark:text-slate-400">Backup nella cartella “TimeFlow Backups” del tuo Google Drive.</p>
+                    <p id="drive-status" class="text-[0.6875rem] font-semibold text-slate-600 dark:text-slate-300" aria-live="polite"></p>
                     <div class="flex flex-wrap gap-1.5">
                         <button onclick="backupToGoogleDrive()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-xs font-semibold inline-flex items-center gap-1.5"><i class="fa-brands fa-google-drive"></i> Salva su Drive</button>
                         <button onclick="bmRefresh()" class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-3 py-2 rounded-lg text-xs font-medium inline-flex items-center gap-1.5"><i class="fa-solid fa-rotate"></i> Aggiorna</button>
@@ -694,11 +723,11 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
             <div class="shrink-0 bg-gradient-to-r from-slate-900 via-emerald-900 to-brand-600 text-white px-4 pb-3 flex items-start justify-between gap-3" style="padding-top:calc(0.75rem + env(safe-area-inset-top))">
                 <div>
                     <h2 id="guide-title" class="text-base font-bold tracking-tight">TimeFlow — Manuale d'Uso &amp; Guida Rapida</h2>
-                    <p class="text-[11px] text-emerald-100">Gestione ore, compensi &amp; sincronizzazione Calendar</p>
+                    <p class="text-[0.6875rem] text-emerald-100">Gestione ore, compensi &amp; sincronizzazione Calendar</p>
                 </div>
                 <button onclick="closeGuide()" aria-label="Chiudi guida" class="shrink-0 w-10 h-10 rounded-xl bg-white/15 hover:bg-white/25 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div id="guide-chips" class="shrink-0 px-3 py-2 border-b border-slate-200 dark:border-slate-800 flex gap-1.5 overflow-x-auto text-[11px] font-semibold">
+            <div id="guide-chips" class="shrink-0 px-3 py-2 border-b border-slate-200 dark:border-slate-800 flex gap-1.5 overflow-x-auto text-[0.6875rem] font-semibold">
                 <button data-g="g-start" class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 shrink-0">Avvio rapido</button>
                 <button data-g="g-clients" class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 shrink-0">Clienti e stati</button>
                 <button data-g="g-timer" class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 shrink-0">Timer</button>
@@ -708,12 +737,12 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
                 <button data-g="g-backup" class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 shrink-0">Backup</button>
                 <button data-g="g-faq" class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 shrink-0">FAQ</button>
             </div>
-            <div id="guide-body" class="flex-1 overflow-y-auto overscroll-contain px-3 sm:px-5 py-3 space-y-2.5 text-[13px] leading-relaxed text-slate-700 dark:text-slate-300" style="padding-bottom:calc(1.25rem + env(safe-area-inset-bottom))">
+            <div id="guide-body" class="flex-1 overflow-y-auto overscroll-contain px-3 sm:px-5 py-3 space-y-2.5 text-[0.8125rem] leading-relaxed text-slate-700 dark:text-slate-300" style="padding-bottom:calc(1.25rem + env(safe-area-inset-bottom))">
 
                 <p class="text-xs">TimeFlow è un'applicazione per tracciare le attività lavorative, gestire i clienti, calcolare automaticamente i compensi e sincronizzare tutto con Google Calendar.</p>
 
                 <details id="g-start" open class="group rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60">
-                    <summary class="cursor-pointer list-none px-3.5 py-3 font-bold text-slate-900 dark:text-white flex items-center justify-between">1. Avvio rapido <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform group-open:rotate-180"></i></summary>
+                    <summary class="cursor-pointer list-none px-3.5 py-3 font-bold text-slate-900 dark:text-white flex items-center justify-between">1. Avvio rapido <i class="fa-solid fa-chevron-down text-[0.625rem] text-slate-400 transition-transform group-open:rotate-180"></i></summary>
                     <ol class="px-3.5 pb-3.5 pl-8 space-y-2 list-decimal">
                         <li><b>Configura un cliente.</b> Tocca <i>Clienti</i> in alto a destra e inserisci nome e tariffa oraria predefinita (€/h).</li>
                         <li><b>Inserimento rapido con IA nativa.</b> Scrivi nella barra in alto, ad esempio <i>«Lavorato 3 ore per Alpha ieri, 15 euro di spese»</i>, e tocca <i>Analizza e Salva</i>: ore, cliente, data e spese vengono interpretati in automatico.</li>
@@ -724,10 +753,10 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
                 </details>
 
                 <details id="g-clients" class="group rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60">
-                    <summary class="cursor-pointer list-none px-3.5 py-3 font-bold text-slate-900 dark:text-white flex items-center justify-between">2. Clienti, tariffe e stati <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform group-open:rotate-180"></i></summary>
+                    <summary class="cursor-pointer list-none px-3.5 py-3 font-bold text-slate-900 dark:text-white flex items-center justify-between">2. Clienti, tariffe e stati <i class="fa-solid fa-chevron-down text-[0.625rem] text-slate-400 transition-transform group-open:rotate-180"></i></summary>
                     <div class="px-3.5 pb-3.5 space-y-2.5">
                         <p>Ogni cliente ha una tariffa oraria e un colore per la vista Calendario. Il totale è calcolato come <b>Totale = (Ore × Tariffa) + Spese Extra</b>.</p>
-                        <div class="rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden text-[12px]">
+                        <div class="rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden text-[0.75rem]">
                             <div class="grid grid-cols-[92px_1fr] bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700"><div class="p-2 font-bold text-amber-600">Da Fatturare</div><div class="p-2">Attività completata, non ancora in fattura. <i>Azione:</i> raggruppa le ore a fine mese ed emetti fattura.</div></div>
                             <div class="grid grid-cols-[92px_1fr] bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700"><div class="p-2 font-bold text-blue-600">Fatturato</div><div class="p-2">Fattura emessa, in attesa di saldo. <i>Azione:</i> monitora il KPI «In Attesa Saldo».</div></div>
                             <div class="grid grid-cols-[92px_1fr] bg-white dark:bg-slate-900"><div class="p-2 font-bold text-emerald-600">Pagato</div><div class="p-2">Compenso incassato. <i>Azione:</i> aggiorna lo stato per chiudere la posizione.</div></div>
@@ -737,7 +766,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
                 </details>
 
                 <details id="g-timer" class="group rounded-xl border border-emerald-300 dark:border-emerald-800 bg-emerald-50/60 dark:bg-emerald-950/20">
-                    <summary class="cursor-pointer list-none px-3.5 py-3 font-bold text-slate-900 dark:text-white flex items-center justify-between"><span><i class="fa-solid fa-stopwatch text-brand-600 mr-1.5"></i> 3. Timer e inserimento IA (novità)</span> <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform group-open:rotate-180"></i></summary>
+                    <summary class="cursor-pointer list-none px-3.5 py-3 font-bold text-slate-900 dark:text-white flex items-center justify-between"><span><i class="fa-solid fa-stopwatch text-brand-600 mr-1.5"></i> 3. Timer e inserimento IA (novità)</span> <i class="fa-solid fa-chevron-down text-[0.625rem] text-slate-400 transition-transform group-open:rotate-180"></i></summary>
                     <div class="px-3.5 pb-3.5 space-y-2.5">
                         <p><b>Timer:</b> scegli il cliente (e, se vuoi, una descrizione), premi <i>Avvia</i> e lavora. Sull'app installata, mentre il timer corre, compare un indicatore sull'icona. Se lo lasci acceso per più di 12 ore, alla chiusura l'app ti chiede quante ore registrare. Premendo <i>Ferma</i> viene creata l'attività con data, ora di inizio, ore e compenso. Il timer continua anche se chiudi l'app o ricarichi la pagina. L'arrotondamento (esatto, 15 o 30 minuti) si imposta accanto al timer.</p>
                         <p><b>Frasi comprese dall'IA nativa</b> (funziona offline):</p>
@@ -752,7 +781,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
                 </details>
 
                 <details id="g-kpi" class="group rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60">
-                    <summary class="cursor-pointer list-none px-3.5 py-3 font-bold text-slate-900 dark:text-white flex items-center justify-between">4. KPI finanziari e analisi IA <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform group-open:rotate-180"></i></summary>
+                    <summary class="cursor-pointer list-none px-3.5 py-3 font-bold text-slate-900 dark:text-white flex items-center justify-between">4. KPI finanziari e analisi IA <i class="fa-solid fa-chevron-down text-[0.625rem] text-slate-400 transition-transform group-open:rotate-180"></i></summary>
                     <div class="px-3.5 pb-3.5 space-y-2">
                         <p>In alto trovi 4 indicatori sempre aggiornati: <b>Fatturato Totale, Da Fatturare, In Attesa Saldo, Incassato</b>.</p>
                         <p>Il modulo <b>Analisi Finanziaria IA Nativa</b> genera in un tocco, anche offline, un report sulla distribuzione del volume d'affari per cliente e sul rendimento orario effettivo. Le <b>Statistiche Mensili</b> riassumono ore e compensi mese per mese.</p>
@@ -760,7 +789,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
                 </details>
 
                 <details id="g-google" class="group rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60">
-                    <summary class="cursor-pointer list-none px-3.5 py-3 font-bold text-slate-900 dark:text-white flex items-center justify-between">5. Google Calendar <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform group-open:rotate-180"></i></summary>
+                    <summary class="cursor-pointer list-none px-3.5 py-3 font-bold text-slate-900 dark:text-white flex items-center justify-between">5. Google Calendar <i class="fa-solid fa-chevron-down text-[0.625rem] text-slate-400 transition-transform group-open:rotate-180"></i></summary>
                     <div class="px-3.5 pb-3.5 space-y-2">
                         <ol class="list-decimal pl-5 space-y-1.5">
                             <li>Nella <b>Google Cloud Console</b> crea (o apri) un progetto, abilita <i>Google Calendar API</i> e <i>Google Drive API</i> e crea un <i>ID client OAuth</i> di tipo «Applicazione web».</li>
@@ -768,23 +797,23 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
                             <li>Tocca l'ingranaggio <i class="fa-solid fa-gear"></i> e incolla il <b>Client ID</b>; poi <i>Calendar</i> e autorizza.</li>
                             <li>Ogni attività con l'opzione «Google Calendar» attiva diventa un evento; modifiche ed eliminazioni vengono ripetute sul calendario. Se sei offline, le operazioni restano in coda e partono al ritorno della connessione.</li>
                         </ol>
-                        <p class="text-[12px] text-slate-500 dark:text-slate-400">Nota: su iPhone, nell'app installata, il popup di autorizzazione di Google può essere bloccato dal sistema; in tal caso autorizza una volta da Safari.</p>
+                        <p class="text-[0.75rem] text-slate-500 dark:text-slate-400">Nota: su iPhone, nell'app installata, il popup di autorizzazione di Google può essere bloccato dal sistema; in tal caso autorizza una volta da Safari.</p>
                     </div>
                 </details>
 
                 <details id="install" class="group rounded-xl border border-blue-300 dark:border-blue-800 bg-blue-50/60 dark:bg-blue-950/20">
-                    <summary class="cursor-pointer list-none px-3.5 py-3 font-bold text-slate-900 dark:text-white flex items-center justify-between"><span><i class="fa-solid fa-mobile-screen-button text-blue-600 mr-1.5"></i> 6. Installa come app (novità)</span> <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform group-open:rotate-180"></i></summary>
+                    <summary class="cursor-pointer list-none px-3.5 py-3 font-bold text-slate-900 dark:text-white flex items-center justify-between"><span><i class="fa-solid fa-mobile-screen-button text-blue-600 mr-1.5"></i> 6. Installa come app (novità)</span> <i class="fa-solid fa-chevron-down text-[0.625rem] text-slate-400 transition-transform group-open:rotate-180"></i></summary>
                     <div class="px-3.5 pb-3.5 space-y-2.5">
                         <p>TimeFlow può essere installata sulla schermata Home e usata a schermo intero, anche <b>offline</b>. Apri l'indirizzo <b>HTTPS</b> in cui è pubblicata, la prima volta con Internet attivo.</p>
                         <div class="rounded-lg bg-white dark:bg-slate-900 p-3 border border-slate-200 dark:border-slate-800"><b><i class="fa-brands fa-android text-emerald-500"></i> Android (Chrome / Edge)</b><br>Tocca <b>Installa</b> nell'intestazione, oppure menu ⋮ → <i>Installa app</i>.</div>
                         <div class="rounded-lg bg-white dark:bg-slate-900 p-3 border border-slate-200 dark:border-slate-800"><b><i class="fa-brands fa-apple"></i> iPhone / iPad (Safari)</b><br>Tocca <b>Condividi</b> <i class="fa-solid fa-arrow-up-from-bracket"></i> → <b>Aggiungi alla schermata Home</b>.</div>
                         <div class="rounded-lg bg-white dark:bg-slate-900 p-3 border border-slate-200 dark:border-slate-800"><b><i class="fa-solid fa-desktop"></i> Computer</b><br>Icona <i>Installa</i> nella barra degli indirizzi (Chrome/Edge) o pulsante <b>Installa</b> nell'app. Dall'icona dell'app puoi anche scegliere <i>Nuova attività</i> o <i>Avvia timer</i>.</div>
-                        <p class="text-[12px] text-slate-500 dark:text-slate-400">I dati stanno nel browser e sono legati all'indirizzo. Su alcuni sistemi l'app installata ha un archivio separato dal browser: trasferisci i dati con Backup e ripristino.</p>
+                        <p class="text-[0.75rem] text-slate-500 dark:text-slate-400">I dati stanno nel browser e sono legati all'indirizzo. Su alcuni sistemi l'app installata ha un archivio separato dal browser: trasferisci i dati con Backup e ripristino.</p>
                     </div>
                 </details>
 
                 <details id="g-backup" class="group rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60">
-                    <summary class="cursor-pointer list-none px-3.5 py-3 font-bold text-slate-900 dark:text-white flex items-center justify-between">7. Backup, export e privacy <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform group-open:rotate-180"></i></summary>
+                    <summary class="cursor-pointer list-none px-3.5 py-3 font-bold text-slate-900 dark:text-white flex items-center justify-between">7. Backup, export e privacy <i class="fa-solid fa-chevron-down text-[0.625rem] text-slate-400 transition-transform group-open:rotate-180"></i></summary>
                     <div class="px-3.5 pb-3.5 space-y-2">
                         <p>I dati risiedono <b>esclusivamente nel tuo browser</b> (LocalStorage). Per non perderli ed esportarli per il commercialista:</p>
                         <ul class="list-disc pl-5 space-y-1">
@@ -800,7 +829,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
                 </details>
 
                 <details id="g-faq" class="group rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60">
-                    <summary class="cursor-pointer list-none px-3.5 py-3 font-bold text-slate-900 dark:text-white flex items-center justify-between">8. Domande frequenti <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform group-open:rotate-180"></i></summary>
+                    <summary class="cursor-pointer list-none px-3.5 py-3 font-bold text-slate-900 dark:text-white flex items-center justify-between">8. Domande frequenti <i class="fa-solid fa-chevron-down text-[0.625rem] text-slate-400 transition-transform group-open:rotate-180"></i></summary>
                     <div class="px-3.5 pb-3.5 space-y-2.5">
                         <div><b>Ho perso i dati dopo aver cancellato i dati del browser.</b><br>I dati del sito vengono eliminati insieme alla cache: ripristina l'ultimo backup JSON.</div>
                         <div><b>L'IA non salva la mia frase.</b><br>Indica una durata (es. «2 ore») e il nome del cliente; se manca uno dei due te lo segnalo.</div>
@@ -814,7 +843,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
                     <a href="./Guida_Utente_TimeFlow.pdf" target="_blank" rel="noopener" class="px-3.5 py-2.5 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold text-xs flex items-center gap-2"><i class="fa-solid fa-file-pdf"></i> Apri la guida PDF originale</a>
                     <button onclick="closeGuide()" class="px-3.5 py-2.5 rounded-xl bg-brand-600 text-white font-bold text-xs">Ho capito</button>
                 </div>
-                <p class="text-[10px] text-slate-400 text-center">TimeFlow · v3.8</p>
+                <p class="text-[0.625rem] text-slate-400 text-center">TimeFlow · v3.9</p>
             </div>
         </div>
     </div>
@@ -1268,7 +1297,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
         }
         window.backupStamp = backupStamp;
         function makeDriveBackup() {
-            return { app:'TimeFlow', version:(window.APP_VERSION||'3.8'), date:new Date().toISOString(), clients, timeEntries };
+            return { app:'TimeFlow', version:(window.APP_VERSION||'3.9'), date:new Date().toISOString(), clients, timeEntries };
         }
         // Upload unico multipart (metadati + contenuto) verso l'endpoint /upload/ di Drive API v3.
         async function driveUpload(folderId, filename, json) {
@@ -1378,8 +1407,8 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
         function syncIconHTML(e) {
             if (!googleClientId || !wantsGoogle(e)) return '';
             return needsGoogleSync(e)
-                ? '<i class="fa-solid fa-rotate text-amber-500 ml-1.5 text-[10px]" title="In attesa di sincronizzazione"></i>'
-                : '<i class="fa-solid fa-calendar-check text-emerald-500 ml-1.5 text-[10px]" title="Sincronizzato con Google Calendar"></i>';
+                ? '<i class="fa-solid fa-rotate text-amber-500 ml-1.5 text-[0.625rem]" title="In attesa di sincronizzazione"></i>'
+                : '<i class="fa-solid fa-calendar-check text-emerald-500 ml-1.5 text-[0.625rem]" title="Sincronizzato con Google Calendar"></i>';
         }
         function getStatusBadgeHTML(entry) { return getStatusBadgeHTMLBase(entry) + syncIconHTML(entry); }
 
@@ -1491,17 +1520,17 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
                 card.className = "bg-slate-50 dark:bg-slate-800/65 border border-slate-200/80 dark:border-slate-700/60 p-2.5 sm:p-3 rounded-lg sm:rounded-xl flex flex-col justify-between";
                 card.innerHTML = `
                     <div class="flex justify-between items-center mb-1">
-                        <span class="text-[11px] sm:text-xs font-bold text-slate-800 dark:text-slate-200 capitalize">${stat.label}</span>
-                        <span class="text-[9px] bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-1.5 py-0.2 rounded">${stat.count} att.</span>
+                        <span class="text-[0.6875rem] sm:text-xs font-bold text-slate-800 dark:text-slate-200 capitalize">${stat.label}</span>
+                        <span class="text-[0.5625rem] bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-1.5 py-0.2 rounded">${stat.count} att.</span>
                     </div>
                     <div class="flex justify-between items-end">
                         <div>
-                            <span class="text-[9px] text-slate-400 block uppercase">Ore</span>
-                            <span class="text-[11px] sm:text-xs font-semibold text-slate-700 dark:text-slate-300">${stat.hours.toFixed(1)}h</span>
+                            <span class="text-[0.5625rem] text-slate-400 block uppercase">Ore</span>
+                            <span class="text-[0.6875rem] sm:text-xs font-semibold text-slate-700 dark:text-slate-300">${stat.hours.toFixed(1)}h</span>
                         </div>
                         <div class="text-right">
-                            <span class="text-[9px] text-slate-400 block uppercase">Totale</span>
-                            <span class="text-[11px] sm:text-xs font-bold text-brand-700 dark:text-brand-400">€ ${stat.revenue.toFixed(2)}</span>
+                            <span class="text-[0.5625rem] text-slate-400 block uppercase">Totale</span>
+                            <span class="text-[0.6875rem] sm:text-xs font-bold text-brand-700 dark:text-brand-400">€ ${stat.revenue.toFixed(2)}</span>
                         </div>
                     </div>
                 `;
@@ -1589,7 +1618,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
                         <div>${getStatusBadgeHTML(entry)}</div>
                     </div>
                     <div class="text-xs text-slate-800 dark:text-slate-200 font-medium pl-6">${escapeHtml(entry.description)}</div>
-                    <div class="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 pl-6 border-t border-slate-100 dark:border-slate-800/80 pt-1.5">
+                    <div class="flex items-center justify-between text-[0.6875rem] text-slate-500 dark:text-slate-400 pl-6 border-t border-slate-100 dark:border-slate-800/80 pt-1.5">
                         <span><i class="fa-regular fa-calendar mr-1"></i>${formatDate(entry.date)}</span>
                         <span><i class="fa-regular fa-clock mr-1"></i>${entry.hours}h (${entry.rateApplied}€/h)</span>
                         <span class="font-bold text-slate-900 dark:text-white text-xs">€ ${Number(entry.totalAmount).toFixed(2)}</span>
@@ -1646,13 +1675,13 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
                     dayHours += Number(entry.hours);
                     const client = clients.find(c => c.id === entry.clientId);
                     const color = client ? client.color : '#3b82f6';
-                    badgesHTML += `<div onclick="event.stopPropagation(); editEntry('${entry.id}')" class="text-[9px] truncate px-1 py-0.2 rounded text-white font-medium" style="background-color: ${color};">${escapeHtml(entry.description)}</div>`;
+                    badgesHTML += `<div onclick="event.stopPropagation(); editEntry('${entry.id}')" class="text-[0.5625rem] truncate px-1 py-0.2 rounded text-white font-medium" style="background-color: ${color};">${escapeHtml(entry.description)}</div>`;
                 });
 
                 dayCell.innerHTML = `
-                    <div class="flex justify-between items-center text-[10px] mb-0.5">
+                    <div class="flex justify-between items-center text-[0.625rem] mb-0.5">
                         <span class="font-bold ${isToday ? 'text-brand-600 dark:text-brand-400' : 'text-slate-700 dark:text-slate-300'}">${day}</span>
-                        ${dayHours > 0 ? `<span class="text-[9px] font-semibold text-slate-500">${dayHours.toFixed(1)}h</span>` : ''}
+                        ${dayHours > 0 ? `<span class="text-[0.5625rem] font-semibold text-slate-500">${dayHours.toFixed(1)}h</span>` : ''}
                     </div>
                     <div class="space-y-0.5 overflow-y-auto max-h-[45px]">${badgesHTML}</div>
                 `;
@@ -1666,9 +1695,9 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
 
         function getStatusBadgeHTMLBase(entry) {
             switch(entry.status) {
-                case 'paid': return `<button onclick="cycleStatus('${entry.id}')" class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200"><i class="fa-solid fa-check mr-1"></i>Pagato</button>`;
-                case 'invoiced': return `<button onclick="cycleStatus('${entry.id}')" class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-100 text-blue-800 border border-blue-200"><i class="fa-solid fa-file-invoice mr-1"></i>Fatturato</button>`;
-                default: return `<button onclick="cycleStatus('${entry.id}')" class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-800 border border-amber-200"><i class="fa-solid fa-clock mr-1"></i>Da Fatturare</button>`;
+                case 'paid': return `<button onclick="cycleStatus('${entry.id}')" class="px-2 py-0.5 rounded-full text-[0.625rem] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200"><i class="fa-solid fa-check mr-1"></i>Pagato</button>`;
+                case 'invoiced': return `<button onclick="cycleStatus('${entry.id}')" class="px-2 py-0.5 rounded-full text-[0.625rem] font-semibold bg-blue-100 text-blue-800 border border-blue-200"><i class="fa-solid fa-file-invoice mr-1"></i>Fatturato</button>`;
+                default: return `<button onclick="cycleStatus('${entry.id}')" class="px-2 py-0.5 rounded-full text-[0.625rem] font-semibold bg-amber-100 text-amber-800 border border-amber-200"><i class="fa-solid fa-clock mr-1"></i>Da Fatturare</button>`;
             }
         }
 
@@ -1894,7 +1923,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
                 const div = document.createElement('div');
                 div.className = "p-2 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/40";
                 div.innerHTML = `
-                    <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full inline-block" style="background-color: ${c.color || '#3b82f6'};"></span><div class="font-bold text-xs text-slate-800 dark:text-slate-200">${escapeHtml(c.name)} <span class="font-normal text-[10px] text-slate-400">(${c.rate}€/h)</span></div></div>
+                    <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full inline-block" style="background-color: ${c.color || '#3b82f6'};"></span><div class="font-bold text-xs text-slate-800 dark:text-slate-200">${escapeHtml(c.name)} <span class="font-normal text-[0.625rem] text-slate-400">(${c.rate}€/h)</span></div></div>
                     <div class="flex items-center space-x-1">
                         <button onclick="editClientInModal('${c.id}')" class="text-slate-400 p-1 text-xs"><i class="fa-solid fa-pen"></i></button>
                         <button onclick="toggleArchiveClient('${c.id}')" class="text-slate-400 p-1 text-xs"><i class="fa-solid ${c.isArchived ? 'fa-box-open text-amber-500' : 'fa-box-archive'}"></i></button>
@@ -2140,12 +2169,12 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
         if (t) {
             disp.textContent = fmtHMS(Date.now() - t.start);
             document.title = '⏱ ' + disp.textContent + ' · TimeFlow';
-            btn.innerHTML = '<i class="fa-solid fa-stop text-[10px]"></i> Ferma';
+            btn.innerHTML = '<i class="fa-solid fa-stop text-[0.625rem]"></i> Ferma';
             btn.className = 'bg-red-600 hover:bg-red-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm min-w-[104px] justify-center';
             $('timer-client').disabled = true; $('timer-desc').disabled = true;
         } else {
             disp.textContent = '00:00:00'; document.title = 'TimeFlow - Ore, Compensi & Calendar';
-            btn.innerHTML = '<i class="fa-solid fa-play text-[10px]"></i> Avvia';
+            btn.innerHTML = '<i class="fa-solid fa-play text-[0.625rem]"></i> Avvia';
             btn.className = 'bg-brand-600 hover:bg-brand-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm min-w-[104px] justify-center';
             $('timer-client').disabled = false; $('timer-desc').disabled = false;
         }
@@ -2483,7 +2512,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
 
     // ---------- Creazione backup locale ----------
     function makeBackup() {
-        return { app: 'TimeFlow', version: (window.APP_VERSION || '3.8'), date: new Date().toISOString(), googleClientId, clients, timeEntries };
+        return { app: 'TimeFlow', version: (window.APP_VERSION || '3.9'), date: new Date().toISOString(), googleClientId, clients, timeEntries };
     }
     window.saveLocalBackup = async function (obj) {
         const text = JSON.stringify(obj || makeBackup(), null, 2);
@@ -2559,7 +2588,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
         row.className = 'flex items-center justify-between gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800';
         const info = document.createElement('div'); info.className = 'min-w-0';
         const n = document.createElement('div'); n.className = 'font-semibold truncate text-xs text-slate-700 dark:text-slate-200'; n.textContent = item.name;
-        const m = document.createElement('div'); m.className = 'text-[10px] text-slate-500 dark:text-slate-400';
+        const m = document.createElement('div'); m.className = 'text-[0.625rem] text-slate-500 dark:text-slate-400';
         m.textContent = [fmtDate(item.modified), item.size ? fmtSize(item.size) : '', item.tag].filter(Boolean).join(' · ');
         info.append(n, m);
         const act = document.createElement('div'); act.className = 'shrink-0 flex items-center gap-1';
@@ -2571,7 +2600,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
         row.append(info, act);
         return row;
     }
-    const BTN_RESTORE = 'px-2.5 h-9 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-semibold';
+    const BTN_RESTORE = 'px-2.5 h-9 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[0.6875rem] font-semibold';
     const BTN_ICON = 'w-9 h-9 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-200 text-xs';
     const BTN_DEL = 'w-9 h-9 rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 text-xs';
 
@@ -2786,6 +2815,127 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
     var origOpen = window.openConfigModal;
     if (typeof origOpen === 'function') window.openConfigModal = function () { var r = origOpen.apply(this, arguments); syncSwitch(); return r; };
     document.addEventListener('DOMContentLoaded', syncSwitch);
+})();
+</script>
+<script>
+/* ===== TimeFlow v3.9 – usabilità: testo regolabile, annulla eliminazione, pannelli, filtri ===== */
+(function () {
+    'use strict';
+    var $ = function (id) { return document.getElementById(id); };
+    function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+    function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+    function hap(k) { if (window.tfHaptic) window.tfHaptic(k); }
+
+    /* Dimensione del testo */
+    var FS_KEY = 'timeflow_font_scale', LEVELS = [0.9, 1, 1.15, 1.3];
+    function curScale() { var v = parseFloat(lsGet(FS_KEY)); return LEVELS.indexOf(v) >= 0 ? v : 1; }
+    function paintFs() {
+        var s = curScale();
+        document.querySelectorAll('#tf-fs-group [data-fs]').forEach(function (b) {
+            var on = parseFloat(b.dataset.fs) === s; b.setAttribute('aria-checked', String(on)); b.tabIndex = on ? 0 : -1;
+        });
+    }
+    window.tfSetFontScale = function (v) {
+        lsSet(FS_KEY, String(v)); document.documentElement.style.setProperty('--tf-fs', String(v)); paintFs(); hap('tap');
+    };
+    document.addEventListener('keydown', function (e) {
+        var b = e.target && e.target.closest && e.target.closest('#tf-fs-group [data-fs]'); if (!b) return;
+        var i = LEVELS.indexOf(parseFloat(b.dataset.fs)), d = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : (e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0);
+        if (!d) return; e.preventDefault(); var n = Math.max(0, Math.min(LEVELS.length - 1, i + d)); window.tfSetFontScale(LEVELS[n]);
+        var nb = document.querySelector('#tf-fs-group [data-fs="' + LEVELS[n] + '"]'); if (nb) nb.focus();
+    });
+    var oc = window.openConfigModal;
+    if (typeof oc === 'function') window.openConfigModal = function () { var r = oc.apply(this, arguments); paintFs(); return r; };
+
+    /* Eliminazione con "Annulla" (niente più finestra di conferma) */
+    function undoToast(msg, onUndo) {
+        var c = $('toast-container'); if (!c) return;
+        var t = document.createElement('div'), done = false;
+        t.className = 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 px-3 py-1.5 rounded-lg text-xs font-medium shadow-lg flex items-center gap-2 pointer-events-auto';
+        t.setAttribute('role', 'status');
+        var i = document.createElement('i'); i.className = 'fa-solid fa-trash-can text-xs text-slate-400'; i.setAttribute('aria-hidden', 'true');
+        var sp = document.createElement('span'); sp.className = 'flex-grow'; sp.textContent = msg;
+        var b = document.createElement('button'); b.type = 'button'; b.textContent = 'Annulla'; b.style.minHeight = '40px';
+        b.className = 'font-bold text-emerald-300 dark:text-emerald-700 px-3 rounded';
+        function close() { if (done) return; done = true; t.remove(); }
+        b.onclick = function () { if (done) return; close(); onUndo(); };
+        t.appendChild(i); t.appendChild(sp); t.appendChild(b); c.appendChild(t); setTimeout(close, 6000);
+    }
+    window.deleteEntry = function (id) {
+        var idx = timeEntries.findIndex(function (e) { return e.id === id; }); if (idx < 0) return;
+        var entry = timeEntries[idx], undone = false;
+        queueGoogleDeletes([entry]);
+        timeEntries = timeEntries.filter(function (e) { return e.id !== id; });
+        selectedEntryIds.delete(id); saveEntriesToStorage(); renderApp(); hap('warn');
+        var timer = setTimeout(function () { if (!undone) syncGoogleCalendar({}); }, 6200);
+        undoToast('Attività eliminata.', function () {
+            undone = true; clearTimeout(timer);
+            var q = getDeleteQueue();
+            if (entry.googleEventId) {
+                if (q.indexOf(entry.googleEventId) >= 0) setDeleteQueue(q.filter(function (x) { return x !== entry.googleEventId; }));
+                else { delete entry.googleEventId; delete entry.gHash; }   // evento già rimosso da Calendar: verrà ricreato
+            }
+            timeEntries.splice(Math.min(idx, timeEntries.length), 0, entry);
+            saveEntriesToStorage(); renderApp(); hap('success');
+            if (typeof showToast === 'function') showToast('Attività ripristinata.', 'success');
+            syncGoogleCalendar({});
+        });
+    };
+
+    /* Pannello Analisi IA: chiuso di default, ricorda la scelta */
+    function setAi(open, persist) {
+        var p = $('tf-ai-panel'); if (!p) return;
+        p.classList.toggle('tf-ai-collapsed', !open);
+        var b = $('tf-ai-toggle'); if (b) b.setAttribute('aria-expanded', String(open));
+        var ch = $('tf-ai-chev'); if (ch) ch.className = 'fa-solid ' + (open ? 'fa-chevron-up' : 'fa-chevron-down') + ' text-xs';
+        if (persist) lsSet('timeflow_ai_panel', open ? '1' : '0');
+    }
+    window.tfToggleAiPanel = function () { var p = $('tf-ai-panel'); if (p) setAi(p.classList.contains('tf-ai-collapsed'), true); };
+    var og = window.generateEmbeddedAIFinancialAnalysis;
+    if (typeof og === 'function') window.generateEmbeddedAIFinancialAnalysis = function () { setAi(true, true); return og.apply(this, arguments); };
+    setAi(lsGet('timeflow_ai_panel') === '1', false);
+
+    /* Statistiche mensili: ricorda mostra/nascondi */
+    function paintMonthly() {
+        var hid = typeof isMonthlyCompact !== 'undefined' && isMonthlyCompact;
+        var l = $('tf-monthly-lbl'), c = $('tf-monthly-chev'), b = $('btn-toggle-monthly');
+        if (l) l.textContent = hid ? 'Mostra' : 'Nascondi';
+        if (c) c.className = 'fa-solid ' + (hid ? 'fa-chevron-down' : 'fa-chevron-up') + ' text-[0.625rem]';
+        if (b) b.setAttribute('aria-expanded', String(!hid));
+    }
+    var ot = window.toggleMonthlyView;
+    if (typeof ot === 'function') window.toggleMonthlyView = function () { var r = ot.apply(this, arguments); lsSet('timeflow_monthly_hidden', isMonthlyCompact ? '1' : '0'); paintMonthly(); return r; };
+    if (lsGet('timeflow_monthly_hidden') === '1') { isMonthlyCompact = true; var mc = $('monthly-stats-container'); if (mc) mc.classList.add('hidden'); }
+    paintMonthly();
+
+    /* Riepilogo dei filtri + stato vuoto utile */
+    function filtersActive() {
+        var c = $('filter-client'), s = $('filter-status'), q = $('search-input');
+        return !!((c && c.value !== 'ALL') || (s && s.value !== 'ALL') || (q && q.value.trim()));
+    }
+    window.tfResetFilters = function () {
+        var c = $('filter-client'), s = $('filter-status'), q = $('search-input');
+        if (c) c.value = 'ALL'; if (s) s.value = 'ALL'; if (q) q.value = ''; renderApp();
+    };
+    function updateSummary() {
+        var t = $('tf-filter-text'); if (!t) return;
+        var list = getFilteredEntries(), h = 0, tot = 0, act = filtersActive();
+        list.forEach(function (e) { h += Number(e.hours) || 0; tot += Number(e.totalAmount) || 0; });
+        t.textContent = list.length + ' attività · ' + (Math.round(h * 100) / 100) + ' h · € ' + tot.toFixed(2) + (act ? ' (filtrate)' : '');
+        var r = $('tf-filter-reset'); if (r) r.classList.toggle('hidden', !act);
+        var es = $('empty-state'), eb = $('tf-empty-btn');
+        if (es && eb) {
+            var h3 = es.querySelector('h3'), p = es.querySelector('p'), none = timeEntries.length === 0;
+            if (h3) h3.textContent = none ? 'Ancora nessuna attività' : 'Nessuna registrazione trovata';
+            if (p) p.textContent = none ? 'Registra la prima attività con il pulsante + oppure avvia il timer.' : 'Nessun dato corrispondente ai filtri selezionati.';
+            eb.textContent = none ? 'Aggiungi la prima attività' : 'Azzera filtri';
+            eb.onclick = none ? function () { openManualEntryModal(); } : window.tfResetFilters;
+        }
+    }
+    var ora = window.renderApp;
+    if (typeof ora === 'function') window.renderApp = function () { var r = ora.apply(this, arguments); try { updateSummary(); } catch (e) {} return r; };
+    function init() { paintFs(); paintMonthly(); try { updateSummary(); } catch (e) {} }
+    init(); document.addEventListener('DOMContentLoaded', init); window.addEventListener('load', init);
 })();
 </script>
 </body>

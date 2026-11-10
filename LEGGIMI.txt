@@ -1,4 +1,15 @@
-# TimeFlow — PWA v3.8
+# TimeFlow — PWA v3.9
+
+## Novità v3.9 — interfaccia e usabilità
+- Dimensione del testo: Impostazioni → «Dimensione del testo» (Piccolo, Normale, Grande, Extra). Si applica a tutta l'app e viene ricordata.
+- Eliminare un'attività non chiede più conferma: compare «Annulla» per 6 secondi (la rimozione da Google Calendar parte solo dopo).
+- Pannello «Analisi IA» compatto (chiuso di default): si apre da solo con «Genera Analisi»; lo stato viene ricordato. Anche «Statistiche Mensili» ricorda se era nascosta.
+- Sotto i filtri: riepilogo di attività, ore e totale della selezione, con «Azzera filtri».
+- Stato vuoto con pulsante utile («Aggiungi la prima attività» oppure «Azzera filtri»).
+- Pulsanti di modifica/elimina più grandi da toccare, contorno visibile con la tastiera, animazioni ridotte se il sistema lo chiede, rimossa l'animazione continua dall'icona IA.
+- Cache offline v3-9: apri l'app online e riaprila per aggiornare.
+
+# (storico) v3.8
 
 ## Novità v3.8 — pulsante centrale e feedback aptico
 - «Nuova attività» è ora il pulsante verde al centro della barra inferiore, rialzato e ben visibile. La barra superiore resta con logo, Esporta, Tema e Guida.
