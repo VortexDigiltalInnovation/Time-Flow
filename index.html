@@ -291,6 +291,55 @@ main .bg-white,main .dark\:bg-slate-900:is(.dark *){backdrop-filter:blur(8px)}
 }
 </style>
 
+
+<style id="tf-header-single-line">
+/* Mantiene logo, versione e comandi della barra superiore sulla stessa riga */
+.tf-app-header .tf2-top{
+  display:flex!important;
+  flex-wrap:nowrap!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:.45rem!important;
+  min-width:0!important;
+  overflow-x:auto!important;
+  scrollbar-width:none;
+  white-space:nowrap!important;
+}
+.tf-app-header .tf2-top::-webkit-scrollbar{display:none}
+.tf-app-header .tf2-top>div:first-child{
+  flex:0 0 auto!important;
+  width:auto!important;
+  min-width:0!important;
+  white-space:nowrap!important;
+}
+.tf-app-header .tf2-top>div:nth-child(2){
+  display:flex!important;
+  flex:0 0 auto!important;
+  width:auto!important;
+  min-width:0!important;
+  flex-wrap:nowrap!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  margin-left:auto!important;
+  gap:.35rem!important;
+}
+.tf-app-header .tf2-top .tf2-exp,
+.tf-app-header .tf2-top button{flex:0 0 auto!important}
+@media(max-width:640px){
+  .tf-app-header .tf2-top{flex-wrap:nowrap!important;padding-top:.35rem!important;padding-bottom:.35rem!important}
+  .tf-app-header .tf2-top>div:first-child{flex:0 0 auto!important;width:auto!important}
+  .tf-app-header .tf2-top>div:nth-child(2){flex:0 0 auto!important;width:auto!important}
+}
+@media(max-width:390px){
+  .tf-app-header .tf2-top{gap:.3rem!important}
+  .tf-app-header .tf2-top>div:nth-child(2){gap:.22rem!important}
+  .tf-app-header .tf2-exp-cta{min-width:34px!important;padding-inline:.42rem!important}
+  .tf-app-header .tf2-exp-cta span,
+  .tf-app-header .tf2-exp-cta .tf2-exp-caret{display:none!important}
+  .tf-app-header .tf2-icon{min-width:32px!important;width:32px!important}
+}
+</style>
+
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-full flex flex-col transition-colors duration-200">
 
