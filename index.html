@@ -115,7 +115,7 @@
             .border { border-color: #e2e8f0 !important; }
         }
     </style>
-    <script>window.APP_VERSION='3.9.1'; document.addEventListener('DOMContentLoaded',function(){var b=document.getElementById('app-version-badge'); if(b) b.textContent='v'+window.APP_VERSION;});</script>
+    <script>window.APP_VERSION='3.9.3'; document.addEventListener('DOMContentLoaded',function(){var b=document.getElementById('app-version-badge'); if(b) b.textContent='v'+window.APP_VERSION;});</script>
 <style id="tf-ui-v35">
 .tf-app-header{position:sticky!important;top:0;z-index:45;background:#0f172a!important;border-bottom:1px solid #1e293b;box-shadow:none!important}
 html{font-size:calc(100% * var(--tf-fs,1))}
@@ -136,8 +136,13 @@ button:focus-visible,a:focus-visible,summary:focus-visible,[role=radio]:focus-vi
 .tf2-top{display:flex;align-items:center;justify-content:space-between;gap:.5rem;min-height:48px;padding-inline:clamp(.75rem,3vw,2rem)}
 .tf2-new{display:inline-flex;align-items:center;gap:.4rem;min-height:40px;padding:0 .8rem;border-radius:.7rem;background:#059669;color:#fff;font-size:12px;font-weight:700;white-space:nowrap}
 .tf2-new:hover{background:#10b981}
-.tf2-icon{width:40px;height:40px;display:inline-flex;align-items:center;justify-content:center;border-radius:.7rem;color:#e2e8f0;font-size:15px}
-.tf2-icon:hover{background:rgba(255,255,255,.1)}
+.tf2-icon{width:42px;height:42px;display:inline-flex;align-items:center;justify-content:center;border-radius:.8rem;color:#f1f5f9;font-size:17px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);transition:background .15s,transform .15s}
+.tf2-icon:hover{background:rgba(255,255,255,.2);transform:translateY(-1px)}
+.tf2-icon:active{transform:scale(.94)}
+.tf2-icon:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.tf2-icon.ic-theme{background:rgba(251,191,36,.16);border-color:rgba(251,191,36,.5)}
+.tf2-icon.ic-help{background:rgba(56,189,248,.16);border-color:rgba(56,189,248,.5);color:#bae6fd}
+.tf2-icon.ic-inst{background:rgba(52,211,153,.2);border-color:rgba(52,211,153,.55);color:#a7f3d0}
 .tf2-icon.hidden{display:none}
 @media(max-width:420px){.tf2-new span{display:none}.tf2-new{width:40px;padding:0;justify-content:center}}
 .tf2-bottom{position:fixed;left:0;right:0;bottom:0;z-index:40;background:#fff;border-top:1px solid #e2e8f0;padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -4px 14px rgba(15,23,42,.08)}
@@ -191,6 +196,13 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
 .tf2-mi .ic{width:34px;height:34px;border-radius:.6rem;display:inline-flex;align-items:center;justify-content:center;font-size:15px;flex:none}
 .ic-x{background:#d1fae5;color:#047857}.ic-p{background:#fee2e2;color:#b91c1c}.ic-c{background:#e0e7ff;color:#4338ca}
 .tf2-exp{position:relative}
+.tf2-exp-cta{display:inline-flex;align-items:center;gap:.45rem;min-height:40px;padding:0 .9rem;border-radius:.8rem;font-weight:800;font-size:.9375rem;line-height:1;color:#1f1300;background:linear-gradient(180deg,#fde68a,#f5b53a);border:1px solid #fbbf24;box-shadow:0 2px 10px rgba(245,181,58,.45),inset 0 1px 0 rgba(255,255,255,.6);cursor:pointer;transition:transform .15s,box-shadow .15s}
+.tf2-exp-cta i{font-size:1rem}.tf2-exp-cta .tf2-exp-caret{font-size:.7rem;opacity:.75}
+.tf2-exp-cta:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(245,181,58,.6),inset 0 1px 0 rgba(255,255,255,.6)}
+.tf2-exp-cta:active{transform:translateY(0)}
+.tf2-exp-cta:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.tf2-exp-cta[aria-expanded="true"] .tf2-exp-caret{transform:rotate(180deg)}
+@media(max-width:380px){.tf2-exp-cta{padding:0 .65rem;font-size:.8125rem;gap:.3rem}.tf2-exp-cta .tf2-exp-caret{display:none}}
 #tf-print-report{display:none}
 @media print{body.tf-printing>*:not(#tf-print-report){display:none!important}body.tf-printing #tf-print-report{display:block!important;color:#000;background:#fff;padding:0;font-family:system-ui,sans-serif}
 #tf-print-report table{width:100%;border-collapse:collapse;font-size:11px}#tf-print-report th,#tf-print-report td{border:1px solid #94a3b8;padding:4px 6px;text-align:left}#tf-print-report td.n,#tf-print-report th.n{text-align:right}#tf-print-report h1{font-size:18px;margin:0 0 4px}#tf-print-report p{margin:0 0 10px;font-size:11px}}
@@ -248,18 +260,18 @@ main .bg-white,main .dark\:bg-slate-900:is(.dark *){backdrop-filter:blur(8px)}
             <div class="flex min-w-0 items-center gap-2">
                 <img src="./icons/icon-96.png" alt="" width="32" height="32" class="w-8 h-8 rounded-lg shrink-0">
                 <span class="font-bold text-base tracking-tight text-white leading-tight">TimeFlow</span>
-                <span id="app-version-badge" class="text-[0.625rem] font-bold text-emerald-100 bg-emerald-500/20 rounded-md px-1.5 py-px leading-tight" title="Versione dell'app">v3.9</span>
+                <span id="app-version-badge" class="text-[0.625rem] font-bold text-emerald-100 bg-emerald-500/20 rounded-md px-1.5 py-px leading-tight" title="Versione dell'app">v3.9.3</span>
             </div>
-            <div class="flex items-center gap-1">
-                <div class="tf2-exp" id="tf2-exp"><button type="button" id="tf2-exp-btn" onclick="tfToggleExport(event)" aria-haspopup="true" aria-expanded="false" aria-controls="tf2-exp-menu" title="Esporta le attività" aria-label="Esporta" class="tf2-icon"><i class="fa-solid fa-file-export" aria-hidden="true"></i></button>
+            <div class="flex items-center gap-1.5">
+                <div class="tf2-exp" id="tf2-exp"><button type="button" id="tf2-exp-btn" onclick="tfToggleExport(event)" aria-haspopup="true" aria-expanded="false" aria-controls="tf2-exp-menu" title="Esporta le attività (Excel, PDF, CSV)" aria-label="Esporta" class="tf2-exp-cta"><i class="fa-solid fa-file-export" aria-hidden="true"></i><span>Esporta</span><i class="fa-solid fa-chevron-down tf2-exp-caret" aria-hidden="true"></i></button>
                 <div id="tf2-exp-menu" class="tf2-menu" hidden>
                     <button type="button" class="tf2-mi" onclick="tfExport('xlsx')"><span class="ic ic-x"><i class="fa-solid fa-file-excel" aria-hidden="true"></i></span><span>Excel<small>Foglio .xlsx con le attività</small></span></button>
                     <button type="button" class="tf2-mi" onclick="tfExport('pdf')"><span class="ic ic-p"><i class="fa-solid fa-file-pdf" aria-hidden="true"></i></span><span>PDF<small>Report da salvare o stampare</small></span></button>
                     <button type="button" class="tf2-mi" onclick="tfExport('csv')"><span class="ic ic-c"><i class="fa-solid fa-file-csv" aria-hidden="true"></i></span><span>CSV<small>Per altri programmi</small></span></button>
                 </div></div>
-                <button type="button" onclick="toggleDarkMode()" title="Passa tra tema chiaro e scuro" aria-label="Cambia tema" class="tf2-icon"><i id="theme-icon" class="fa-solid fa-moon" aria-hidden="true"></i></button>
-                <button type="button" onclick="openGuide()" title="Apri la guida utente" aria-label="Guida utente" class="tf2-icon"><i class="fa-solid fa-circle-question" aria-hidden="true"></i></button>
-                <button id="btn-install" type="button" onclick="installApp()" title="Installa l'app sul dispositivo" aria-label="Installa l'app" class="tf2-icon hidden"><i class="fa-solid fa-circle-down" aria-hidden="true"></i></button>
+                <button type="button" onclick="toggleDarkMode()" title="Passa tra tema chiaro e scuro" aria-label="Cambia tema" class="tf2-icon ic-theme"><i id="theme-icon" class="fa-solid fa-moon text-amber-200" aria-hidden="true"></i></button>
+                <button type="button" onclick="openGuide()" title="Apri la guida utente" aria-label="Guida utente" class="tf2-icon ic-help"><i class="fa-solid fa-book-open" aria-hidden="true"></i></button>
+                <button id="btn-install" type="button" onclick="installApp()" title="Installa l'app sul dispositivo" aria-label="Installa l'app" class="tf2-icon ic-inst hidden"><i class="fa-solid fa-download" aria-hidden="true"></i></button>
             </div>
         </div>
     </header>
@@ -681,11 +693,9 @@ main .bg-white,main .dark\:bg-slate-900:is(.dark *){backdrop-filter:blur(8px)}
             </div>
             <div class="space-y-2">
                 <div>
-                    <label class="block text-[0.6875rem] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">Filtro Periodo</label>
+                    <label for="export-preset-select" class="block text-[0.6875rem] font-semibold text-slate-600 dark:text-slate-300 mb-0.5">Periodo (scegli un mese o l'anno)</label>
                     <select id="export-preset-select" onchange="applyExportPreset()" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-lg px-2.5 py-1 text-xs">
                         <option value="ALL">Tutto lo Storico</option>
-                        <option value="THIS_YEAR">Anno Corrente (2026)</option>
-                        <option value="LAST_30">Ultimi 30 Giorni</option>
                     </select>
                 </div>
                 <div class="grid grid-cols-2 gap-2">
@@ -700,7 +710,8 @@ main .bg-white,main .dark\:bg-slate-900:is(.dark *){backdrop-filter:blur(8px)}
                 </div>
             </div>
             <div class="flex flex-col gap-1.5 pt-2 border-t border-slate-100 dark:border-slate-800">
-                <p class="text-[0.6875rem] text-slate-500 dark:text-slate-400">Esporta le attività del periodo selezionato in formato compatibile con Excel.</p>
+                <p id="export-summary" class="text-xs font-semibold text-slate-700 dark:text-slate-200" aria-live="polite"></p>
+                <p class="text-[0.6875rem] text-slate-500 dark:text-slate-400">Esporta le attività del mese (o periodo) scelto, in ordine cronologico.</p>
                 <button onclick="downloadReport()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-sm"><i id="export-go-icon" class="fa-solid fa-file-csv"></i> <span id="export-go-label">Scarica report CSV</span></button>
             </div>
         </div>
@@ -884,7 +895,7 @@ main .bg-white,main .dark\:bg-slate-900:is(.dark *){backdrop-filter:blur(8px)}
                     <a href="./Guida_Utente_TimeFlow.pdf" target="_blank" rel="noopener" class="px-3.5 py-2.5 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold text-xs flex items-center gap-2"><i class="fa-solid fa-file-pdf"></i> Apri la guida PDF originale</a>
                     <button onclick="closeGuide()" class="px-3.5 py-2.5 rounded-xl bg-brand-600 text-white font-bold text-xs">Ho capito</button>
                 </div>
-                <p class="text-[0.625rem] text-slate-400 text-center">TimeFlow · v3.9</p>
+                <p class="text-[0.625rem] text-slate-400 text-center">TimeFlow · v3.9.3</p>
             </div>
         </div>
     </div>
@@ -993,11 +1004,11 @@ main .bg-white,main .dark\:bg-slate-900:is(.dark *){backdrop-filter:blur(8px)}
             const icon = document.getElementById('theme-icon');
             if (isDarkMode) {
                 html.classList.add('dark');
-                if (icon) icon.className = "fa-solid fa-sun text-amber-400";
+                if (icon) icon.className = "fa-solid fa-sun text-amber-300";
                 localStorage.setItem('timeflow_theme', 'dark');
             } else {
                 html.classList.remove('dark');
-                if (icon) icon.className = "fa-solid fa-moon text-slate-300";
+                if (icon) icon.className = "fa-solid fa-moon text-amber-200";
                 localStorage.setItem('timeflow_theme', 'light');
             }
         }
@@ -1276,6 +1287,7 @@ main .bg-white,main .dark\:bg-slate-900:is(.dark *){backdrop-filter:blur(8px)}
                                     }
                                     driveAccessToken = r.access_token;
                                     driveTokenExpiry = Date.now() + (Number(r.expires_in) || 3600) * 1000;
+                                    try { localStorage.setItem('timeflow_drive_linked', googleClientId); } catch (e) {}
                                     resolve(r.access_token);
                                 } else reject(new Error(r?.error_description || r?.error || 'Autorizzazione Google Drive non completata.'));
                             },
@@ -1598,12 +1610,21 @@ main .bg-white,main .dark\:bg-slate-900:is(.dark *){backdrop-filter:blur(8px)}
             select.value = currentValue || 'ALL';
         }
 
+        // Ordine cronologico: dalla data/ora più vecchia alla più recente
+        function tfSortChrono(list) {
+            return [...list].sort((a, b) => {
+                const ka = (a.date || '') + ' ' + (a.startTime || '09:00');
+                const kb = (b.date || '') + ' ' + (b.startTime || '09:00');
+                return ka < kb ? -1 : ka > kb ? 1 : 0;
+            });
+        }
+
         function getFilteredEntries() {
             const clientFilter = document.getElementById('filter-client').value;
             const statusFilter = document.getElementById('filter-status').value;
             const searchQuery = document.getElementById('search-input').value.toLowerCase().trim();
 
-            return timeEntries.filter(entry => {
+            return tfSortChrono(timeEntries).filter(entry => {
                 const matchClient = (clientFilter === 'ALL' || entry.clientId === clientFilter);
                 const matchStatus = (statusFilter === 'ALL' || entry.status === statusFilter);
                 const matchSearch = !searchQuery || entry.description.toLowerCase().includes(searchQuery) || getClientName(entry.clientId).toLowerCase().includes(searchQuery);
@@ -2004,27 +2025,61 @@ main .bg-white,main .dark\:bg-slate-900:is(.dark *){backdrop-filter:blur(8px)}
             showToast('Cliente eliminato.', 'info');
         }
 
-        function openExportFilterModal() { document.getElementById('export-preset-select').value = 'ALL'; applyExportPreset(); document.getElementById('export-modal').classList.remove('hidden'); }
+        const TF_MESI = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+        function tfFillExportPeriods() {
+            const sel = document.getElementById('export-preset-select');
+            const now = new Date(), curKey = fdDateStr(now).slice(0, 7);
+            const keys = new Set([curKey]);
+            timeEntries.forEach(e => { if (e.date && /^\d{4}-\d{2}/.test(e.date)) keys.add(e.date.slice(0, 7)); });
+            const years = [...new Set([...keys].map(k => k.slice(0, 4)))].sort().reverse();
+            let html = '<optgroup label="Per mese">';
+            [...keys].sort().reverse().forEach(k => { const [y, m] = k.split('-'); html += `<option value="M:${k}">${TF_MESI[Number(m) - 1]} ${y}</option>`; });
+            html += '</optgroup><optgroup label="Per anno">';
+            years.forEach(y => { html += `<option value="Y:${y}">Anno ${y}</option>`; });
+            html += '</optgroup><optgroup label="Tutto"><option value="ALL">Tutto lo storico</option></optgroup>';
+            sel.innerHTML = html;
+            return 'M:' + curKey;
+        }
+        function openExportFilterModal() {
+            const def = tfFillExportPeriods();
+            document.getElementById('export-preset-select').value = def;
+            applyExportPreset();
+            document.getElementById('export-modal').classList.remove('hidden');
+        }
         function closeExportFilterModal() { document.getElementById('export-modal').classList.add('hidden'); }
         function applyExportPreset() {
             const preset = document.getElementById('export-preset-select').value;
             const startInput = document.getElementById('export-start-date');
             const endInput = document.getElementById('export-end-date');
-            const now = new Date();
-            const year = now.getFullYear();
-
-            if (preset === 'THIS_YEAR') { startInput.value = `${year}-01-01`; endInput.value = `${year}-12-31`; }
-            else if (preset === 'LAST_30') {
-                const past = new Date(now.getTime() - (30 * 24 * 3600 * 1000));
-                startInput.value = fdDateStr(past);
-                endInput.value = fdDateStr(now);
+            if (preset.startsWith('M:')) {
+                const [y, m] = preset.slice(2).split('-').map(Number);
+                const last = new Date(y, m, 0).getDate();
+                startInput.value = `${y}-${String(m).padStart(2, '0')}-01`;
+                endInput.value = `${y}-${String(m).padStart(2, '0')}-${String(last).padStart(2, '0')}`;
+            } else if (preset.startsWith('Y:')) {
+                const y = preset.slice(2); startInput.value = `${y}-01-01`; endInput.value = `${y}-12-31`;
             } else { startInput.value = ''; endInput.value = ''; }
+            tfUpdateExportSummary();
         }
+        function tfUpdateExportSummary() {
+            const el = document.getElementById('export-summary'); if (!el) return;
+            const rows = getEntriesInSelectedRange();
+            const ore = rows.reduce((a, e) => a + (Number(e.hours) || 0), 0);
+            const tot = rows.reduce((a, e) => a + (Number(e.totalAmount) || 0), 0);
+            el.textContent = rows.length ? `${rows.length} attività · ${ore.toFixed(2)} ore · € ${tot.toFixed(2)}` : 'Nessuna attività in questo periodo.';
+        }
+        // se le date vengono cambiate a mano il menu torna su «Tutto»: evita di leggere un mese sbagliato
+        document.addEventListener('change', ev => {
+            if (ev.target && (ev.target.id === 'export-start-date' || ev.target.id === 'export-end-date')) {
+                const sel = document.getElementById('export-preset-select'); if (sel) sel.value = 'ALL';
+                tfUpdateExportSummary();
+            }
+        });
 
         function getEntriesInSelectedRange() {
             const startVal = document.getElementById('export-start-date').value;
             const endVal = document.getElementById('export-end-date').value;
-            return timeEntries.filter(entry => {
+            return tfSortChrono(timeEntries).filter(entry => {
                 if (startVal && entry.date < startVal) return false;
                 if (endVal && entry.date > endVal) return false;
                 return true;
@@ -2052,6 +2107,25 @@ main .bg-white,main .dark\:bg-slate-900:is(.dark *){backdrop-filter:blur(8px)}
             toast.innerHTML = `<i class="fa-solid ${icon} text-xs"></i> <span>${escapeHtml(message)}</span>`;
             container.appendChild(toast);
             setTimeout(() => { toast.classList.add('opacity-0', '-translate-y-2'); setTimeout(() => toast.remove(), 300); }, 3000);
+            setTimeout(tfAutoReconnectGoogle, 0);
+        }
+
+        // Ad ogni avviso: ricollega in automatico Google Calendar e Drive (rinnovo silenzioso dei permessi
+        // già concessi, al massimo una volta ogni 15 secondi; i browser non permettono popup senza un tocco).
+        let _tfReconnecting = false, _tfLastReconnect = 0;
+        async function tfAutoReconnectGoogle() {
+            if (_tfReconnecting || !googleClientId || !navigator.onLine) return;
+            if (Date.now() - _tfLastReconnect < 15000) return;
+            _tfReconnecting = true; _tfLastReconnect = Date.now();
+            try {
+                if (isGoogleLinked() && !hasValidToken()) { lastSilentFail = 0; await getValidToken(false); }
+            } catch (e) {}
+            try {
+                const driveOk = driveAccessToken && driveTokenExpiry > Date.now() + 60000;
+                if (!driveOk && localStorage.getItem('timeflow_drive_linked') === googleClientId) await requestGoogleDriveToken('');
+            } catch (e) {}
+            _tfReconnecting = false;
+            try { updateGoogleStatusUI(); } catch (e) {}
         }
     </script>
     <script>

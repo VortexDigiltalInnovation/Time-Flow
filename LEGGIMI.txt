@@ -1,4 +1,20 @@
-# TimeFlow — PWA v3.9
+# TimeFlow — PWA v3.9.3
+
+## Novità v3.9.3
+- Esporta: il periodo si sceglie per mese (si apre sul mese corrente), per anno o tutto lo storico; tolti «Ultimi 30 giorni». Sotto compare il riepilogo (attività, ore, totale) di ciò che stai per esportare.
+- Icone della barra superiore più grandi e colorate (tema, guida, installa), con contorno e feedback al tocco.
+- Cache offline v3-9-3: apri l'app online e riaprila per aggiornare.
+
+# (storico) v3.9.2
+
+## Novità v3.9.2
+- Nuovo logo (clessidra dorata) su icona app, favicon, icona iPhone/Android e barra superiore.
+- Le attività sono sempre in ordine cronologico (dalla più vecchia alla più recente, per data e ora) in elenco, calendario ed esportazioni (Excel, PDF, CSV).
+- Pulsante «Esporta» ben visibile: pulsante dorato con scritta nella barra superiore.
+- Ad ogni avviso l'app ricollega in automatico Google Calendar e Drive (rinnovo silenzioso dei permessi già concessi, al massimo ogni 15 secondi). Se Google richiede un nuovo consenso serve un tocco sul tasto Calendar/Backup: i browser bloccano i popup automatici.
+- Cache offline v3-9-2: apri l'app online e riaprila per aggiornare.
+
+# (storico) v3.9
 
 ## Novità v3.9 — interfaccia e usabilità
 - Dimensione del testo: Impostazioni → «Dimensione del testo» (Piccolo, Normale, Grande, Extra). Si applica a tutta l'app e viene ricordata.
