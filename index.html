@@ -115,7 +115,7 @@
             .border { border-color: #e2e8f0 !important; }
         }
     </style>
-    <script>window.APP_VERSION='3.9.5'; document.addEventListener('DOMContentLoaded',function(){var b=document.getElementById('app-version-badge'); if(b) b.textContent='v'+window.APP_VERSION;});</script>
+    <script>window.APP_VERSION='3.9.6'; document.addEventListener('DOMContentLoaded',function(){var b=document.getElementById('app-version-badge'); if(b) b.textContent='v'+window.APP_VERSION;});</script>
 <style id="tf-ui-v35">
 .tf-app-header{position:sticky!important;top:0;z-index:45;background:#0f172a!important;border-bottom:1px solid #1e293b;box-shadow:none!important}
 html{font-size:calc(100% * var(--tf-fs,1))}
@@ -270,6 +270,24 @@ main .bg-white,main .dark\:bg-slate-900:is(.dark *){backdrop-filter:blur(8px)}
   white-space:nowrap!important;
   opacity:1!important;
   text-shadow:none!important;
+}
+</style>
+
+
+<style id="tf-header-no-overlap-v396">
+/* Intestazione: logo/versione e comandi su righe distinte quando lo spazio è limitato */
+.tf2-top{min-width:0}
+.tf2-top>div:first-child{flex:0 0 auto;min-width:max-content;white-space:nowrap}
+.tf2-top>div:nth-child(2){min-width:0;flex:0 1 auto}
+#app-version-badge{position:relative;z-index:2;display:inline-flex!important;flex:0 0 auto!important;white-space:nowrap!important}
+@media(max-width:640px){
+  .tf2-top{flex-wrap:wrap!important;align-items:center!important;row-gap:.4rem!important;padding-top:.45rem!important;padding-bottom:.45rem!important}
+  .tf2-top>div:first-child{flex:0 0 100%!important;width:100%!important}
+  .tf2-top>div:nth-child(2){flex:0 0 100%!important;width:100%!important;justify-content:flex-end!important;flex-wrap:wrap!important}
+}
+@media(max-width:360px){
+  .tf2-top>div:nth-child(2){column-gap:.35rem!important}
+  .tf2-exp-cta{min-width:40px!important;padding-inline:.55rem!important}
 }
 </style>
 
@@ -920,7 +938,7 @@ main .bg-white,main .dark\:bg-slate-900:is(.dark *){backdrop-filter:blur(8px)}
                     <a href="./Guida_Utente_TimeFlow.pdf" target="_blank" rel="noopener" class="px-3.5 py-2.5 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold text-xs flex items-center gap-2"><i class="fa-solid fa-file-pdf"></i> Apri la guida PDF originale</a>
                     <button onclick="closeGuide()" class="px-3.5 py-2.5 rounded-xl bg-brand-600 text-white font-bold text-xs">Ho capito</button>
                 </div>
-                <p class="text-[0.625rem] text-slate-400 text-center">TimeFlow · v3.9.3</p>
+                <p class="text-[0.625rem] text-slate-400 text-center">TimeFlow · v3.9.6</p>
             </div>
         </div>
     </div>
@@ -2432,9 +2450,9 @@ main .bg-white,main .dark\:bg-slate-900:is(.dark *){backdrop-filter:blur(8px)}
     function _pdf(rows){
         let box=document.getElementById('tf-print-report');if(!box){box=document.createElement('div');box.id='tf-print-report';document.body.appendChild(box)}
         const a=($('export-start-date')||{}).value,b=($('export-end-date')||{}).value;
-        const per=a||b?('Periodo: '+(a||'inizio')+' – '+(b||'oggi')):'Tutte le attività';
+        const per=a||b?('Periodo: '+(a?formatDate(a):'inizio')+' – '+(b?formatDate(b):'oggi')):'Tutte le attività';
         let tot=0,ore=0;
-        const tr=rows.map(e=>{tot+=Number(e.totalAmount)||0;ore+=Number(e.hours)||0;return '<tr><td>'+_h(e.date)+'</td><td>'+_h(getClientName(e.clientId))+'</td><td>'+_h(e.description)+'</td><td class="n">'+(Number(e.hours)||0).toFixed(2)+'</td><td class="n">'+(Number(e.expenses)||0).toFixed(2)+'</td><td class="n">'+(Number(e.totalAmount)||0).toFixed(2)+'</td><td>'+_h(STATUS_IT[e.status]||e.status||'')+'</td></tr>'}).join('');
+        const tr=rows.map(e=>{tot+=Number(e.totalAmount)||0;ore+=Number(e.hours)||0;return '<tr><td>'+_h(formatDate(e.date))+'</td><td>'+_h(getClientName(e.clientId))+'</td><td>'+_h(e.description)+'</td><td class="n">'+(Number(e.hours)||0).toFixed(2)+'</td><td class="n">'+(Number(e.expenses)||0).toFixed(2)+'</td><td class="n">'+(Number(e.totalAmount)||0).toFixed(2)+'</td><td>'+_h(STATUS_IT[e.status]||e.status||'')+'</td></tr>'}).join('');
         box.innerHTML='<h1>TimeFlow – Report attività</h1><p>'+_h(per)+' · '+rows.length+' attività · '+ore.toFixed(2)+' ore · € '+tot.toFixed(2)+'</p><table><thead><tr><th>Data</th><th>Cliente</th><th>Descrizione</th><th class="n">Ore</th><th class="n">Spese €</th><th class="n">Totale €</th><th>Stato</th></tr></thead><tbody>'+tr+'</tbody></table>';
         document.body.classList.add('tf-printing');
         const done=()=>{document.body.classList.remove('tf-printing');window.removeEventListener('afterprint',done)};
