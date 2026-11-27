@@ -115,7 +115,7 @@
             .border { border-color: #e2e8f0 !important; }
         }
     </style>
-    <script>window.APP_VERSION='3.9.6'; document.addEventListener('DOMContentLoaded',function(){var b=document.getElementById('app-version-badge'); if(b) b.textContent='v'+window.APP_VERSION;});</script>
+    <script>window.APP_VERSION='3.9.7'; document.addEventListener('DOMContentLoaded',function(){var b=document.getElementById('app-version-badge'); if(b) b.textContent='v'+window.APP_VERSION;});</script>
 <style id="tf-ui-v35">
 .tf-app-header{position:sticky!important;top:0;z-index:45;background:#0f172a!important;border-bottom:1px solid #1e293b;box-shadow:none!important}
 html{font-size:calc(100% * var(--tf-fs,1))}
@@ -189,6 +189,7 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
 .tf2-menu{position:absolute;right:0;top:calc(100% + 6px);min-width:15rem;background:#fff;color:#0f172a;border:1px solid #e2e8f0;border-radius:.9rem;box-shadow:0 12px 30px rgba(15,23,42,.25);padding:.35rem;z-index:60}
 .dark .tf2-menu{background:#1e293b;color:#f1f5f9;border-color:#334155}
 .tf2-menu[hidden]{display:none}
+.tf2-menu.tf2-floating{position:fixed;right:auto;bottom:auto;z-index:2147483000;max-width:calc(100vw - 16px);max-height:calc(100dvh - 90px);overflow-y:auto}
 .tf2-mi{display:flex;align-items:center;gap:.7rem;width:100%;min-height:48px;padding:.4rem .6rem;border-radius:.65rem;text-align:left;font-size:.8125rem;font-weight:700}
 .tf2-mi small{display:block;font-size:.6875rem;font-weight:400;color:#475569}
 .dark .tf2-mi small{color:#cbd5e1}
@@ -291,55 +292,6 @@ main .bg-white,main .dark\:bg-slate-900:is(.dark *){backdrop-filter:blur(8px)}
 }
 </style>
 
-
-<style id="tf-header-single-line">
-/* Mantiene logo, versione e comandi della barra superiore sulla stessa riga */
-.tf-app-header .tf2-top{
-  display:flex!important;
-  flex-wrap:nowrap!important;
-  align-items:center!important;
-  justify-content:space-between!important;
-  gap:.45rem!important;
-  min-width:0!important;
-  overflow-x:auto!important;
-  scrollbar-width:none;
-  white-space:nowrap!important;
-}
-.tf-app-header .tf2-top::-webkit-scrollbar{display:none}
-.tf-app-header .tf2-top>div:first-child{
-  flex:0 0 auto!important;
-  width:auto!important;
-  min-width:0!important;
-  white-space:nowrap!important;
-}
-.tf-app-header .tf2-top>div:nth-child(2){
-  display:flex!important;
-  flex:0 0 auto!important;
-  width:auto!important;
-  min-width:0!important;
-  flex-wrap:nowrap!important;
-  align-items:center!important;
-  justify-content:flex-end!important;
-  margin-left:auto!important;
-  gap:.35rem!important;
-}
-.tf-app-header .tf2-top .tf2-exp,
-.tf-app-header .tf2-top button{flex:0 0 auto!important}
-@media(max-width:640px){
-  .tf-app-header .tf2-top{flex-wrap:nowrap!important;padding-top:.35rem!important;padding-bottom:.35rem!important}
-  .tf-app-header .tf2-top>div:first-child{flex:0 0 auto!important;width:auto!important}
-  .tf-app-header .tf2-top>div:nth-child(2){flex:0 0 auto!important;width:auto!important}
-}
-@media(max-width:390px){
-  .tf-app-header .tf2-top{gap:.3rem!important}
-  .tf-app-header .tf2-top>div:nth-child(2){gap:.22rem!important}
-  .tf-app-header .tf2-exp-cta{min-width:34px!important;padding-inline:.42rem!important}
-  .tf-app-header .tf2-exp-cta span,
-  .tf-app-header .tf2-exp-cta .tf2-exp-caret{display:none!important}
-  .tf-app-header .tf2-icon{min-width:32px!important;width:32px!important}
-}
-</style>
-
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-full flex flex-col transition-colors duration-200">
 
@@ -352,7 +304,7 @@ main .bg-white,main .dark\:bg-slate-900:is(.dark *){backdrop-filter:blur(8px)}
             <div class="flex min-w-0 items-center gap-2">
                 <img src="./icons/icon-96.png" alt="" width="32" height="32" class="w-8 h-8 rounded-lg shrink-0">
                 <span class="font-bold text-base tracking-tight text-white leading-tight">TimeFlow</span>
-                <span id="app-version-badge" class="text-[0.625rem] font-bold text-emerald-100 bg-emerald-500/20 rounded-md px-1.5 py-px leading-tight" title="Versione dell'app">v3.9.4</span>
+                <span id="app-version-badge" class="text-[0.625rem] font-bold text-emerald-100 bg-emerald-500/20 rounded-md px-1.5 py-px leading-tight" title="Versione dell'app">v3.9.7</span>
             </div>
             <div class="flex items-center gap-1.5">
                 <div class="tf2-exp" id="tf2-exp"><button type="button" id="tf2-exp-btn" onclick="tfToggleExport(event)" aria-haspopup="true" aria-expanded="false" aria-controls="tf2-exp-menu" title="Esporta le attività (Excel, PDF, CSV)" aria-label="Esporta" class="tf2-exp-cta"><i class="fa-solid fa-file-export" aria-hidden="true"></i><span>Esporta</span><i class="fa-solid fa-chevron-down tf2-exp-caret" aria-hidden="true"></i></button>
@@ -987,7 +939,7 @@ main .bg-white,main .dark\:bg-slate-900:is(.dark *){backdrop-filter:blur(8px)}
                     <a href="./Guida_Utente_TimeFlow.pdf" target="_blank" rel="noopener" class="px-3.5 py-2.5 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold text-xs flex items-center gap-2"><i class="fa-solid fa-file-pdf"></i> Apri la guida PDF originale</a>
                     <button onclick="closeGuide()" class="px-3.5 py-2.5 rounded-xl bg-brand-600 text-white font-bold text-xs">Ho capito</button>
                 </div>
-                <p class="text-[0.625rem] text-slate-400 text-center">TimeFlow · v3.9.6</p>
+                <p class="text-[0.625rem] text-slate-400 text-center">TimeFlow · v3.9.7</p>
             </div>
         </div>
     </div>
@@ -2523,8 +2475,17 @@ main .bg-white,main .dark\:bg-slate-900:is(.dark *){backdrop-filter:blur(8px)}
         const l=$('export-go-label'),i=$('export-go-icon');if(l)l.textContent=L[0];if(i)i.className='fa-solid '+L[1];
     };
     function tfCloseExport(){const m=$('tf2-exp-menu'),b=$('tf2-exp-btn');if(m)m.hidden=true;if(b)b.setAttribute('aria-expanded','false')}
-    window.tfToggleExport=function(ev){ev.stopPropagation();const m=$('tf2-exp-menu'),b=$('tf2-exp-btn');m.hidden=!m.hidden;b.setAttribute('aria-expanded',String(!m.hidden));if(!m.hidden){const f=m.querySelector('button');if(f)f.focus()}};
-    document.addEventListener('click',e=>{if(!e.target.closest('#tf2-exp'))tfCloseExport()});
+    function tfPlaceExport(){const m=$('tf2-exp-menu'),b=$('tf2-exp-btn');if(!m||!b||m.hidden)return;
+        const r=b.getBoundingClientRect(),vw=document.documentElement.clientWidth||window.innerWidth;
+        const w=Math.min(m.offsetWidth||240,vw-16);
+        let left=r.right-w;if(left<8)left=8;if(left+w>vw-8)left=vw-w-8;
+        m.style.left=left+'px';m.style.top=(r.bottom+6)+'px'}
+    window.tfToggleExport=function(ev){ev.stopPropagation();const m=$('tf2-exp-menu'),b=$('tf2-exp-btn');
+        if(m.parentNode!==document.body){document.body.appendChild(m);m.classList.add('tf2-floating')}
+        m.hidden=!m.hidden;b.setAttribute('aria-expanded',String(!m.hidden));
+        if(!m.hidden){tfPlaceExport();const f=m.querySelector('button');if(f)f.focus()}};
+    window.addEventListener('resize',tfPlaceExport);window.addEventListener('scroll',tfPlaceExport,{passive:true});
+    document.addEventListener('click',e=>{if(!e.target.closest('#tf2-exp')&&!e.target.closest('#tf2-exp-menu'))tfCloseExport()});
     document.addEventListener('keydown',e=>{if(e.key==='Escape'){const m=$('tf2-exp-menu');if(m&&!m.hidden){tfCloseExport();const b=$('tf2-exp-btn');if(b)b.focus()}}});
 
 
