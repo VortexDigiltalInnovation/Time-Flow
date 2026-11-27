@@ -1,4 +1,10 @@
-# TimeFlow — PWA v3.9.8
+# TimeFlow — PWA v3.9.9
+
+## Novità v3.9.9
+- Versione dell'app mostrata in piccolo, discreta, sotto il titolo TimeFlow nella barra superiore (sempre visibile, non occupa spazio in più).
+- Cache offline v3-9-9: apri l'app online e riaprila per aggiornare.
+
+# (storico) v3.9.8
 
 ## Novità v3.9.8
 - Barra superiore su un'unica linea anche su telefono: icone e pulsante Esporta più compatti; il numero di versione si nasconde sugli schermi stretti.
