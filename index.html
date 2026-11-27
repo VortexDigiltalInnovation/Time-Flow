@@ -115,7 +115,7 @@
             .border { border-color: #e2e8f0 !important; }
         }
     </style>
-    <script>window.APP_VERSION='3.9.7'; document.addEventListener('DOMContentLoaded',function(){var b=document.getElementById('app-version-badge'); if(b) b.textContent='v'+window.APP_VERSION;});</script>
+    <script>window.APP_VERSION='3.9.8'; document.addEventListener('DOMContentLoaded',function(){var b=document.getElementById('app-version-badge'); if(b) b.textContent='v'+window.APP_VERSION;});</script>
 <style id="tf-ui-v35">
 .tf-app-header{position:sticky!important;top:0;z-index:45;background:#0f172a!important;border-bottom:1px solid #1e293b;box-shadow:none!important}
 html{font-size:calc(100% * var(--tf-fs,1))}
@@ -276,20 +276,21 @@ main .bg-white,main .dark\:bg-slate-900:is(.dark *){backdrop-filter:blur(8px)}
 
 
 <style id="tf-header-no-overlap-v396">
-/* Intestazione: logo/versione e comandi su righe distinte quando lo spazio è limitato */
-.tf2-top{min-width:0}
-.tf2-top>div:first-child{flex:0 0 auto;min-width:max-content;white-space:nowrap}
-.tf2-top>div:nth-child(2){min-width:0;flex:0 1 auto}
+/* Intestazione su UNA sola riga: logo a sinistra, comandi a destra, senza andare a capo */
+.tf2-top{min-width:0;flex-wrap:nowrap!important;flex-direction:row!important;align-items:center!important;gap:.5rem}
+.tf2-top>div:first-child{flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden}
+.tf2-top>div:nth-child(2){flex:0 0 auto;min-width:0;flex-wrap:nowrap!important;justify-content:flex-end}
+.tf2-top>div:first-child>span:not(#app-version-badge){overflow:hidden;text-overflow:ellipsis}
 #app-version-badge{position:relative;z-index:2;display:inline-flex!important;flex:0 0 auto!important;white-space:nowrap!important}
 @media(max-width:640px){
-  .tf2-top{flex-wrap:wrap!important;align-items:center!important;row-gap:.4rem!important;padding-top:.45rem!important;padding-bottom:.45rem!important}
-  .tf2-top>div:first-child{flex:0 0 100%!important;width:100%!important}
-  .tf2-top>div:nth-child(2){flex:0 0 100%!important;width:100%!important;justify-content:flex-end!important;flex-wrap:wrap!important}
+  .tf2-top{padding-top:.3rem!important;padding-bottom:.3rem!important;min-height:44px}
+  .tf2-top>div:nth-child(2){gap:.3rem!important}
+  .tf2-icon{width:36px!important;height:36px!important;font-size:15px!important;border-radius:.7rem!important}
+  .tf2-exp-cta{min-height:36px!important;padding-inline:.6rem!important;font-size:.8125rem!important;gap:.35rem!important}
+  .tf2-exp-cta .tf2-exp-caret{display:none!important}
 }
-@media(max-width:360px){
-  .tf2-top>div:nth-child(2){column-gap:.35rem!important}
-  .tf2-exp-cta{min-width:40px!important;padding-inline:.55rem!important}
-}
+@media(max-width:480px){#app-version-badge{display:none!important}}
+@media(max-width:340px){.tf2-exp-cta>span{display:none}.tf2-exp-cta{min-width:36px!important;justify-content:center}}
 </style>
 
 </head>
@@ -304,7 +305,7 @@ main .bg-white,main .dark\:bg-slate-900:is(.dark *){backdrop-filter:blur(8px)}
             <div class="flex min-w-0 items-center gap-2">
                 <img src="./icons/icon-96.png" alt="" width="32" height="32" class="w-8 h-8 rounded-lg shrink-0">
                 <span class="font-bold text-base tracking-tight text-white leading-tight">TimeFlow</span>
-                <span id="app-version-badge" class="text-[0.625rem] font-bold text-emerald-100 bg-emerald-500/20 rounded-md px-1.5 py-px leading-tight" title="Versione dell'app">v3.9.7</span>
+                <span id="app-version-badge" class="text-[0.625rem] font-bold text-emerald-100 bg-emerald-500/20 rounded-md px-1.5 py-px leading-tight" title="Versione dell'app">v3.9.8</span>
             </div>
             <div class="flex items-center gap-1.5">
                 <div class="tf2-exp" id="tf2-exp"><button type="button" id="tf2-exp-btn" onclick="tfToggleExport(event)" aria-haspopup="true" aria-expanded="false" aria-controls="tf2-exp-menu" title="Esporta le attività (Excel, PDF, CSV)" aria-label="Esporta" class="tf2-exp-cta"><i class="fa-solid fa-file-export" aria-hidden="true"></i><span>Esporta</span><i class="fa-solid fa-chevron-down tf2-exp-caret" aria-hidden="true"></i></button>
@@ -939,7 +940,7 @@ main .bg-white,main .dark\:bg-slate-900:is(.dark *){backdrop-filter:blur(8px)}
                     <a href="./Guida_Utente_TimeFlow.pdf" target="_blank" rel="noopener" class="px-3.5 py-2.5 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold text-xs flex items-center gap-2"><i class="fa-solid fa-file-pdf"></i> Apri la guida PDF originale</a>
                     <button onclick="closeGuide()" class="px-3.5 py-2.5 rounded-xl bg-brand-600 text-white font-bold text-xs">Ho capito</button>
                 </div>
-                <p class="text-[0.625rem] text-slate-400 text-center">TimeFlow · v3.9.7</p>
+                <p class="text-[0.625rem] text-slate-400 text-center">TimeFlow · v3.9.8</p>
             </div>
         </div>
     </div>

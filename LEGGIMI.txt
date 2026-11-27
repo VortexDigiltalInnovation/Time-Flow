@@ -1,4 +1,10 @@
-# TimeFlow — PWA v3.9.7
+# TimeFlow — PWA v3.9.8
+
+## Novità v3.9.8
+- Barra superiore su un'unica linea anche su telefono: icone e pulsante Esporta più compatti; il numero di versione si nasconde sugli schermi stretti.
+- Cache offline v3-9-8: apri l'app online e riaprila per aggiornare.
+
+# (storico) v3.9.7
 
 ## Novità v3.9.7
 - Esporta: il menù (Excel / PDF / CSV) ora si apre sopra tutta l'app, sotto il pulsante, e non resta più chiuso dentro la barra superiore. Si chiude toccando fuori o con Esc.
